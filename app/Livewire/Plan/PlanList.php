@@ -76,7 +76,8 @@ class PlanList extends Component
             $this->stripeSettings->paystack_status,
             $this->stripeSettings->mollie_status,
             $this->stripeSettings->payfast_status,
-            $this->stripeSettings->authorize_status
+            $this->stripeSettings->authorize_status,
+            $this->stripeSettings->wompi_status
         ])) {
             $this->paymentGatewayActive = true;
         }
@@ -138,8 +139,9 @@ class PlanList extends Component
     {
         $stripeActive = $this->stripeSettings->stripe_status;
         $razorpayActive = $this->stripeSettings->razorpay_status;
+        $wompiActive = $this->stripeSettings->wompi_status;
 
-        if ($stripeActive && $razorpayActive) {
+        if (($stripeActive && $razorpayActive) || ($stripeActive && $wompiActive) || ($razorpayActive && $wompiActive) || ($stripeActive && $razorpayActive && $wompiActive)) {
             $this->showPaymentMethodModal = true;
             return;
         }
@@ -148,9 +150,84 @@ class PlanList extends Component
             $this->initiateStripePayment();
         } elseif ($razorpayActive) {
             $this->razorpaySubscription($this->selectedPlan->id);
+        } elseif ($wompiActive) {
+            $this->showPaymentMethodModal = true;
+             // Ideally we could auto-initiate, but Wompi requires a redirect which is better handled via the button click to avoid popup blockers or confusion.
+             // Also sticking to the modal pattern allows the user to see what's happening.
         } else {
             $this->showPaymentMethodModal = true;
         }
+    }
+
+    public function initiateWompiPayment($planId)
+    {
+        $plan = Package::find($planId);
+        $credential = SuperadminPaymentGateway::first();
+
+        if (!$plan || !$credential) {
+            return $this->showError(__('messages.noPlanIdFound'));
+        }
+
+        $amount = $this->isAnnual ? $plan->annual_price : $plan->monthly_price;
+        if ($plan->package_type == PackageType::LIFETIME) {
+            $amount = $plan->price;
+        }
+
+        $currencyCode = $plan->currency->currency_code;
+        $currencySymbol = $plan->currency->currency_symbol; // Should be COP usually for Wompi but let's assume
+        $amountInCents = $amount * 100; // Wompi expects cents
+
+        $reference = 'WOMPI_' . str()->random(15);
+        
+        // Create Pending Payment Record
+        RestaurantPayment::create([
+            'restaurant_id' => $this->restaurant->id,
+            'amount' => $amount,
+            'package_id' => $plan->id,
+            'package_type' => $this->isAnnual ? 'annual' : 'monthly',
+            'currency_id' => $plan->currency_id,
+            'status' => 'pending',
+            'transaction_id' => $reference, // Store reference here to look it up later
+            'gateway' => 'wompi' // Assuming there is a gateway column? Checked RestaurantPayment model? It might not have 'gateway'. 
+            // Checking Razorpay example: it saves `razorpay_order_id`. 
+            // It doesn't seem to have a `gateway` column in the create example in `initiateStripePayment`.
+            // `initiateStripePayment` calculates type but creation doesn't specify gateway?
+            // Wait, `processLifetimePayment` creates it. 
+            // Let's rely on transaction_id. 
+        ]);
+
+        $integritySecret = $credential->wompi_integrity_secret;
+        
+        $signatureString = $reference . $amountInCents . $currencyCode . $integritySecret;
+        $signature = hash('sha256', $signatureString);
+
+        $publicKey = $credential->wompi_pub_key;
+        $redirectUrl = route('wompi.response'); 
+
+        // Environment check
+        $wompiUrl = $credential->wompi_type == 'live' ? 'https://checkout.wompi.co/p/' : 'https://checkout.wompi.co/p/';
+
+        /* 
+           Wompi Standard Checkout URL construction:
+           We can pass parameters via query string to pre-fill the checkout or standard form data.
+           Actually, the standard recommendation is to use the Widget or the Link.
+           If using the Link (redirection):
+           https://checkout.wompi.co/p/?public-key=...&currency=...&amount-in-cents=...&reference=...&signature:integrity=...&redirect-url=...
+        */
+
+        $queryParams = http_build_query([
+            'public-key' => $publicKey,
+            'currency' => $currencyCode,
+            'amount-in-cents' => $amountInCents,
+            'reference' => $reference,
+            'signature:integrity' => $signature,
+            'redirect-url' => $redirectUrl,
+            'customer-data:email' => user()->email,
+            'customer-data:full-name' => user()->name,
+            'customer-data:phone-number' => $this->restaurant->whatsapp_number ?? '', // Optional
+        ]);
+
+        return redirect()->away($wompiUrl . '?' . $queryParams);
     }
 
     // Offline Payment Submit

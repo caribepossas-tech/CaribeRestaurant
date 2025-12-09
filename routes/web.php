@@ -150,4 +150,5 @@ Route::middleware(['auth', config('jetstream.auth_session'), 'verified', SuperAd
 
 Route::post('/webhook/billing-verify-webhook/{hash?}', [StripeWebhookController::class, 'verifyStripeWebhook'])->name('billing.verify-webhook');
 Route::post('/webhook/save-razorpay-webhook/{hash?}', [RazorpayWebhookController::class, 'saveInvoices'])->name('billing.save_razorpay-webhook');
+Route::get('wompi/response', [\App\Http\Controllers\WompiController::class, 'response'])->name('wompi.response');
 Route::view('offline', 'offline');
