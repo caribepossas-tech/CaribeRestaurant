@@ -14,7 +14,6 @@
                     @lang('modules.billing.stripe')
                 </button>
             @endif
-            @endif
             @if($stripeSettings->razorpay_status === 1)
                 <button wire:click="razorpaySubscription({{ $selectedPlan?->id }});" class="btn-light hover:shadow hover:bg-indigo-50 dark:hover:bg-gray-500 border rounded f-15 btn px-4 py-3 w-full flex items-center">
                     <svg class="h-4 w-4" width="24" height="24" viewBox="0 0 24 24"><defs><linearGradient id="a" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#0d3e8e"/><stop offset="100%" stop-color="#00c3f3"/></linearGradient></defs><path fill="url(#a)" d="m22.436 0-11.91 7.773-1.174 4.276 6.625-4.297L11.65 24h4.391z"/><path fill="#0D3E8E" d="M14.26 10.098 3.389 17.166 1.564 24h9.008z"/></svg>
@@ -22,9 +21,11 @@
                 </button>
             @endif
             @if($stripeSettings->wompi_status === 1)
-                <button wire:click="initiateWompiPayment({{ $selectedPlan?->id }})" class="btn-light hover:shadow hover:bg-indigo-50 dark:hover:bg-gray-500 border rounded f-15 btn px-4 py-3 w-full flex items-center">
-                    <!-- Wompi Logo or Placeholder -->
-                    <img src="https://wompi.co/assets/img/wompi_logo_purpura.png" alt="Wompi" class="h-5 mr-2"> 
+                <button wire:click="initiateWompiPayment" class="btn-light hover:shadow hover:bg-indigo-50 dark:hover:bg-gray-500 border rounded f-15 btn px-4 py-3 w-full flex items-center gap-2">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" fill="#00C389"/>
+                        <path d="M7 12L10.5 15.5L17 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
                     Wompi
                 </button>
             @endif
