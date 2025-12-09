@@ -53,4 +53,9 @@ class SuperadminPaymentGateway extends Model
         return ($this->wompi_type == 'test' ? $this->wompi_test_events_secret : $this->wompi_live_events_secret);
     }
 
+    public function getWompiIntegritySecretAttribute()
+    {
+        return ($this->wompi_type == 'test' ? $this->test_wompi_integrity_secret : $this->live_wompi_integrity_secret);
+    }
+
 }

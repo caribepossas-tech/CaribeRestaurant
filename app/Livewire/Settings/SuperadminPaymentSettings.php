@@ -36,12 +36,14 @@ class SuperadminPaymentSettings extends Component
     // Wompi Properties
     public $wompiStatus;
     public $selectWompiEnvironment;
-    public $wompiPubKey;
-    public $wompiPrvKey;
+    public $wompiPublicKey;
+    public $wompiPrivateKey;
     public $wompiEventsSecret;
-    public $testWompiPubKey;
-    public $testWompiPrvKey;
+    public $wompiIntegritySecret;
+    public $testWompiPublicKey;
+    public $testWompiPrivateKey;
     public $testWompiEventsSecret;
+    public $testWompiIntegritySecret;
 
     public function mount()
     {
@@ -79,13 +81,15 @@ class SuperadminPaymentSettings extends Component
         $this->selectWompiEnvironment = $this->paymentGateway->wompi_type;
         $this->wompiStatus = (bool)$this->paymentGateway->wompi_status;
         
-        $this->wompiPubKey = $this->paymentGateway->live_wompi_pub_key;
-        $this->wompiPrvKey = $this->paymentGateway->live_wompi_prv_key;
+        $this->wompiPublicKey = $this->paymentGateway->live_wompi_pub_key;
+        $this->wompiPrivateKey = $this->paymentGateway->live_wompi_prv_key;
         $this->wompiEventsSecret = $this->paymentGateway->wompi_live_events_secret;
+        $this->wompiIntegritySecret = $this->paymentGateway->live_wompi_integrity_secret;
 
-        $this->testWompiPubKey = $this->paymentGateway->test_wompi_pub_key;
-        $this->testWompiPrvKey = $this->paymentGateway->test_wompi_prv_key;
+        $this->testWompiPublicKey = $this->paymentGateway->test_wompi_pub_key;
+        $this->testWompiPrivateKey = $this->paymentGateway->test_wompi_prv_key;
         $this->testWompiEventsSecret = $this->paymentGateway->wompi_test_events_secret;
+        $this->testWompiIntegritySecret = $this->paymentGateway->test_wompi_integrity_secret;
 
         if ($this->activePaymentSetting === 'stripe') {
             $hash = global_setting()->hash;
@@ -119,21 +123,28 @@ class SuperadminPaymentSettings extends Component
     public function submitFormWompi()
     {
          $this->validate([
-            'wompiPubKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
-            'wompiPrvKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
-            'testWompiPubKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
-            'testWompiPrvKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
+            'wompiPublicKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
+            'wompiPrivateKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
+            'testWompiPublicKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
+            'testWompiPrivateKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
+        ], [
+            'wompiPublicKey.required_if' => 'Public Key required for Live environment',
+            'wompiPrivateKey.required_if' => 'Private Key required for Live environment',
+            'testWompiPublicKey.required_if' => 'Public Key required for Test environment',
+            'testWompiPrivateKey.required_if' => 'Private Key required for Test environment',
         ]);
 
         $this->paymentGateway->update([
             'wompi_status' => $this->wompiStatus,
             'wompi_type' => $this->selectWompiEnvironment,
-            'live_wompi_pub_key' => $this->wompiPubKey,
-            'live_wompi_prv_key' => $this->wompiPrvKey,
+            'live_wompi_pub_key' => $this->wompiPublicKey,
+            'live_wompi_prv_key' => $this->wompiPrivateKey,
             'wompi_live_events_secret' => $this->wompiEventsSecret,
-            'test_wompi_pub_key' => $this->testWompiPubKey,
-            'test_wompi_prv_key' => $this->testWompiPrvKey,
+            'live_wompi_integrity_secret' => $this->wompiIntegritySecret,
+            'test_wompi_pub_key' => $this->testWompiPublicKey,
+            'test_wompi_prv_key' => $this->testWompiPrivateKey,
             'wompi_test_events_secret' => $this->testWompiEventsSecret,
+            'test_wompi_integrity_secret' => $this->testWompiIntegritySecret,
         ]);
 
         $this->paymentGateway->fresh();
