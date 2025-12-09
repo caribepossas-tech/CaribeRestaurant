@@ -282,12 +282,7 @@
         </form>
         @endif
 
-                <div>
-                    <x-button>@lang('app.save')</x-button>
-                </div>
-            </div>
-        </form>
-        @endif
+
 
         @if($activePaymentSetting == 'offline_payment_method')
             @livewire('offline-payment.offline-payment-method-tab')
