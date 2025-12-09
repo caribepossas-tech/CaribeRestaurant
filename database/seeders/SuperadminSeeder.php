@@ -18,11 +18,11 @@ class SuperadminSeeder extends Seeder
         Role::create(['name' => 'Super Admin', 'display_name' => 'Super Admin', 'guard_name' => 'web']);
 
         $user  = User::create([
-            'name' => 'Kosari Corp',
-            'email' => 'admin@kosari.net',
-            'password' => bcrypt(123456)
+            'name' => 'CaribePOS SAS',
+            'email' => 'admin@caribepos.com',
+            'password' => bcrypt('CaribePOS2025@'),
         ]);
-        
+
         $user->assignRole('Super Admin');
 
     }
