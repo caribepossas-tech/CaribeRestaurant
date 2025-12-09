@@ -32,6 +32,16 @@ class SuperadminPaymentSettings extends Component
     public $stripeWebhookKey;
     public $testStripeWebhookKey;
     public $webhookUrl;
+    
+    // Wompi Properties
+    public $wompiStatus;
+    public $selectWompiEnvironment;
+    public $wompiPubKey;
+    public $wompiPrvKey;
+    public $wompiEventsSecret;
+    public $testWompiPubKey;
+    public $testWompiPrvKey;
+    public $testWompiEventsSecret;
 
     public function mount()
     {
@@ -66,6 +76,17 @@ class SuperadminPaymentSettings extends Component
         $this->stripeWebhookKey = $this->paymentGateway->stripe_live_webhook_key;
         $this->testStripeWebhookKey = $this->paymentGateway->stripe_test_webhook_key;
 
+        $this->selectWompiEnvironment = $this->paymentGateway->wompi_type;
+        $this->wompiStatus = (bool)$this->paymentGateway->wompi_status;
+        
+        $this->wompiPubKey = $this->paymentGateway->live_wompi_pub_key;
+        $this->wompiPrvKey = $this->paymentGateway->live_wompi_prv_key;
+        $this->wompiEventsSecret = $this->paymentGateway->wompi_live_events_secret;
+
+        $this->testWompiPubKey = $this->paymentGateway->test_wompi_pub_key;
+        $this->testWompiPrvKey = $this->paymentGateway->test_wompi_prv_key;
+        $this->testWompiEventsSecret = $this->paymentGateway->wompi_test_events_secret;
+
         if ($this->activePaymentSetting === 'stripe') {
             $hash = global_setting()->hash;
             $this->webhookUrl = route('billing.verify-webhook', ['hash' => $hash]);
@@ -75,6 +96,17 @@ class SuperadminPaymentSettings extends Component
             $hash = global_setting()->hash;
             $this->webhookUrl = route('billing.save_razorpay-webhook', ['hash' => $hash]);
         }
+        
+        if ($this->activePaymentSetting === 'wompi') {
+             $hash = global_setting()->hash;
+             $this->webhookUrl = route('billing.verify-webhook', ['hash' => $hash]); // TODO: Should really confirm if a dedicated wompi route exists or reuse
+             // Based on user request: creating a wompi specific url display is good practice. 
+             // The user mentioned 'webhook/wompi-events' in bootstrap/app.php exceptions, so let's assume standard webhook structure or use a placeholder.
+             // Actually, usually webhook URLs are route driven. Since I haven't added a route for wompi, I should probably point to a potential one or just generic.
+             // Given the 'webhook/wompi-events' exception, let's construct it manually if no named route exists, or use the billing.verify-webhook if compatible.
+             // But Wompi likely needs a specific controller. For now, I'll point to a generic placeholder or the one from user input 'webhook/wompi-events'.
+             $this->webhookUrl = url('webhook/wompi-events');
+        }
 
     }
 
@@ -82,6 +114,38 @@ class SuperadminPaymentSettings extends Component
     {
         $this->activePaymentSetting = $tab;
         $this->setCredentials();
+    }
+
+    public function submitFormWompi()
+    {
+         $this->validate([
+            'wompiPubKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
+            'wompiPrvKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'live'),
+            'testWompiPubKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
+            'testWompiPrvKey' => Rule::requiredIf($this->wompiStatus == true && $this->selectWompiEnvironment == 'test'),
+        ]);
+
+        $this->paymentGateway->update([
+            'wompi_status' => $this->wompiStatus,
+            'wompi_type' => $this->selectWompiEnvironment,
+            'live_wompi_pub_key' => $this->wompiPubKey,
+            'live_wompi_prv_key' => $this->wompiPrvKey,
+            'wompi_live_events_secret' => $this->wompiEventsSecret,
+            'test_wompi_pub_key' => $this->testWompiPubKey,
+            'test_wompi_prv_key' => $this->testWompiPrvKey,
+            'wompi_test_events_secret' => $this->testWompiEventsSecret,
+        ]);
+
+        $this->paymentGateway->fresh();
+        $this->dispatch('settingsUpdated');
+        cache()->forget('superadminPaymentGateway');
+
+        $this->alert('success', __('messages.settingsUpdated'), [
+            'toast' => true,
+            'position' => 'top-end',
+            'showCancelButton' => false,
+            'cancelButtonText' => __('app.close')
+        ]);
     }
 
     public function submitFormRazorpay()

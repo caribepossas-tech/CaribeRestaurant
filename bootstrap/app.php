@@ -20,6 +20,8 @@ return Application::configure(basePath: dirname(__DIR__))
             '*-webhook',
             '*/billing-verify-webhook/*',
             'custom-modules/*',
+            'webhook/wompi-events',
+            'livewire/upload-file',
         ]);
     })
 

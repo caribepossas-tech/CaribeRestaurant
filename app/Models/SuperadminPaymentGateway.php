@@ -38,4 +38,19 @@ class SuperadminPaymentGateway extends Model
         return ($this->stripe_type == 'test' ? $this->stripe_test_webhook_key : $this->stripe_live_webhook_key);
     }
 
+    public function getWompiPubKeyAttribute()
+    {
+        return ($this->wompi_type == 'test' ? $this->test_wompi_pub_key : $this->live_wompi_pub_key);
+    }
+
+    public function getWompiPrvKeyAttribute()
+    {
+        return ($this->wompi_type == 'test' ? $this->test_wompi_prv_key : $this->live_wompi_prv_key);
+    }
+
+    public function getWompiEventsSecretAttribute()
+    {
+        return ($this->wompi_type == 'test' ? $this->wompi_test_events_secret : $this->wompi_live_events_secret);
+    }
+
 }

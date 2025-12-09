@@ -23,6 +23,13 @@
                     </span>
                 </li>
 
+                <li wire:click="activeSetting('wompi')" class="me-2">
+                    <span @class(["inline-flex items-center gap-x-1 cursor-pointer select-none p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activePaymentSetting != 'wompi'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activePaymentSetting == 'wompi')])>
+                        Wompi
+                        <span @class(['flex w-3 h-3 me-3 rounded-full','bg-green-500' => $wompiStatus, 'bg-red-500' => !$wompiStatus ])></span>
+                    </span>
+                </li>
+
 
                 <li wire:click="activeSetting('offline_payment_method')" class="me-2">
                         <span @class(["inline-flex items-center gap-x-2 cursor-pointer select-none p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activePaymentSetting != 'offline_payment_method'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activePaymentSetting == 'offline_payment_method')])>
@@ -192,6 +199,88 @@
                         </div>
                     </div>
                 @endif
+
+        <!-- Wompi Form -->
+        @if($activePaymentSetting == 'wompi')
+        <form wire:submit="submitFormWompi">
+            <div class="grid gap-6">
+                <div class="my-3">
+                    <x-label for="wompiStatus">
+                        <div class="flex items-center cursor-pointer">
+                            <x-checkbox name="wompiStatus" id="wompiStatus" wire:model.live='wompiStatus'/>
+
+                            <div class="ms-2">
+                                Enable Wompi
+                            </div>
+                        </div>
+                    </x-label>
+                </div>
+
+                @if ($wompiStatus)
+                    <div>
+                        <x-label for="selectWompiEnvironment" :value="__('modules.settings.selectEnvironment')"/>
+                        <x-select id="selectWompiEnvironment" class="mt-1 block w-full" wire:model.live="selectWompiEnvironment">
+                            <option value="test">@lang('app.test')</option>
+                            <option value="live">@lang('app.live')</option>
+                        </x-select>
+                        <x-input-error for="selectWompiEnvironment" class="mt-2"/>
+                    </div>
+
+                    @if ($selectWompiEnvironment == 'live')
+                        <div>
+                            <x-label for="wompiPubKey" value="Wompi Public Key"/>
+                            <x-input id="wompiPubKey" class="block mt-1 w-full" type="text" wire:model='wompiPubKey'/>
+                            <x-input-error for="wompiPubKey" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="wompiPrvKey" value="Wompi Private Key"/>
+                            <x-input-password id="wompiPrvKey" class="block mt-1 w-full" type="text" wire:model='wompiPrvKey'/>
+                            <x-input-error for="wompiPrvKey" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="wompiEventsSecret" value="Wompi Events Secret"/>
+                            <x-input-password id="wompiEventsSecret" class="block mt-1 w-full" type="text" wire:model='wompiEventsSecret'/>
+                            <x-input-error for="wompiEventsSecret" class="mt-2"/>
+                        </div>
+                    @else
+                        <div>
+                            <x-label for="testWompiPubKey" value="Test Wompi Public KEY"/>
+                            <x-input id="testWompiPubKey" class="block mt-1 w-full" type="text" wire:model='testWompiPubKey'/>
+                            <x-input-error for="testWompiPubKey" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="testWompiPrvKey" value="Test Wompi Private KEY"/>
+                            <x-input-password id="testWompiPrvKey" class="block mt-1 w-full" type="text" wire:model='testWompiPrvKey'/>
+                            <x-input-error for="testWompiPrvKey" class="mt-2"/>
+                        </div>
+
+                        <div>
+                            <x-label for="testWompiEventsSecret" value="Test Wompi Events Secret"/>
+                            <x-input-password id="testWompiEventsSecret" class="block mt-1 w-full" type="text" wire:model='testWompiEventsSecret'/>
+                            <x-input-error for="testWompiEventsSecret" class="mt-2"/>
+                        </div>
+                    @endif
+                    <div class="mt-4">
+                        <x-label value="Webhook URL" class="mb-1"/>
+                        <div class="flex items-center">
+                            <!-- Webhook URL Input -->
+                            <x-input id="webhook-url" class="block w-full" type="text" value="{{ $webhookUrl }}" readonly/>
+                            <button id="copy-button" type="button" onclick="copyWebhookUrl()" class="ml-2 px-3 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700">
+                                Copy
+                            </button>
+                        </div>
+                    </div>
+                @endif
+
+                <div>
+                    <x-button>@lang('app.save')</x-button>
+                </div>
+            </div>
+        </form>
+        @endif
 
                 <div>
                     <x-button>@lang('app.save')</x-button>
