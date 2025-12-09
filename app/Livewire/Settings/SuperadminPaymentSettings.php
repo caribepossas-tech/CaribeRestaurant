@@ -132,31 +132,56 @@ class SuperadminPaymentSettings extends Component
             'wompiPrivateKey.required_if' => 'Private Key required for Live environment',
             'testWompiPublicKey.required_if' => 'Public Key required for Test environment',
             'testWompiPrivateKey.required_if' => 'Private Key required for Test environment',
+            'testWompiPrivateKey.required_if' => 'Private Key required for Test environment',
         ]);
 
-        $this->paymentGateway->update([
-            'wompi_status' => $this->wompiStatus,
-            'wompi_type' => $this->selectWompiEnvironment,
-            'live_wompi_pub_key' => $this->wompiPublicKey,
-            'live_wompi_prv_key' => $this->wompiPrivateKey,
-            'wompi_live_events_secret' => $this->wompiEventsSecret,
-            'live_wompi_integrity_secret' => $this->wompiIntegritySecret,
-            'test_wompi_pub_key' => $this->testWompiPublicKey,
-            'test_wompi_prv_key' => $this->testWompiPrivateKey,
-            'wompi_test_events_secret' => $this->testWompiEventsSecret,
-            'test_wompi_integrity_secret' => $this->testWompiIntegritySecret,
-        ]);
+        $configError = 0;
 
-        $this->paymentGateway->fresh();
-        $this->dispatch('settingsUpdated');
-        cache()->forget('superadminPaymentGateway');
+        // Verify Wompi credentials
+        if ($this->wompiStatus) {
+            $wompiKey = $this->selectWompiEnvironment == 'live' ? $this->wompiPublicKey : $this->testWompiPublicKey;
+            $baseUrl = $this->selectWompiEnvironment == 'live' ? 'https://production.wompi.co/v1' : 'https://sandbox.wompi.co/v1';
 
-        $this->alert('success', __('messages.settingsUpdated'), [
-            'toast' => true,
-            'position' => 'top-end',
-            'showCancelButton' => false,
-            'cancelButtonText' => __('app.close')
-        ]);
+            try {
+                $response = Http::get($baseUrl . '/merchants/' . $wompiKey);
+
+                if (!$response->successful()) {
+                    $configError = 1;
+                    $this->addError('wompiPublicKey', 'Invalid Wompi Public Key or Environment mismatch.');
+                    $this->addError('testWompiPublicKey', 'Invalid Wompi Public Key or Environment mismatch.');
+                }
+            } catch (\Exception $e) {
+                $configError = 1;
+                $this->addError('wompiPublicKey', 'Connection error verifying Wompi.');
+                $this->addError('testWompiPublicKey', 'Connection error verifying Wompi.');
+            }
+        }
+
+        if ($configError == 0) {
+            $this->paymentGateway->update([
+                'wompi_status' => $this->wompiStatus,
+                'wompi_type' => $this->selectWompiEnvironment,
+                'live_wompi_pub_key' => $this->wompiPublicKey,
+                'live_wompi_prv_key' => $this->wompiPrivateKey,
+                'wompi_live_events_secret' => $this->wompiEventsSecret,
+                'live_wompi_integrity_secret' => $this->wompiIntegritySecret,
+                'test_wompi_pub_key' => $this->testWompiPublicKey,
+                'test_wompi_prv_key' => $this->testWompiPrivateKey,
+                'wompi_test_events_secret' => $this->testWompiEventsSecret,
+                'test_wompi_integrity_secret' => $this->testWompiIntegritySecret,
+            ]);
+
+            $this->paymentGateway->fresh();
+            $this->dispatch('settingsUpdated');
+            cache()->forget('superadminPaymentGateway');
+
+            $this->alert('success', __('messages.settingsUpdated'), [
+                'toast' => true,
+                'position' => 'top-end',
+                'showCancelButton' => false,
+                'cancelButtonText' => __('app.close')
+            ]);
+        }
     }
 
     public function submitFormRazorpay()
