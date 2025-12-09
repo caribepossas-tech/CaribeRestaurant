@@ -21,7 +21,7 @@
                 </button>
             @endif
             @if($stripeSettings->wompi_status === 1)
-                <button wire:click="initiateWompiPayment" class="btn-light hover:shadow hover:bg-indigo-50 dark:hover:bg-gray-500 border rounded f-15 btn px-4 py-3 w-full flex items-center gap-2">
+                <button wire:click="initiateWompiPayment({{ $selectedPlan?->id }})" class="btn-light hover:shadow hover:bg-indigo-50 dark:hover:bg-gray-500 border rounded f-15 btn px-4 py-3 w-full flex items-center gap-2">
                     <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <circle cx="12" cy="12" r="10" fill="#00C389"/>
                         <path d="M7 12L10.5 15.5L17 9" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
