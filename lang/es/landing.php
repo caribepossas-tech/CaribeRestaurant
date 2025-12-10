@@ -5,7 +5,7 @@ return array (
 'features' => 'Características',
 'pricing' => 'Precios',
 'faq' => 'Preguntas Frecuentes',
-'heroTitle' => '¡Software POS para restaurantes Por Kosari!',
+'heroTitle' => '¡Software POS para restaurantes Por CaribePOS!',
 'heroSubTitle' => 'Gestiona fácilmente pedidos, menús y mesas en un solo lugar. Ahorra tiempo, reduce errores y haz crecer tu negocio más rápido',
 'getStartedFree' => 'Comenzar Gratis',
 'featureSection1' => 'Toma el Control de tu Restaurante',
