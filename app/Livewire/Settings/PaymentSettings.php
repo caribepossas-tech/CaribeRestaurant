@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Settings;
 
+use App\Models\POSPaymentMethod;
 use App\Models\PaymentGatewayCredential;
 use Illuminate\Support\Facades\Http;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
@@ -37,6 +38,11 @@ class PaymentSettings extends Component
     public bool $enablePayViaCash;
     public bool $enableOfflinePayment;
 
+    public $posPaymentMethods;
+    public $newMethodName = '';
+    public $editingMethodId = null;
+    public $editingMethodName = '';
+
     public function mount()
     {
         $this->paymentGateway = PaymentGatewayCredential::first();
@@ -71,6 +77,73 @@ class PaymentSettings extends Component
         $this->paymentDetails = $this->paymentGateway->offline_payment_detail;
         $this->qrCodeImage = $this->paymentGateway->qr_code_image_url;
         $this->enablePayViaCash = (bool)$this->paymentGateway->is_cash_payment_enabled;
+
+        $this->posPaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)->get();
+    }
+
+    public function addPOSPaymentMethod()
+    {
+        $this->validate([
+            'newMethodName' => 'required|string|max:255'
+        ]);
+
+        POSPaymentMethod::create([
+            'restaurant_id' => restaurant()->id,
+            'name' => $this->newMethodName,
+            'status' => 'active'
+        ]);
+
+        $this->newMethodName = '';
+        $this->updatePaymentStatus();
+        $this->alertSuccess();
+    }
+
+    public function deletePOSPaymentMethod($id)
+    {
+        POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->delete();
+        $this->updatePaymentStatus();
+        $this->alertSuccess();
+    }
+
+    public function editPOSPaymentMethod($id)
+    {
+        $method = POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->first();
+        if ($method) {
+            $this->editingMethodId = $id;
+            $this->editingMethodName = $method->name;
+        }
+    }
+
+    public function updatePOSPaymentMethod()
+    {
+        $this->validate([
+            'editingMethodName' => 'required|string|max:255'
+        ]);
+
+        POSPaymentMethod::where('id', $this->editingMethodId)
+            ->where('restaurant_id', restaurant()->id)
+            ->update(['name' => $this->editingMethodName]);
+
+        $this->editingMethodId = null;
+        $this->editingMethodName = '';
+        $this->updatePaymentStatus();
+        $this->alertSuccess();
+    }
+
+    public function cancelEdit()
+    {
+        $this->editingMethodId = null;
+        $this->editingMethodName = '';
+    }
+
+    public function toggleMethodStatus($id)
+    {
+        $method = POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->first();
+        if ($method) {
+            $method->status = $method->status === 'active' ? 'inactive' : 'active';
+            $method->save();
+            $this->updatePaymentStatus();
+        }
     }
 
     public function submitFormServiceSpecific()
