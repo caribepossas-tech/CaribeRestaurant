@@ -20,8 +20,12 @@ class SendOrderBill extends BaseNotification
     public function __construct(Order $order)
     {
         $this->order = $order;
-        $this->settings = $order->branch->restaurant;
-        $this->notificationSetting = NotificationSetting::where('type', 'order_bill_sent')->where('restaurant_id', $order->branch->restaurant_id)->first();
+        $this->settings = $order->branch ? $order->branch->restaurant : null;
+        if ($this->settings) {
+            $this->notificationSetting = NotificationSetting::where('type', 'order_bill_sent')
+                ->where('restaurant_id', $this->settings->id)
+                ->first();
+        }
     }
 
     /**
@@ -32,9 +36,11 @@ class SendOrderBill extends BaseNotification
      */
     public function via($notifiable)
     {
-        if ($this->notificationSetting->send_email == 1 && $notifiable->email != '') {
+        if ($this->notificationSetting && $this->notificationSetting->send_email == 1 && $notifiable->email != '') {
             return ['mail'];
         }
+
+        return [];
     }
 
     /**
