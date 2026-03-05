@@ -95,7 +95,7 @@
     @endif
 
 
-    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js" async></script>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js" id="pusher-beams-script"></script>
 
     <script>
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia(
@@ -236,33 +236,43 @@
 
     @if (App::environment('kosari') && pusherSettings()->beamer_status)
         <script>
-            const currentUserId = "tbltrk-{{ auth()->id() }}"; // Get this from your auth system
+            function initPusherBeams() {
+                if (typeof PusherPushNotifications === 'undefined') {
+                    console.log('PusherPushNotifications not loaded yet, waiting...');
+                    return;
+                }
 
-            const beamsClient = new PusherPushNotifications.Client({
-                instanceId: "{{ pusherSettings()->instance_id }}",
-            });
+                const currentUserId = "tbltrk-{{ auth()->id() }}";
 
-            const beamsTokenProvider = new PusherPushNotifications.TokenProvider({
-                url: "{{ route('beam_auth') }}",
-            });
+                const beamsClient = new PusherPushNotifications.Client({
+                    instanceId: "{{ pusherSettings()->instance_id }}",
+                });
 
-            beamsClient.start()
-                .then(() => beamsClient.addDeviceInterest('Tabletrack'))
-                .then(() => beamsClient.setUserId(currentUserId, beamsTokenProvider))
-                .then(() => console.log('Successfully registered and subscribed!'))
-                .catch(console.error);
+                const beamsTokenProvider = new PusherPushNotifications.TokenProvider({
+                    url: "{{ route('beam_auth') }}",
+                });
 
-            beamsClient
-                .getUserId()
-                .then((userId) => {
-                    console.log(userId, currentUserId);
-                    // Check if the Beams user matches the user that is currently logged in
-                    if (userId !== currentUserId) {
-                        // Unregister for notifications
-                        return beamsClient.stop();
-                    }
-                })
-                .catch(console.error);
+                beamsClient.start()
+                    .then(() => beamsClient.addDeviceInterest('Tabletrack'))
+                    .then(() => beamsClient.setUserId(currentUserId, beamsTokenProvider))
+                    .then(() => console.log('Successfully registered and subscribed!'))
+                    .catch(console.error);
+
+                beamsClient
+                    .getUserId()
+                    .then((userId) => {
+                        if (userId !== currentUserId) {
+                            return beamsClient.stop();
+                        }
+                    })
+                    .catch(console.error);
+            }
+
+            if (typeof PusherPushNotifications !== 'undefined') {
+                initPusherBeams();
+            } else {
+                document.getElementById('pusher-beams-script').addEventListener('load', initPusherBeams);
+            }
         </script>
     @endif
 
