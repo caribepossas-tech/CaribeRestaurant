@@ -87,20 +87,16 @@
                         @livewire('sidebar-menu-item', ['name' => __('menu.pos'), 'icon' => 'pos', 'link' => route('pos.index'), 'active' => request()->routeIs('pos.*')])
                         @endif
 
-                        @if ($this->hasModule('Order') || $this->hasModule('KOT'))
-                        @if (user_can('Show Order') || user_can('Manage KOT'))
-                        <x-sidebar-dropdown-menu :name='__("menu.orders")' icon='orders' :active='request()->routeIs(["orders.*", "kots.*"])'>
-                            @if($this->hasModule('KOT'))
-                            @if (user_can('Manage KOT'))
-                            @livewire('sidebar-dropdown-menu', ['name' => __('menu.kot'), 'link' => route('kots.index'), 'active' => request()->routeIs('kots.*')])
-                            @endif
-                            @endif
+                        @if ($this->hasModule('KOT'))
+                        @if (user_can('Manage KOT'))
+                        @livewire('sidebar-menu-item', ['name' => __('menu.kot'), 'icon' => 'kot', 'link' => route('kots.index'), 'active' => request()->routeIs('kots.*')])
+                        @endif
+                        @endif
 
-                            @if($this->hasModule('Order'))
-                            @if (user_can('Show Order'))
+                        @if ($this->hasModule('Order'))
+                        @if (user_can('Show Order'))
+                        <x-sidebar-dropdown-menu :name='__("menu.orders")' icon='orders' :active='request()->routeIs(["orders.*"])'>
                             @livewire('sidebar-dropdown-menu', ['name' => __('menu.orders'), 'link' => route('orders.index'), 'active' => request()->routeIs('orders.*')])
-                            @endif
-                            @endif
                         </x-sidebar-dropdown-menu>
                         @endif
                         @endif

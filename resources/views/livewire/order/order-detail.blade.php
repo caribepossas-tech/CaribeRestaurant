@@ -462,7 +462,11 @@
 
                                                     @default
                                                 @endswitch
-                                                @lang('modules.order.' . $item->payment_method)
+                                                @if(in_array($item->payment_method, ['cash', 'upi', 'card', 'due']))
+                                                    @lang('modules.order.' . $item->payment_method)
+                                                @else
+                                                    {{ $item->payment_method }}
+                                                @endif
                                             </div>
                                         </td>
                                         <td

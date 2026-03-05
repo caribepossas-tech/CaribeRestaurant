@@ -8,7 +8,7 @@
     </div>
     <div class="px-4 pt-6 xl:gap-4 dark:bg-gray-900 max-w-7xl mx-auto">
 
-        <div class="grid lg:grid-cols-2 lg:gap-6 mb-4">
+        <div class="grid lg:grid-cols-2 lg:gap-6 mb-4 items-start">
             <div
                 class="p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <div class="items-center flex sm:space-x-4 space-x-4">
@@ -77,7 +77,7 @@
 
         </div>
 
-        <div class="grid lg:grid-cols-2 lg:gap-6 mb-4">
+        <div class="grid lg:grid-cols-2 lg:gap-6 mb-4 items-start">
             <div
             class="p-4  bg-white border border-gray-200 rounded-lg shadow-sm  dark:border-gray-700 sm:p-6 dark:bg-gray-800">
                 <!-- List -->
