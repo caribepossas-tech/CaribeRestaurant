@@ -416,6 +416,7 @@
                         <span>@lang('modules.settings.enableRazorpayOrStripe')</span>
                     </x-alert>
                 @endif
+            @endif
             @if ($activePaymentSetting == 'posMethods')
                 <div class="mt-6 space-y-6">
                     <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
