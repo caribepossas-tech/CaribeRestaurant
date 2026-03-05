@@ -123,7 +123,7 @@
                                         </span>
                                             @break
                                         @default
-
+                                            {{ $item->payment_method }}
                                     @endswitch
 
 

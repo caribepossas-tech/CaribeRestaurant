@@ -12,7 +12,7 @@ return array (
 'tables'              => 'Mesas',
 'orders'              => 'Pedidos',
 'pos'                 => 'TPV',
-'kot'                 => 'TDC', // Tickets de cocina
+'kot'                 => 'Gestión de KOT',
 'myAccount'           => 'Mi cuenta',
 'myOrders'            => 'Mis pedidos',
 'customers'           => 'Clientes',
