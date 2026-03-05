@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('pos_payment_methods', function (Blueprint $blueprint) {
             $blueprint->id();
-            $blueprint->unsignedInteger('restaurant_id')->index();
+            $blueprint->unsignedBigInteger('restaurant_id')->index();
             $blueprint->foreign('restaurant_id')->references('id')->on('restaurants')->cascadeOnDelete()->cascadeOnUpdate();
             $blueprint->string('name');
             $blueprint->enum('status', ['active', 'inactive'])->default('active');
