@@ -80,6 +80,16 @@
                             </svg>
                             <span class="text-sm">@lang('modules.order.due')</span>
                         </button>
+
+                        @foreach($customMethods as $method)
+                            <button wire:click="setPaymentMethod('{{ $method->name }}')"
+                                class="p-3 text-center border rounded-lg {{ $paymentMethod === $method->name ? 'bg-skin-base/5 border-skin-base' : 'hover:bg-gray-50' }}">
+                                <svg class="w-6 h-6 mx-auto mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                                </svg>
+                                <span class="text-sm">{{ $method->name }}</span>
+                            </button>
+                        @endforeach
                     </div>
 
                     <!-- Amount Input and Summary -->
@@ -261,6 +271,9 @@
                                         <option value="card">{{ __('modules.order.card') }}</option>
                                         <option value="upi">{{ __('modules.order.upi') }}</option>
                                         <option value="due">{{ __('modules.order.due') }}</option>
+                                        @foreach($customMethods as $method)
+                                            <option value="{{ $method->name }}">{{ $method->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             @endfor
@@ -308,6 +321,9 @@
                                         <option value="card">{{ __('modules.order.card') }}</option>
                                         <option value="upi">{{ __('modules.order.upi') }}</option>
                                         <option value="due">{{ __('modules.order.due') }}</option>
+                                        @foreach($customMethods as $method)
+                                            <option value="{{ $method->name }}">{{ $method->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                             @endforeach
@@ -397,6 +413,9 @@
                                         <option value="card">{{ __('modules.order.card') }}</option>
                                         <option value="upi">{{ __('modules.order.upi') }}</option>
                                         <option value="due">{{ __('modules.order.due') }}</option>
+                                        @foreach($customMethods as $method)
+                                            <option value="{{ $method->name }}">{{ $method->name }}</option>
+                                        @endforeach
                                     </select>
                                 </div>
                                 <div class="space-y-2 max-h-[400px] overflow-y-auto">

@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Order;
 
+use App\Models\POSPaymentMethod;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\SplitOrder;
@@ -29,10 +30,14 @@ class AddPayment extends Component
     public $availableItems = [];
     public $activeSplitId = 1;
     public $totalExtraCharges = 0;
+    public $customMethods = [];
 
     #[On('showPaymentModal')]
     public function showPaymentModal($id)
     {
+        $this->customMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
+            ->where('status', 'active')
+            ->get();
         $this->order = Order::with([
             'items',
             'items.menuItem',

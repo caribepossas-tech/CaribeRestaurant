@@ -113,22 +113,20 @@
 
 
 
-                    <li wire:click="activeSetting('serviceSpecific')" class="me-2">
+                    <li wire:click="activeSetting('posMethods')" class="me-2">
                         <span @class([
                             'inline-flex items-center gap-x-1 cursor-pointer select-none p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300',
-                            'border-transparent' => $activePaymentSetting != 'serviceSpecific',
+                            'border-transparent' => $activePaymentSetting != 'posMethods',
                             'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' =>
-                                $activePaymentSetting == 'serviceSpecific',
+                                $activePaymentSetting == 'posMethods',
                         ])>
                             <svg class="w-5 h-5 current-Color" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                                 width="24" height="24" fill="none" viewBox="0 0 24 24">
-                                <path stroke="currentColor" stroke-linecap="round" stroke-width="2"
-                                    d="M20 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6h-2m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4m16 6H10m0 0a2 2 0 1 0-4 0m4 0a2 2 0 1 1-4 0m0 0H4" />
+                                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
                             </svg>
-                            @lang('modules.billing.generalSettings')
+                            @lang('modules.billing.posPaymentMethods')
                         </span>
                     </li>
-
                 </ul>
             </div>
 
@@ -418,8 +416,62 @@
                         <span>@lang('modules.settings.enableRazorpayOrStripe')</span>
                     </x-alert>
                 @endif
-            @endif
+            @if ($activePaymentSetting == 'posMethods')
+                <div class="mt-6 space-y-6">
+                    <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
+                        <h4 class="text-lg font-medium mb-4">@lang('modules.billing.addPOSPaymentMethod')</h4>
+                        <div class="flex gap-4">
+                            <div class="flex-1">
+                                <x-input type="text" wire:model="newMethodName" class="w-full" placeholder="e.g. Didi, Rappi, Zelle..." />
+                                <x-input-error for="newMethodName" class="mt-2" />
+                            </div>
+                            <x-button wire:click="addPOSPaymentMethod">@lang('app.add')</x-button>
+                        </div>
+                    </div>
 
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                            <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                                <tr>
+                                    <th class="px-4 py-3">@lang('modules.billing.methodName')</th>
+                                    <th class="px-4 py-3 text-center">@lang('app.status')</th>
+                                    <th class="px-4 py-3 text-right">@lang('app.action')</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($posPaymentMethods as $method)
+                                    <tr class="border-b dark:border-gray-600">
+                                        <td class="px-4 py-3">
+                                            @if($editingMethodId === $method->id)
+                                                <div class="flex gap-2">
+                                                    <x-input type="text" wire:model="editingMethodName" class="flex-1" />
+                                                    <x-button wire:click="updatePOSPaymentMethod">@lang('app.save')</x-button>
+                                                    <x-secondary-button wire:click="cancelEdit">@lang('app.cancel')</x-secondary-button>
+                                                </div>
+                                            @else
+                                                <span class="font-medium text-gray-900 dark:text-white">{{ $method->name }}</span>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <button wire:click="toggleMethodStatus({{ $method->id }})" @class([
+                                                'px-2 py-1 rounded-full text-xs font-semibold',
+                                                'bg-green-100 text-green-800' => $method->status === 'active',
+                                                'bg-red-100 text-red-800' => $method->status === 'inactive'
+                                            ])>
+                                                {{ ucfirst($method->status) }}
+                                            </button>
+                                        </td>
+                                        <td class="px-4 py-3 text-right">
+                                            <button wire:click="editPOSPaymentMethod({{ $method->id }})" class="text-blue-600 hover:text-blue-900 mr-3">@lang('app.edit')</button>
+                                            <button wire:click="deletePOSPaymentMethod({{ $method->id }})" wire:confirm="Are you sure you want to delete this payment method?" class="text-red-600 hover:text-red-900">@lang('app.delete')</button>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
         @endif
     </div>
 

@@ -107,6 +107,8 @@ return [
         'kotAndPrint' => 'KOT & Print',
         'print_kot' => 'Print KOT',
         'newKot' => 'New KOT',
+        'kitchenOrderTicket' => 'Kitchen Order Ticket',
+        'specialInstructions' => 'Special Instructions',
         'bill' => 'BILL',
         'draft' => 'Waiting KOT',
         'billed' => 'Billed',
@@ -817,6 +819,9 @@ return [
         'noPaymentMethodSelected' => 'No payment method selected.',
         'cancelImmediately' => 'Cancel Immediately',
         'endOfBillingCycle' => 'End of Billing Cycle',
+        'posPaymentMethods' => 'POS Payment Methods',
+        'addPOSPaymentMethod' => 'Add POS Payment Method',
+        'methodName' => 'Method Name',
         'expiringToday' => 'Expiring Today',
 
     ],
