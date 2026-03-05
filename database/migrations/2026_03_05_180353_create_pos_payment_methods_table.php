@@ -11,6 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
+        Schema::dropIfExists('pos_payment_methods');
         Schema::create('pos_payment_methods', function (Blueprint $blueprint) {
             $blueprint->id();
             $blueprint->unsignedBigInteger('restaurant_id')->index();
