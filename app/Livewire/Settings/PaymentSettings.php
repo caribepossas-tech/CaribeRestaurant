@@ -44,8 +44,9 @@ class PaymentSettings extends Component
 
     public function mount()
     {
-        $this->paymentGateway = PaymentGatewayCredential::first();
+        $this->paymentGateway = PaymentGatewayCredential::first() ?? new PaymentGatewayCredential(['restaurant_id' => restaurant()->id ?? null]);
         $this->setCredentials();
+        $this->fetchPOSPaymentMethods();
     }
 
     public function activeSetting($tab)
@@ -56,6 +57,21 @@ class PaymentSettings extends Component
 
     private function setCredentials()
     {
+        if (!$this->paymentGateway || !$this->paymentGateway->exists) {
+            $this->isRazorpayEnabled = false;
+            $this->isStripeEnabled = false;
+            $this->razorpayStatus = false;
+            $this->stripeStatus = false;
+            $this->wompiStatus = false;
+            $this->isWompiEnabled = false;
+            $this->enableForDineIn = false;
+            $this->enableForDelivery = false;
+            $this->enableForPickup = false;
+            $this->enableOfflinePayment = false;
+            $this->enableQrPayment = false;
+            return;
+        }
+
         $this->razorpayKey = $this->paymentGateway->razorpay_key;
         $this->razorpaySecret = $this->paymentGateway->razorpay_secret;
         $this->razorpayStatus = (bool)$this->paymentGateway->razorpay_status;
@@ -82,12 +98,17 @@ class PaymentSettings extends Component
 
     public function addPOSPaymentMethod()
     {
+        $restaurant = restaurant();
+        if (!$restaurant) {
+            return;
+        }
+
         $this->validate([
             'newMethodName' => 'required|string|max:255'
         ]);
 
         POSPaymentMethod::create([
-            'restaurant_id' => restaurant()->id,
+            'restaurant_id' => $restaurant->id,
             'name' => $this->newMethodName,
             'status' => 'active'
         ]);
@@ -99,14 +120,14 @@ class PaymentSettings extends Component
 
     public function deletePOSPaymentMethod($id)
     {
-        POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->delete();
+        POSPaymentMethod::where('id', $id)->delete();
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
 
     public function editPOSPaymentMethod($id)
     {
-        $method = POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->first();
+        $method = POSPaymentMethod::where('id', $id)->first();
         if ($method) {
             $this->editingMethodId = $id;
             $this->editingMethodName = $method->name;
@@ -137,7 +158,7 @@ class PaymentSettings extends Component
 
     public function toggleMethodStatus($id)
     {
-        $method = POSPaymentMethod::where('id', $id)->where('restaurant_id', restaurant()->id)->first();
+        $method = POSPaymentMethod::where('id', $id)->first();
         if ($method) {
             $method->status = $method->status === 'active' ? 'inactive' : 'active';
             $method->save();
