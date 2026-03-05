@@ -25,19 +25,16 @@
         }
 
         .restaurant-logo {
-            width: 20px;
-            height: 20px;
-            margin-top: 3px;
+            max-width: 50mm;
+            max-height: 20mm;
+            margin-bottom: 2mm;
         }
 
         .restaurant-name {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
             font-size: 14pt;
             font-weight: bold;
             margin-bottom: 1mm;
+            text-align: center;
         }
 
         .restaurant-info {
@@ -153,18 +150,13 @@
 <body>
     <div class="receipt">
         <div class="header">
-            <div class="restaurant-name">
-                <span>
-                    @if ($receiptSettings->show_restaurant_logo)
-                        <img src="{{ restaurant()->logo_url }}" alt="{{ restaurant()->name }}" class="restaurant-logo">
-                    @endif
-                </span>
+            @if ($receiptSettings->show_restaurant_logo && restaurant()->logo_url)
+                <img src="{{ restaurant()->logo_url }}" alt="{{ restaurant()->name }}" class="restaurant-logo">
+            @endif
 
-                </span>
-                <span>{{ restaurant()->name }}</span>
-            </div>
+            <div class="restaurant-name">{{ restaurant()->name }}</div>
 
-            <div class="restaurant-info">{{ restaurant()->address }}</div>
+            <div class="restaurant-info">{!! nl2br(e(restaurant()->address)) !!}</div>
             <div class="restaurant-info">@lang('modules.customer.phone'): {{ restaurant()->phone_number }}</div>
             @if ($receiptSettings->show_tax)
 
