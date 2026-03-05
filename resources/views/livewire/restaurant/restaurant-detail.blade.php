@@ -6,7 +6,7 @@
 
         </div>
     </div>
-    <div class="px-4 pt-6 xl:gap-4 dark:bg-gray-900">
+    <div class="px-4 pt-6 xl:gap-4 dark:bg-gray-900 max-w-7xl mx-auto">
 
         <div class="grid lg:grid-cols-2 lg:gap-6 mb-4">
             <div
@@ -201,7 +201,7 @@
             </div>
 
             @if ($restaurantAdmin)
-                <div class="w-full bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex  flex-col items-center justify-center">
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800 flex flex-col items-center justify-center text-center">
                     <h5 class="mb-6  text-lg font-medium text-gray-900 dark:text-white">@lang('modules.restaurant.firstAdmin')</h5>
 
                     <div class="flex flex-col items-center">
@@ -214,7 +214,7 @@
                     </div>
                 </div>
             @else
-                <div class="w-full bg-white border border-gray-200 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700 flex  flex-col items-center justify-center">
+                <div class="p-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800 flex flex-col items-center justify-center text-center">
                     <h5 class="mb-6  text-lg font-medium text-gray-900 dark:text-white">@lang('messages.noAdminFound')</h5>
                 </div>
             @endif
