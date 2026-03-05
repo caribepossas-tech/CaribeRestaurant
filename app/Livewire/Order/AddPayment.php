@@ -35,9 +35,12 @@ class AddPayment extends Component
     #[On('showPaymentModal')]
     public function showPaymentModal($id)
     {
-        $this->customMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
-            ->where('status', 'active')
-            ->get();
+        $restaurant = restaurant();
+        if ($restaurant) {
+            $this->customMethods = POSPaymentMethod::where('status', 'active')->get();
+        } else {
+            $this->customMethods = collect();
+        }
         $this->order = Order::with([
             'items',
             'items.menuItem',
@@ -75,7 +78,8 @@ class AddPayment extends Component
             $itemPrice = $orderItem->amount;
 
             // Distribute extra charges equally among items
-            $itemExtraCharges = $this->totalExtraCharges / count($this->order->items);
+            $itemCount = count($this->order->items);
+            $itemExtraCharges = $itemCount > 0 ? ($this->totalExtraCharges / $itemCount) : 0;
 
             // Calculate tax amount for this item based on order's total tax distribution
             $itemTaxAmount = 0;
@@ -133,7 +137,8 @@ class AddPayment extends Component
 
             // For equal splits, set initial amounts
             if ($this->splitType === 'equal' || is_null($this->splitType)) {
-                $splitAmount = $this->order->total / $this->numberOfSplits;
+                $itemCount = max(1, $this->numberOfSplits);
+                $splitAmount = $this->order->total / $itemCount;
                 foreach ($this->splits as $i => $split) {
                     if ($i > 0) { // Skip index 0
                         $this->splits[$i]['amount'] = $splitAmount;
