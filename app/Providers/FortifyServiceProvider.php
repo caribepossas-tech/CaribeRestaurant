@@ -34,10 +34,15 @@ class FortifyServiceProvider extends ServiceProvider
 
             public function toResponse($request)
             {
-                session(['user' => User::find(user()->id)]);
+                $user = User::find(user()->id);
+                session(['user' => $user]);
 
-                if (user()->hasRole('Admin_' . user()->restaurant_id)) {
-                    $onboardingSteps = OnboardingStep::where('branch_id', user()->restaurant->branches->first()->id)->first();
+                if ($user->hasRole('Super Admin')) {
+                    return redirect(RouteServiceProvider::SUPERADMIN_HOME);
+                }
+
+                if ($user->hasRole('Admin_' . $user->restaurant_id)) {
+                    $onboardingSteps = OnboardingStep::where('branch_id', $user->restaurant->branches->first()->id)->first();
 
                     if (
                         $onboardingSteps
@@ -52,11 +57,36 @@ class FortifyServiceProvider extends ServiceProvider
                     }
                 }
 
-                if (user()->hasRole('Super Admin')) {
-                    return redirect(RouteServiceProvider::SUPERADMIN_HOME);
+                if (session()->has('url.intended')) {
+                    return redirect()->intended();
                 }
 
-                return redirect(session()->has('url.intended') ? session()->get('url.intended') : RouteServiceProvider::HOME);
+                $modules = [
+                    ['module' => 'Dashboard', 'permission' => 'Show Reports', 'route' => 'dashboard'],
+                    ['module' => 'Order', 'permission' => 'Create Order', 'route' => 'pos.index'],
+                    ['module' => 'Order', 'permission' => 'Show Order', 'route' => 'orders.index'],
+                    ['module' => 'KOT', 'permission' => 'Manage KOT', 'route' => 'kots.index'],
+                    ['module' => 'Reservation', 'permission' => 'Show Reservation', 'route' => 'reservations.index'],
+                    ['module' => 'Table', 'permission' => 'Show Table', 'route' => 'tables.index'],
+                    ['module' => 'Area', 'permission' => 'Show Area', 'route' => 'areas.index'],
+                    ['module' => 'Menu', 'permission' => 'Show Menu', 'route' => 'menus.index'],
+                    ['module' => 'Menu Item', 'permission' => 'Show Menu Item', 'route' => 'menu-items.index'],
+                    ['module' => 'Customer', 'permission' => 'Show Customer', 'route' => 'customers.index'],
+                    ['module' => 'Staff', 'permission' => 'Show Staff Member', 'route' => 'staff.index'],
+                    ['module' => 'Settings', 'permission' => 'Manage Settings', 'route' => 'settings.index'],
+                ];
+
+                $restaurantModules = restaurant_modules();
+
+                foreach ($modules as $module) {
+                    if ($module['module'] === 'Dashboard' || in_array($module['module'], $restaurantModules)) {
+                        if (user_can($module['permission'])) {
+                            return redirect()->route($module['route']);
+                        }
+                    }
+                }
+
+                return redirect(RouteServiceProvider::HOME);
             }
         });
     }
