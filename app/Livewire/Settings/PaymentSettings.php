@@ -37,10 +37,13 @@ class PaymentSettings extends Component
     public bool $enablePayViaCash;
     public bool $enableOfflinePayment;
 
+    public $settings;
     public $posPaymentMethods;
     public $newMethodName = '';
     public $editingMethodId = null;
     public $editingMethodName = '';
+    public $wompiStatus = false;
+    public $isWompiEnabled = false;
 
     public function mount()
     {
@@ -92,7 +95,10 @@ class PaymentSettings extends Component
         $this->paymentDetails = $this->paymentGateway->offline_payment_detail;
         $this->qrCodeImage = $this->paymentGateway->qr_code_image_url;
         $this->enablePayViaCash = (bool)$this->paymentGateway->is_cash_payment_enabled;
+    }
 
+    private function fetchPOSPaymentMethods()
+    {
         $this->posPaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)->get();
     }
 
