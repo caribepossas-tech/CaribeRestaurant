@@ -12,6 +12,8 @@ class Payment extends Model
     use HasFactory;
     use HasBranch;
 
+    const RECEIPT_FOLDER = 'receipts';
+
     protected $guarded = ['id'];
 
     public function order(): BelongsTo

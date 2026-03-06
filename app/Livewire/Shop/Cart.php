@@ -4,6 +4,7 @@ namespace App\Livewire\Shop;
 
 use App\Models\Kot;
 use App\Models\Tax;
+use App\Helper\Files;
 use App\Models\Area;
 use App\Models\Menu;
 use App\Models\Order;
@@ -30,11 +31,12 @@ use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\SendOrderBill;
 use App\Events\NewOrderCreated;
 use App\Scopes\AvailableMenuItemScope;
+use Livewire\WithFileUploads;
 
 class Cart extends Component
 {
 
-    use LivewireAlert;
+    use LivewireAlert, WithFileUploads;
 
     public $search;
     public $tableID;
@@ -94,6 +96,7 @@ class Cart extends Component
     public $showItemDetailModal = false;
     public $selectedItem;
     public $showItemVariationsModal = false;
+    public $receiptFile;
 
     public function mount()
     {
@@ -526,9 +529,51 @@ class Cart extends Component
                 'cancelButtonText' => __('app.close')
             ]);
 
+            if ($pay && $this->paymentGateway->is_offline_payment_enabled) {
+                // If it's a "Pay Now" with offline enabled, we just stay in the modal
+                return;
+            }
+
             $this->redirect(route('order_success', [$order->id]), true);
         }
 
+    }
+
+    public function uploadReceipt()
+    {
+        $this->validate([
+            'receiptFile' => 'required|image|max:5120', // 5MB max
+        ]);
+
+        $order = $this->paymentOrder ?? $this->order;
+
+        if (!$order) {
+            return;
+        }
+
+        $receiptName = Files::uploadLocalOrS3($this->receiptFile, Payment::RECEIPT_FOLDER);
+
+        Payment::create([
+            'order_id' => $order->id,
+            'branch_id' => $this->shopBranch->id,
+            'payment_method' => 'offline',
+            'amount' => $order->total,
+            'receipt' => $receiptName,
+            'transaction_id' => 'OFFLINE_' . str()->random(10)
+        ]);
+
+        $order->update(['status' => 'payment_due']);
+
+        $this->sendNotifications($order);
+
+        $this->alert('success', __('messages.orderSaved'), [
+            'toast' => false,
+            'position' => 'center',
+            'showCancelButton' => true,
+            'cancelButtonText' => __('app.close')
+        ]);
+
+        $this->redirect(route('order_success', [$order->id]), true);
     }
 
     public function initiatePayment($id)

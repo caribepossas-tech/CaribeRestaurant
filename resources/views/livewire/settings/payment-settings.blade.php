@@ -229,6 +229,18 @@
                             <div class="p-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
                                 <div class="space-y-4">
                                     <div>
+                                        <x-label for="bankName" :value="__('modules.billing.bankName')" class="mb-2" />
+                                        <x-input id="bankName" wire:model="bankName" class="block w-full" type="text" placeholder="e.g. Chase, Bank of America, Nequi..." />
+                                        <x-input-error for="bankName" class="mt-2" />
+                                    </div>
+
+                                    <div>
+                                        <x-label for="bankAccountDetails" :value="__('modules.billing.bankAccountDetails')" class="mb-2" />
+                                        <x-textarea id="bankAccountDetails" wire:model="bankAccountDetails" class="block w-full" rows="3" placeholder="Account Number, SWIFT, etc..." />
+                                        <x-input-error for="bankAccountDetails" class="mt-2" />
+                                    </div>
+
+                                    <div>
                                         <x-label for="paymentDetails" :value="__('modules.settings.offlinePaymentDetails')" class="mb-2" />
                                         <p class="text-sm text-gray-500 dark:text-gray-400 mb-3">
                                             @lang('modules.settings.offlinePaymentDetailsDescription')
@@ -238,7 +250,7 @@
                                             wire:model="paymentDetails"
                                             class="block w-full" 
                                             rows="4"
-                                            placeholder="Enter bank account details, payment instructions, or any other relevant information..."
+                                            placeholder="Enter payment instructions, or any other relevant information..."
                                             required
                                         ></x-textarea>
                                         <x-input-error for="paymentDetails" class="mt-2" />

@@ -36,6 +36,8 @@ class PaymentSettings extends Component
     public $isofflinepaymentEnabled;
     public bool $enablePayViaCash;
     public bool $enableOfflinePayment;
+    public $bankName;
+    public $bankAccountDetails;
 
     public $settings;
     public $posPaymentMethods;
@@ -95,6 +97,8 @@ class PaymentSettings extends Component
         $this->paymentDetails = $this->paymentGateway->offline_payment_detail;
         $this->qrCodeImage = $this->paymentGateway->qr_code_image_url;
         $this->enablePayViaCash = (bool)$this->paymentGateway->is_cash_payment_enabled;
+        $this->bankName = $this->paymentGateway->bank_name;
+        $this->bankAccountDetails = $this->paymentGateway->bank_account_details;
     }
 
     private function fetchPOSPaymentMethods()
@@ -241,7 +245,8 @@ class PaymentSettings extends Component
             'is_qr_payment_enabled' => $this->enableQrPayment,
             'qr_code_image' => $this->qrCodeImage,
             'is_cash_payment_enabled' => $this->enablePayViaCash,
-
+            'bank_name' => $this->bankName,
+            'bank_account_details' => $this->bankAccountDetails,
         ];
 
         $this->paymentGateway->update($updateData);
