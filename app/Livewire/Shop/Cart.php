@@ -785,6 +785,7 @@ class Cart extends Component
 
     public function render()
     {
+        $this->fetchOfflinePaymentMethods();
         $locale = session('locale', app()->getLocale());
 
         $query = MenuItem::withCount('variations', 'modifierGroups')->with('category')
