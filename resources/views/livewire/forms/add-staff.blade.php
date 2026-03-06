@@ -16,10 +16,26 @@
             </div>
 
             <div>
+                <x-label for="passwordMode" value="{{ __('modules.staff.passwordMode') }}" />
+                <div class="flex items-center space-x-4 mt-2">
+                    <label class="flex items-center cursor-pointer">
+                        <x-radio wire:model.live="passwordMode" name="passwordMode" value="manual" />
+                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ __('modules.staff.setPassword') }}</span>
+                    </label>
+                    <label class="flex items-center cursor-pointer">
+                        <x-radio wire:model.live="passwordMode" name="passwordMode" value="email" />
+                        <span class="ml-2 text-sm text-gray-600 dark:text-gray-400">{{ __('modules.staff.sendEmailLink') }}</span>
+                    </label>
+                </div>
+            </div>
+
+            @if($passwordMode == 'manual')
+            <div>
                 <x-label for="memberPassword" value="{{ __('modules.staff.password') }}" />
                 <x-input id="memberPassword" class="block mt-1 w-full" type="password" autofocus wire:model='memberPassword' />
                 <x-input-error for="memberPassword" class="mt-2" />
             </div>
+            @endif
 
             <div>
                 <x-label for="memberRole" value="{{ __('app.role') }}" />

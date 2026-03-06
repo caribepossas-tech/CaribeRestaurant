@@ -563,6 +563,9 @@ return [
     'Chef'                => 'Chef',
     'Admin'               => 'Administrador',
     'Super Admin'         => 'Superadministrador',
+    'passwordMode'        => 'Opciones de Contraseña',
+    'setPassword'         => 'Establecer Contraseña',
+    'sendEmailLink'       => 'Enviar enlace para establecer contraseña',
 ],
 
 'reservation' => [
