@@ -158,6 +158,8 @@ return [
 'offline' => 'Sin conexión',
 'transactionId' => 'ID de transacción',
 'cancelOrder' => 'Cancelar pedido',
+'viewReceipt' => 'Ver comprobante',
+'approvePayment' => 'Aprobar pago',
 'cancelOrderMessage' => 'Esto cancelará el pedido.',
 'activeOrder' => 'Pedidos activos',
 'todayOrder' => 'Pedidos de hoy',

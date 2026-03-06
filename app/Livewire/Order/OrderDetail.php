@@ -280,6 +280,27 @@ class OrderDetail extends Component
         ]);
     }
 
+    public function approvePayment($orderId)
+    {
+        if (user_can('Update Order')) {
+            $order = Order::find($orderId);
+            if ($order && $order->status == 'payment_due') {
+                $order->update(['status' => 'paid']);
+
+                $this->alert('success', __('messages.paymentApproved'), [
+                    'toast' => true,
+                    'position' => 'top-end',
+                    'showCancelButton' => false,
+                    'cancelButtonText' => __('app.close')
+                ]);
+
+                $this->dispatch('showOrderDetail', id: $orderId);
+                $this->dispatch('refreshOrders');
+                $this->dispatch('refreshPos');
+            }
+        }
+    }
+
     public function render()
     {
         return view('livewire.order.order-detail');

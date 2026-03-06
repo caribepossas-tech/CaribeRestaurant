@@ -163,4 +163,5 @@ return array(
     'paymentGatewayNotConfigured'      => 'Pasarela de pago no configurada.',
     'installAppInstruction'            => 'Para instalar esta aplicación web en tu teléfono: toca ',
     'addToHomeScreen'                  => 'y luego Añadir a pantalla de inicio',
+    'paymentApproved'                  => 'Pago aprobado exitosamente.',
 );
