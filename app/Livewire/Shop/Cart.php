@@ -144,6 +144,11 @@ class Cart extends Component
         // Fetch QR code image from database
         $this->qrCodeImage = $this->restaurant->qr_code_image;
 
+        $this->fetchOfflinePaymentMethods();
+    }
+
+    public function fetchOfflinePaymentMethods()
+    {
         $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
             ->where('restaurant_id', $this->restaurant->id)
             ->where('type', 'offline')
@@ -424,12 +429,9 @@ class Cart extends Component
         }
 
         if ($pay) {
-            $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
-                ->where('restaurant_id', $this->restaurant->id)
-                ->where('type', 'offline')
-                ->where('status', 'active')
-                ->where('show_in_shop', true)
-                ->get();
+            $this->showPaymentModal = true;
+            $this->paymentOrder = $order;
+            $this->fetchOfflinePaymentMethods();
         }
 
         if ($this->orderType == 'dine_in' && $this->getTable) {

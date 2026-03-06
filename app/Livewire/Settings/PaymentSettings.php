@@ -110,11 +110,11 @@ class PaymentSettings extends Component
 
     private function fetchPOSPaymentMethods()
     {
-        $this->posPaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
+        $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()->where('restaurant_id', restaurant()->id)
             ->where('type', 'pos')
             ->get();
             
-        $this->offlinePaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
+        $this->offlinePaymentMethods = POSPaymentMethod::withoutGlobalScopes()->where('restaurant_id', restaurant()->id)
             ->where('type', 'offline')
             ->get();
     }
@@ -147,20 +147,22 @@ class PaymentSettings extends Component
         $this->newBankName = '';
         $this->newBankAccountDetails = '';
         $this->newShowInShop = false;
+        $this->fetchPOSPaymentMethods();
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
 
     public function deletePOSPaymentMethod($id)
     {
-        POSPaymentMethod::where('id', $id)->delete();
+        POSPaymentMethod::withoutGlobalScopes()->where('id', $id)->where('restaurant_id', restaurant()->id)->delete();
+        $this->fetchPOSPaymentMethods();
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
 
     public function editPOSPaymentMethod($id)
     {
-        $method = POSPaymentMethod::where('id', $id)->first();
+        $method = POSPaymentMethod::withoutGlobalScopes()->where('id', $id)->where('restaurant_id', restaurant()->id)->first();
         if ($method) {
             $this->editingMethodId = $id;
             $this->editingMethodName = $method->name;
@@ -179,7 +181,7 @@ class PaymentSettings extends Component
             'editingShowInShop' => 'boolean'
         ]);
 
-        POSPaymentMethod::where('id', $this->editingMethodId)
+        POSPaymentMethod::withoutGlobalScopes()->where('id', $this->editingMethodId)
             ->where('restaurant_id', restaurant()->id)
             ->update([
                 'name' => $this->editingMethodName,
@@ -205,20 +207,22 @@ class PaymentSettings extends Component
 
     public function toggleMethodStatus($id)
     {
-        $method = POSPaymentMethod::where('id', $id)->first();
+        $method = POSPaymentMethod::withoutGlobalScopes()->where('id', $id)->where('restaurant_id', restaurant()->id)->first();
         if ($method) {
             $method->status = $method->status === 'active' ? 'inactive' : 'active';
             $method->save();
+            $this->fetchPOSPaymentMethods();
             $this->updatePaymentStatus();
         }
     }
 
     public function toggleShowInShop($id)
     {
-        $method = POSPaymentMethod::where('id', $id)->first();
+        $method = POSPaymentMethod::withoutGlobalScopes()->where('id', $id)->where('restaurant_id', restaurant()->id)->first();
         if ($method) {
             $method->show_in_shop = !$method->show_in_shop;
             $method->save();
+            $this->fetchPOSPaymentMethods();
             $this->updatePaymentStatus();
         }
     }
