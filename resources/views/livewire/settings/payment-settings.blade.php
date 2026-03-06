@@ -210,8 +210,7 @@
                             </div>
                         </div>
 
-                            </div>
-
+                        @if ($enableOfflinePayment)
                             <div class="mt-6 space-y-6">
                                 <hr class="border-gray-200 dark:border-gray-700">
                                 <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg shadow-inner">
@@ -484,7 +483,6 @@
                 @endif
             @endif
         @endif
-    </div>
     </div>
 
 </div>
