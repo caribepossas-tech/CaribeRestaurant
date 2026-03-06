@@ -947,6 +947,13 @@ return [
     'rejectPayment'         => 'Rechazar pago',
     'paymentStatus'         => 'Estado del pago',
     'offlinePayment'        => 'Pago fuera de línea',
-    'qrCodePayment'         => 'Pago con código QR'
+    'qrCodePayment'         => 'Pago con código QR',
+    'paybyQr'               => 'Pagar con código QR',
+    'bankTransfer'          => 'Transferencia bancaria',
+    'paymentDone'           => 'Pago realizado',
+    'noPaymentOptionEnable' => 'No hay opciones de pago habilitadas.',
+    'choosePaymentMethod'   => 'Elegir método de pago',
+    'payOffline'            => 'Pagar fuera de línea',
+    'accountDetails'        => 'Detalles de la cuenta:',
 ],
 ];
