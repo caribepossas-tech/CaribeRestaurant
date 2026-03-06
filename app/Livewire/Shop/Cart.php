@@ -99,6 +99,8 @@ class Cart extends Component
     public $showItemVariationsModal = false;
     public $receiptFile;
     public $orderNote;
+    public $posPaymentMethods;
+    public $selectedPOSMethod;
 
     public function mount()
     {
@@ -140,6 +142,12 @@ class Cart extends Component
 
         // Fetch QR code image from database
         $this->qrCodeImage = $this->restaurant->qr_code_image;
+
+        $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
+            ->where('restaurant_id', $this->restaurant->id)
+            ->where('status', 'active')
+            ->where('show_in_shop', true)
+            ->get();
     }
 
     public function filterMenuItems($id)
@@ -566,10 +574,18 @@ class Cart extends Component
 
         $receiptName = Files::uploadLocalOrS3($this->receiptFile, Payment::RECEIPT_FOLDER);
 
+        $methodName = 'offline';
+        if ($this->selectedPOSMethod) {
+            $method = $this->posPaymentMethods->firstWhere('id', $this->selectedPOSMethod);
+            if ($method) {
+                $methodName = $method->name;
+            }
+        }
+
         Payment::create([
             'order_id' => $order->id,
             'branch_id' => $this->shopBranch->id,
-            'payment_method' => 'offline',
+            'payment_method' => $methodName,
             'amount' => $order->total,
             'receipt' => $receiptName,
             'transaction_id' => 'OFFLINE_' . str()->random(10)

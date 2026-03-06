@@ -442,6 +442,7 @@ return [
 'offlinePaymentDetailsDescription' => 'Habilita esto para permitir a los clientes pagar mediante métodos de pago fuera de línea.',
     'bankName' => 'Nombre del banco',
     'bankAccountDetails' => 'Detalles de la cuenta bancaria',
+    'showInShop' => 'Mostrar en tienda',
     'offlinePaymentDetails' => 'Detalles de pago fuera de línea',
 'cashPaymentDescription'           => 'Habilita esto para permitir a los clientes pagar mediante métodos de pago en efectivo.',
 'restaurantRequiresApproval'       => 'El restaurante requiere aprobación',

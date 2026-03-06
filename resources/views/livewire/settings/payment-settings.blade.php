@@ -433,12 +433,29 @@
                 <div class="mt-6 space-y-6">
                     <div class="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg">
                         <h4 class="text-lg font-medium mb-4">@lang('modules.billing.addPOSPaymentMethod')</h4>
-                        <div class="flex gap-4">
-                            <div class="flex-1">
-                                <x-input type="text" wire:model="newMethodName" class="w-full" placeholder="e.g. Didi, Rappi, Zelle..." />
-                                <x-input-error for="newMethodName" class="mt-2" />
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <div class="lg:col-span-1">
+                                <x-label for="newMethodName" :value="__('modules.billing.methodName')" />
+                                <x-input type="text" id="newMethodName" wire:model="newMethodName" class="w-full mt-1" placeholder="e.g. Didi, Rappi, Zelle..." />
+                                <x-input-error for="newMethodName" class="mt-1" />
                             </div>
-                            <x-button wire:click="addPOSPaymentMethod">@lang('app.add')</x-button>
+                            <div class="lg:col-span-1">
+                                <x-label for="newBankName" :value="__('modules.billing.bankName')" />
+                                <x-input type="text" id="newBankName" wire:model="newBankName" class="w-full mt-1" placeholder="e.g. Chase, Nequi..." />
+                                <x-input-error for="newBankName" class="mt-1" />
+                            </div>
+                            <div class="lg:col-span-1">
+                                <x-label for="newBankAccountDetails" :value="__('modules.billing.bankAccountDetails')" />
+                                <x-input type="text" id="newBankAccountDetails" wire:model="newBankAccountDetails" class="w-full mt-1" placeholder="Account #..." />
+                                <x-input-error for="newBankAccountDetails" class="mt-1" />
+                            </div>
+                            <div class="flex items-end gap-4 lg:col-span-1">
+                                <div class="flex items-center mb-2">
+                                    <x-checkbox id="newShowInShop" wire:model="newShowInShop" />
+                                    <x-label for="newShowInShop" :value="__('modules.settings.showInShop')" class="ms-2 cursor-pointer" />
+                                </div>
+                                <x-button wire:click="addPOSPaymentMethod" class="mb-1">@lang('app.add')</x-button>
+                            </div>
                         </div>
                     </div>
 
@@ -447,6 +464,8 @@
                             <thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                                 <tr>
                                     <th class="px-4 py-3">@lang('modules.billing.methodName')</th>
+                                    <th class="px-4 py-3">@lang('modules.billing.bankDetails')</th>
+                                    <th class="px-4 py-3 text-center">@lang('modules.settings.showInShop')</th>
                                     <th class="px-4 py-3 text-center">@lang('app.status')</th>
                                     <th class="px-4 py-3 text-right">@lang('app.action')</th>
                                 </tr>
@@ -456,14 +475,32 @@
                                     <tr class="border-b dark:border-gray-600">
                                         <td class="px-4 py-3">
                                             @if($editingMethodId === $method->id)
-                                                <div class="flex gap-2">
-                                                    <x-input type="text" wire:model="editingMethodName" class="flex-1" />
-                                                    <x-button wire:click="updatePOSPaymentMethod">@lang('app.save')</x-button>
-                                                    <x-secondary-button wire:click="cancelEdit">@lang('app.cancel')</x-secondary-button>
-                                                </div>
+                                                <x-input type="text" wire:model="editingMethodName" class="w-full" />
                                             @else
                                                 <span class="font-medium text-gray-900 dark:text-white">{{ $method->name }}</span>
                                             @endif
+                                        </td>
+                                        <td class="px-4 py-3">
+                                            @if($editingMethodId === $method->id)
+                                                <div class="space-y-2">
+                                                    <x-input type="text" wire:model="editingBankName" class="w-full text-xs" :placeholder="__('modules.billing.bankName')" />
+                                                    <x-input type="text" wire:model="editingBankAccountDetails" class="w-full text-xs" :placeholder="__('modules.billing.bankAccountDetails')" />
+                                                </div>
+                                            @else
+                                                <div class="text-xs">
+                                                    <div class="font-semibold">{{ $method->bank_name }}</div>
+                                                    <div class="text-gray-400">{{ $method->bank_account_details }}</div>
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td class="px-4 py-3 text-center">
+                                            <div class="flex justify-center">
+                                                @if($editingMethodId === $method->id)
+                                                    <x-checkbox wire:model="editingShowInShop" />
+                                                @else
+                                                    <x-checkbox :checked="$method->show_in_shop" wire:click="toggleShowInShop({{ $method->id }})" />
+                                                @endif
+                                            </div>
                                         </td>
                                         <td class="px-4 py-3 text-center">
                                             <button wire:click="toggleMethodStatus({{ $method->id }})" @class([
@@ -475,8 +512,15 @@
                                             </button>
                                         </td>
                                         <td class="px-4 py-3 text-right">
-                                            <button wire:click="editPOSPaymentMethod({{ $method->id }})" class="text-blue-600 hover:text-blue-900 mr-3">@lang('app.edit')</button>
-                                            <button wire:click="deletePOSPaymentMethod({{ $method->id }})" wire:confirm="Are you sure you want to delete this payment method?" class="text-red-600 hover:text-red-900">@lang('app.delete')</button>
+                                            @if($editingMethodId === $method->id)
+                                                <div class="flex justify-end gap-2">
+                                                    <button wire:click="updatePOSPaymentMethod" class="text-green-600 hover:text-green-900">@lang('app.save')</button>
+                                                    <button wire:click="cancelEdit" class="text-gray-600 hover:text-gray-900">@lang('app.cancel')</button>
+                                                </div>
+                                            @else
+                                                <button wire:click="editPOSPaymentMethod({{ $method->id }})" class="text-blue-600 hover:text-blue-900 mr-3">@lang('app.edit')</button>
+                                                <button wire:click="deletePOSPaymentMethod({{ $method->id }})" wire:confirm="Are you sure you want to delete this payment method?" class="text-red-600 hover:text-red-900">@lang('app.delete')</button>
+                                            @endif
                                         </td>
                                     </tr>
                                 @endforeach

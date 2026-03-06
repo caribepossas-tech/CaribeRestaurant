@@ -755,7 +755,48 @@
                                 <img src="{{ $paymentGateway->qr_code_image_url }}" alt="QR Code"
                                     class="rounded-md h-48 w-48 object-cover border dark:border-gray-600 shadow-sm">
                             @else
-                                <div class="w-full">
+                                @if($posPaymentMethods->count() > 0)
+                                    <div class="space-y-4">
+                                        <div class="grid grid-cols-1 gap-3">
+                                            @foreach($posPaymentMethods as $method)
+                                                <div wire:click="$set('selectedPOSMethod', {{ $method->id }})" 
+                                                    @class([
+                                                        'p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 flex flex-col',
+                                                        'border-skin-base bg-blue-50 dark:bg-gray-700' => $selectedPOSMethod == $method->id,
+                                                        'border-gray-200 dark:border-gray-600 hover:border-gray-300 dark:hover:border-gray-500' => $selectedPOSMethod != $method->id,
+                                                    ])>
+                                                    <div class="flex justify-between items-center">
+                                                        <span @class([
+                                                            'font-bold',
+                                                            'text-skin-base' => $selectedPOSMethod == $method->id,
+                                                            'text-gray-900 dark:text-white' => $selectedPOSMethod != $method->id,
+                                                        ])>{{ $method->name }}</span>
+                                                        @if($selectedPOSMethod == $method->id)
+                                                            <svg class="h-5 w-5 text-skin-base" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                                            </svg>
+                                                        @endif
+                                                    </div>
+                                                    
+                                                    @if($selectedPOSMethod == $method->id && ($method->bank_name || $method->bank_account_details))
+                                                        <div class="mt-3 pt-3 border-t border-blue-100 dark:border-gray-600 space-y-2 text-sm">
+                                                            @if($method->bank_name)
+                                                                <div class="flex justify-between">
+                                                                    <span class="text-gray-500 dark:text-gray-400">@lang('modules.settings.bankName'):</span>
+                                                                    <span class="font-semibold text-gray-900 dark:text-white">{{ $method->bank_name }}</span>
+                                                                </div>
+                                                            @endif
+                                                            @if($method->bank_account_details)
+                                                                <div class="text-gray-500 dark:text-gray-400 mb-1">@lang('modules.settings.bankAccountDetails'):</div>
+                                                                <div class="whitespace-pre-wrap font-mono text-xs bg-white dark:bg-gray-800 p-2 rounded border dark:border-gray-600 overflow-auto max-h-32">{{ $method->bank_account_details }}</div>
+                                                            @endif
+                                                        </div>
+                                                    @endif
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @else
                                     <div class="bg-blue-50 dark:bg-gray-700 p-4 rounded-lg border border-blue-100 dark:border-gray-600">
                                         <h4 class="font-bold text-gray-900 dark:text-white mb-2 inline-flex items-center gap-2">
                                             <svg class="h-4 w-4" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -781,6 +822,7 @@
                                             </div>
                                         </div>
                                     </div>
+                                @endif
 
                                     <div class="mt-6 space-y-3">
                                         <x-label for="receiptFile" class="font-bold">
