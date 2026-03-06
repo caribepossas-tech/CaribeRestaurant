@@ -47,7 +47,7 @@
                                     </div>
                                 </td>
                                 <td class="py-2.5 px-4 text-base text-gray-900 whitespace-nowrap dark:text-white">
-                                    {{ $item->price ? currency_format($item->price, optional(optional(optional($menuItem->branch)->restaurant)->currency_id)) : '--' }}
+                                    {{ $item->price ? currency_format($item->price, $menuItem->menu?->branch?->restaurant?->currency_id) : '--' }}
                                 </td>
 
 

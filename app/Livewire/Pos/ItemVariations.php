@@ -16,7 +16,7 @@ class ItemVariations extends Component
 
     public function mount($menuItem)
     {
-        $this->menuItem = $menuItem->loadMissing('variations', 'branch', 'branch.restaurant');
+        $this->menuItem = $menuItem->loadMissing('variations', 'menu', 'menu.branch', 'menu.branch.restaurant');
     }
 
     public function setItemVariation($id)
