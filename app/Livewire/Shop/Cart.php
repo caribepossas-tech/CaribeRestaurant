@@ -100,7 +100,6 @@ class Cart extends Component
     public $showItemVariationsModal = false;
     public $receiptFile;
     public $orderNote;
-    public $posPaymentMethods;
     public $selectedPOSMethod;
 
     public function mount()
@@ -153,18 +152,35 @@ class Cart extends Component
 
         // Fetch QR code image from database
         $this->qrCodeImage = $this->restaurant->qr_code_image;
-
-        $this->fetchOfflinePaymentMethods();
     }
 
-    public function fetchOfflinePaymentMethods()
+    private function getOfflinePaymentMethods()
     {
-        $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
+        if (!$this->restaurant && $this->restaurantHash) {
+            $this->restaurant = Restaurant::withoutGlobalScopes()->where('hash', $this->restaurantHash)->first();
+        }
+
+        if (!$this->restaurant) {
+            return collect();
+        }
+
+        return POSPaymentMethod::withoutGlobalScopes()
             ->where('restaurant_id', $this->restaurant->id)
             ->where('type', 'offline')
             ->where('status', 'active')
             ->where('show_in_shop', true)
             ->get();
+    }
+
+    private function ensureModelsAreLoaded()
+    {
+        if (!$this->restaurant && $this->restaurantHash) {
+            $this->restaurant = Restaurant::withoutGlobalScopes()->where('hash', $this->restaurantHash)->first();
+        }
+
+        if ($this->restaurant && !$this->shopBranch) {
+            $this->shopBranch = $this->restaurant->branches->first();
+        }
     }
 
     public function filterMenuItems($id)
@@ -441,7 +457,6 @@ class Cart extends Component
         if ($pay) {
             $this->showPaymentModal = true;
             $this->paymentOrder = $order;
-            $this->fetchOfflinePaymentMethods();
         }
 
         if ($this->orderType == 'dine_in' && $this->getTable) {
@@ -785,7 +800,15 @@ class Cart extends Component
 
     public function render()
     {
-        $this->fetchOfflinePaymentMethods();
+        $this->ensureModelsAreLoaded();
+
+        if (!$this->restaurant || !$this->shopBranch) {
+            return <<<'HTML'
+                <div></div>
+            HTML;
+        }
+
+        $posPaymentMethods = $this->getOfflinePaymentMethods();
         $locale = session('locale', app()->getLocale());
 
         $query = MenuItem::withCount('variations', 'modifierGroups')->with('category')
@@ -838,7 +861,8 @@ class Cart extends Component
         return view('livewire.shop.cart', [
             'menuItems' => $query,
             'categoryList' => $categoryList,
-            'menuList' => $menuList
+            'menuList' => $menuList,
+            'posPaymentMethods' => $posPaymentMethods
         ]);
     }
 
