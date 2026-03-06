@@ -145,6 +145,7 @@ class Cart extends Component
 
         $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
             ->where('restaurant_id', $this->restaurant->id)
+            ->where('type', 'offline')
             ->where('status', 'active')
             ->where('show_in_shop', true)
             ->get();

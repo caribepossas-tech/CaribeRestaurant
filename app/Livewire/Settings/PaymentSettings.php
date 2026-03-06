@@ -41,6 +41,7 @@ class PaymentSettings extends Component
 
     public $settings;
     public $posPaymentMethods;
+    public $offlinePaymentMethods;
     public $newMethodName = '';
     public $newBankName = '';
     public $newBankAccountDetails = '';
@@ -109,7 +110,13 @@ class PaymentSettings extends Component
 
     private function fetchPOSPaymentMethods()
     {
-        $this->posPaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)->get();
+        $this->posPaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
+            ->where('type', 'pos')
+            ->get();
+            
+        $this->offlinePaymentMethods = POSPaymentMethod::where('restaurant_id', restaurant()->id)
+            ->where('type', 'offline')
+            ->get();
     }
 
     public function addPOSPaymentMethod()
@@ -128,6 +135,7 @@ class PaymentSettings extends Component
 
         POSPaymentMethod::create([
             'restaurant_id' => $restaurant->id,
+            'type' => $this->activePaymentSetting === 'pos' ? 'pos' : 'offline',
             'name' => $this->newMethodName,
             'bank_name' => $this->newBankName,
             'bank_account_details' => $this->newBankAccountDetails,

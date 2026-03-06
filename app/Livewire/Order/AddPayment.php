@@ -37,7 +37,7 @@ class AddPayment extends Component
     {
         $restaurant = restaurant();
         if ($restaurant) {
-            $this->customMethods = POSPaymentMethod::where('status', 'active')->get();
+            $this->customMethods = POSPaymentMethod::where('status', 'active')->where('type', 'pos')->get();
         } else {
             $this->customMethods = collect();
         }
