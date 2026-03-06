@@ -12,5 +12,5 @@ class POSPaymentMethod extends Model
 
     protected $table = 'pos_payment_methods';
 
-    protected $fillable = ['restaurant_id', 'name', 'bank_name', 'bank_account_details', 'status', 'show_in_shop'];
+    protected $fillable = ['restaurant_id', 'type', 'name', 'bank_name', 'bank_account_details', 'status', 'show_in_shop'];
 }
