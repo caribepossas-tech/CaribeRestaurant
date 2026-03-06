@@ -207,6 +207,20 @@
                     </table>
                 </div>
 
+                @if ($order->note)
+                    <div class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/30 border border-yellow-100 dark:border-yellow-800 rounded-lg text-sm text-yellow-800 dark:text-yellow-200 text-left">
+                        <div class="font-bold flex items-center gap-2 mb-1 uppercase text-xs tracking-wider">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                            @lang('modules.order.orderNote')
+                        </div>
+                        <div class="italic whitespace-pre-wrap">
+                            {{ $order->note }}
+                        </div>
+                    </div>
+                @endif
+
                 <div>
                     <div
                         class="h-auto p-4 mt-3 select-none text-center w-full bg-gray-50 rounded space-y-4 dark:bg-gray-700">

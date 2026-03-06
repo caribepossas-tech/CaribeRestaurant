@@ -98,6 +98,7 @@ class Cart extends Component
     public $selectedItem;
     public $showItemVariationsModal = false;
     public $receiptFile;
+    public $orderNote;
 
     public function mount()
     {
@@ -448,6 +449,7 @@ class Cart extends Component
                     'total' => $this->total,
                     'order_type' => $this->orderType,
                     'delivery_address' => $this->customerAddress,
+                    'note' => $this->orderNote,
                     'status' => 'draft'
                 ]);
             });

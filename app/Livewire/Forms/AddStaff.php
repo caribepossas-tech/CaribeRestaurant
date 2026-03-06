@@ -18,6 +18,7 @@ class AddStaff extends Component
     public $memberEmail;
     public $memberRole;
     public $memberPassword;
+    public $passwordMode = 'manual';
 
     public function mount()
     {
@@ -29,25 +30,30 @@ class AddStaff extends Component
     {
         $this->validate([
             'memberName' => 'required',
-            'memberPassword' => 'required',
-            'memberEmail' => 'required|unique:users,email'
+            'memberPassword' => 'required_if:passwordMode,manual',
+            'memberEmail' => 'required|email|unique:users,email'
         ]);
+
+        $password = $this->passwordMode == 'manual' ? $this->memberPassword : str()->random(16);
 
         $user = User::create([
             'name' => $this->memberName,
             'email' => $this->memberEmail,
-            'password' => bcrypt($this->memberPassword),
+            'password' => bcrypt($password),
         ]);
 
         $user->assignRole($this->memberRole);
 
-        $user->notify(new StaffWelcomeEmail($user->restaurant, $this->memberPassword));
+        if ($this->passwordMode == 'manual') {
+            $user->notify(new StaffWelcomeEmail($user->restaurant, $password));
+        } else {
+            $token = \Password::createToken($user);
+            $user->notify(new \App\Notifications\StaffSetPasswordEmail($user->restaurant, $token));
+        }
 
         // Reset the value
-        $this->memberName = '';
-        $this->memberEmail = '';
-        $this->memberRole = '';
-        $this->memberPassword = '';
+        $this->reset(['memberName', 'memberEmail', 'memberRole', 'memberPassword', 'passwordMode']);
+        $this->memberRole = $this->roles->first()->name;
 
         $this->dispatch('hideAddStaff');
 

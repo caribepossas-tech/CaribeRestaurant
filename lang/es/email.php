@@ -97,4 +97,9 @@ return array (
     'line6'    => '¡Comienza ahora! Empieza a usar :site_name hoy para optimizar tus operaciones y hacer crecer tu negocio.',
     'line7'    => '¡Gracias por elegir :site_name! Estamos emocionados de ser parte de tu historia de éxito.',
   ),
+  'staffSetPassword' => array (
+    'subject' => 'Establecer contraseña para su cuenta',
+    'text1'   => 'Por favor, establezca una contraseña para su cuenta para comenzar a usar el sistema.',
+    'action'  => 'Establecer Contraseña',
+  ),
 );

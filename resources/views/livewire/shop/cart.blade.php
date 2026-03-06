@@ -449,6 +449,13 @@
 
                     <div class="h-auto pb-4 pt-3 select-none text-center w-full"
                         wire:key='order-{{ microtime() }}'>
+
+                        <div class="mb-4 text-left">
+                            <x-label for="orderNote" :value="__('modules.order.orderNote')" />
+                            <x-textarea id="orderNote" class="block mt-1 w-full" wire:model='orderNote' rows='2' placeholder="{{ __('placeholders.orderNote') }}" />
+                            <x-input-error for="orderNote" class="mt-2" />
+                        </div>
+
                         <div class="flex gap-2">
                             @if (is_null($customer) && ($restaurant->customer_login_required || $orderType == 'delivery'))
                                 <x-button class="w-full justify-center"

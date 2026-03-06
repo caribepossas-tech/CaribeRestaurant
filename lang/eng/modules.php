@@ -562,6 +562,9 @@ return [
         'Admin' => 'Admin',
         'Super Admin' => 'Super Admin',
         'Branch Head' => 'Branch Head',
+        'passwordMode' => 'Password Options',
+        'setPassword' => 'Set Password',
+        'sendEmailLink' => 'Send Link to set Password',
     ],
 
     'reservation' => [
