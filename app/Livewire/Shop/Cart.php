@@ -430,12 +430,11 @@ class Cart extends Component
 
         } else {
             $order = DB::transaction(function () use ($table) {
-                // Lock the last order row to avoid race conditions
-                $lastOrder = Order::where('branch_id', $this->shopBranch->id)
+                // Use max(order_number) to safely determine next number even with duplicates
+                $maxOrderNumber = Order::where('branch_id', $this->shopBranch->id)
                     ->lockForUpdate()
-                    ->latest()
-                    ->first();
-                $nextOrderNumber = $lastOrder ? $lastOrder->order_number + 1 : 1;
+                    ->max('order_number');
+                $nextOrderNumber = ($maxOrderNumber ?? 0) + 1;
 
                 return Order::create([
                     'order_number' => $nextOrderNumber,
