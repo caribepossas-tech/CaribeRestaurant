@@ -18,6 +18,7 @@ use App\Models\MenuItem;
 use App\Models\OrderTax;
 use App\Models\OrderItem;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Livewire\Attributes\On;
 use App\Models\ItemCategory;
@@ -122,7 +123,7 @@ class Cart extends Component
         $this->paymentGateway = PaymentGatewayCredential::withoutGlobalScopes()->where('restaurant_id', $this->restaurant->id)->first();
         $this->taxes = Tax::withoutGlobalScopes()->where('restaurant_id', $this->restaurant->id)->get();
         $this->customer = customer();
-        $this->orderNumber = Order::generateOrderNumber($this->shopBranch);
+        // Order number is generated fresh at creation time to avoid stale/duplicate numbers
 
         $this->razorpayStatus = (bool)$this->paymentGateway->razorpay_status;
         $this->stripeStatus = (bool)$this->paymentGateway->stripe_status;
@@ -428,18 +429,27 @@ class Cart extends Component
             }
 
         } else {
-            $order = Order::create([
-                'order_number' => $this->orderNumber,
-                'branch_id' => $this->shopBranch->id,
-                'table_id' => $table->id ?? null,
-                'date_time' => now(),
-                'customer_id' => $this->customer->id ?? null,
-                'sub_total' => $this->subTotal,
-                'total' => $this->total,
-                'order_type' => $this->orderType,
-                'delivery_address' => $this->customerAddress,
-                'status' => 'draft'
-            ]);
+            $order = DB::transaction(function () use ($table) {
+                // Lock the last order row to avoid race conditions
+                $lastOrder = Order::where('branch_id', $this->shopBranch->id)
+                    ->lockForUpdate()
+                    ->latest()
+                    ->first();
+                $nextOrderNumber = $lastOrder ? $lastOrder->order_number + 1 : 1;
+
+                return Order::create([
+                    'order_number' => $nextOrderNumber,
+                    'branch_id' => $this->shopBranch->id,
+                    'table_id' => $table->id ?? null,
+                    'date_time' => now(),
+                    'customer_id' => $this->customer->id ?? null,
+                    'sub_total' => $this->subTotal,
+                    'total' => $this->total,
+                    'order_type' => $this->orderType,
+                    'delivery_address' => $this->customerAddress,
+                    'status' => 'draft'
+                ]);
+            });
         }
 
 
