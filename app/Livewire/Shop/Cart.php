@@ -131,6 +131,8 @@ class Cart extends Component
 
         $this->razorpayStatus = (bool)$this->paymentGateway->razorpay_status;
         $this->stripeStatus = (bool)$this->paymentGateway->stripe_status;
+        $this->offline_payment_status = $this->paymentGateway->offline_payment_status;
+        $this->is_cash_payment_enabled = (bool)$this->paymentGateway->cash_status;
         $this->orderType = $this->restaurant->allow_dine_in_orders ? 'dine_in' : ($this->restaurant->allow_customer_delivery_orders ? 'delivery' : 'pickup');
 
         if (request()->has('current_order')) {
