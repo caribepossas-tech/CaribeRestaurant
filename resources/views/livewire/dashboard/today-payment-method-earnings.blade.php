@@ -84,9 +84,11 @@
                                         
                                 @endswitch
 
-                                @if ($item->payment_method != 'razorpay' && $item->payment_method != 'stripe')
-                                   {{ __('modules.order.' . $item->payment_method) }}                                   
-                                @endif
+                                    @php
+                                        $methodKey = 'modules.order.' . $item->payment_method;
+                                        $methodName = Lang::has($methodKey) ? __($methodKey) : $item->payment_method;
+                                    @endphp
+                                    {{ $methodName }}
                             </p>
                         </div>
                         <div class="inline-flex items-center text-base font-medium text-gray-900 dark:text-white">
