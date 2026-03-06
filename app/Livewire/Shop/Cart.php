@@ -129,17 +129,25 @@ class Cart extends Component
         $this->customer = customer();
         // Order number is generated fresh at creation time to avoid stale/duplicate numbers
 
-        $this->razorpayStatus = (bool)$this->paymentGateway->razorpay_status;
-        $this->stripeStatus = (bool)$this->paymentGateway->stripe_status;
-        $this->offline_payment_status = $this->paymentGateway->offline_payment_status;
-        $this->is_cash_payment_enabled = (bool)$this->paymentGateway->cash_status;
+        if ($this->paymentGateway) {
+            $this->razorpayStatus = (bool)$this->paymentGateway->razorpay_status;
+            $this->stripeStatus = (bool)$this->paymentGateway->stripe_status;
+            $this->offline_payment_status = $this->paymentGateway->offline_payment_status;
+            $this->is_cash_payment_enabled = (bool)$this->paymentGateway->cash_status;
+        } else {
+            $this->razorpayStatus = false;
+            $this->stripeStatus = false;
+            $this->offline_payment_status = 'inactive';
+            $this->is_cash_payment_enabled = false;
+        }
+
         $this->orderType = $this->restaurant->allow_dine_in_orders ? 'dine_in' : ($this->restaurant->allow_customer_delivery_orders ? 'delivery' : 'pickup');
 
         if (request()->has('current_order')) {
             $this->orderID = request()->get('current_order');
             $this->order = Order::find($this->orderID);
-            if ($this->order->status == 'paid') {
-                $this->redirect(module_enabled('Subdomain') ? url('/') : route('shop_restaurant', ['hash' => $restaurant->hash]));
+            if ($this->order && $this->order->status == 'paid') {
+                $this->redirect(module_enabled('Subdomain') ? url('/') : route('shop_restaurant', ['hash' => $this->restaurant->hash]));
             }
         }
 

@@ -56,7 +56,7 @@ class PaymentSettings extends Component
 
     public function mount()
     {
-        $this->paymentGateway = PaymentGatewayCredential::first() ?? new PaymentGatewayCredential(['restaurant_id' => restaurant()->id ?? null]);
+        $this->paymentGateway = PaymentGatewayCredential::withoutGlobalScopes()->where('restaurant_id', restaurant()->id)->first() ?? new PaymentGatewayCredential(['restaurant_id' => restaurant()->id ?? null]);
         $this->setCredentials();
         $this->fetchPOSPaymentMethods();
     }
