@@ -33,6 +33,11 @@ class OrderSuccess extends Component
 
     public function render()
     {
+        // Re-fetch order on every poll cycle so status updates are visible to the customer
+        $this->order = Order::with('taxes.tax', 'items.menuItem', 'items.menuItemVariation', 'items.modifierOptions')
+            ->where('id', $this->id)
+            ->firstOrFail();
+
         return view('livewire.shop.order-success');
     }
 
