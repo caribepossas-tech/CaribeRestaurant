@@ -433,9 +433,9 @@ class Cart extends Component
         } else {
             $order = DB::transaction(function () use ($table) {
                 // Use max(order_number) to safely determine next number even with duplicates
-                $maxOrderNumber = Order::where('branch_id', $this->shopBranch->id)
+                $maxOrderNumber = Order::withoutGlobalScopes()->where('branch_id', $this->shopBranch->id)
                     ->lockForUpdate()
-                    ->max('order_number');
+                    ->max(DB::raw('CAST(order_number AS UNSIGNED)'));
                 $nextOrderNumber = ($maxOrderNumber ?? 0) + 1;
 
                 return Order::create([
@@ -459,7 +459,7 @@ class Cart extends Component
 
         $kot = Kot::create([
             'branch_id' => $this->shopBranch->id,
-            'kot_number' => (Kot::generateKotNumber($this->shopBranch)),
+            'kot_number' => (Kot::withoutGlobalScopes()->where('branch_id', $this->shopBranch->id)->max(DB::raw('CAST(kot_number AS UNSIGNED)')) + 1),
             'order_id' => $order->id,
             'transaction_id' => $transactionId
         ]);

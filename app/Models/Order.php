@@ -74,7 +74,7 @@ class Order extends Model
 
     public static function generateOrderNumber($branch)
     {
-        $maxOrderNumber = Order::where('branch_id', $branch->id)->max('order_number');
+        $maxOrderNumber = Order::withoutGlobalScopes()->where('branch_id', $branch->id)->max(\DB::raw('CAST(order_number AS UNSIGNED)'));
         return ($maxOrderNumber ?? 0) + 1;
     }
 

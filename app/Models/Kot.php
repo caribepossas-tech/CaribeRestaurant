@@ -32,13 +32,9 @@ class Kot extends Model
 
     public static function generateKotNumber($branch)
     {
-        $lastKot = Kot::where('branch_id', $branch->id)->latest()->first();
+        $lastKotNumber = Kot::withoutGlobalScopes()->where('branch_id', $branch->id)->max(\DB::raw('CAST(kot_number AS UNSIGNED)'));
 
-        if ($lastKot) {
-            return $lastKot->kot_number + 1;
-        }
-
-        return 1;
+        return ($lastKotNumber ?? 0) + 1;
     }
 
 }
