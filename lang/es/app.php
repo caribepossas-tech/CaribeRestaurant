@@ -12,6 +12,7 @@ return array(
 'decline' => 'Rechazar',
 'update' => 'Actualizar',
 'delete' => 'Eliminar',
+'edit' => 'Editar',
 'action' => 'Acción',
 'submit' => 'Enviar',
 'pending' => 'Pendiente',

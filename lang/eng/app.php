@@ -12,6 +12,7 @@ return array(
     'decline' => 'Decline',
     'update' => 'Update',
     'delete' => 'Delete',
+    'edit' => 'Edit',
     'action' => 'Action',
     'submit' => 'Submit',
     'pending' => 'Pending',
