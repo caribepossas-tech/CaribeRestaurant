@@ -4,6 +4,7 @@ namespace App\Livewire\Shop;
 
 use App\Models\Kot;
 use App\Models\Tax;
+use App\Models\POSPaymentMethod;
 use App\Helper\Files;
 use App\Models\Area;
 use App\Models\Menu;
