@@ -29,6 +29,7 @@ use App\Models\RazorpayPayment;
 use App\Models\MenuItemVariation;
 use App\Events\SendNewOrderReceived;
 use App\Models\PaymentGatewayCredential;
+use App\Models\Restaurant;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use App\Notifications\SendOrderBill;
 use App\Events\NewOrderCreated;
@@ -401,8 +402,6 @@ class Cart extends Component
 
     public function getShouldShowWaiterButtonProperty()
     {
-           $this->dispatch('refreshComponent');
-
         if (!$this->restaurant->is_waiter_request_enabled) {
             return false;
         }
@@ -454,11 +453,6 @@ class Cart extends Component
             return;
         }
 
-        if ($pay) {
-            $this->showPaymentModal = true;
-            $this->paymentOrder = $order;
-        }
-
         if ($this->orderType == 'dine_in' && $this->getTable) {
             $this->getAvailableTable();
             $this->showTableModal = true;
@@ -501,6 +495,11 @@ class Cart extends Component
             });
         }
 
+
+        if ($pay) {
+            $this->showPaymentModal = true;
+            $this->paymentOrder = $order;
+        }
 
         $transactionId = uniqid('TXN_', true) . '_' . random_int(100000, 999999);
         session(['transaction_id' => $transactionId]);
@@ -588,7 +587,7 @@ class Cart extends Component
                 'cancelButtonText' => __('app.close')
             ]);
 
-            if ($pay && $this->paymentGateway->is_offline_payment_enabled) {
+            if ($pay && $this->paymentGateway && $this->paymentGateway->offline_payment_status == 'active') {
                 // If it's a "Pay Now" with offline enabled, we just stay in the modal
                 return;
             }
@@ -614,7 +613,7 @@ class Cart extends Component
 
         $methodName = 'offline';
         if ($this->selectedPOSMethod) {
-            $method = $this->posPaymentMethods->firstWhere('id', $this->selectedPOSMethod);
+            $method = $this->getOfflinePaymentMethods()->firstWhere('id', $this->selectedPOSMethod);
             if ($method) {
                 $methodName = $method->name;
             }
