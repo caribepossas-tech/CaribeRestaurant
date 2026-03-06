@@ -74,13 +74,8 @@ class Order extends Model
 
     public static function generateOrderNumber($branch)
     {
-        $lastOrder = Order::where('branch_id', $branch->id)->latest()->first();
-
-        if ($lastOrder) {
-            return $lastOrder->order_number + 1;
-        }
-
-        return 1;
+        $maxOrderNumber = Order::where('branch_id', $branch->id)->max('order_number');
+        return ($maxOrderNumber ?? 0) + 1;
     }
 
 }
