@@ -930,4 +930,10 @@ return [
     'allowMultipleSelectionDescription' => 'Permitir a los usuarios seleccionar múltiples opciones',
     'selectModifierGroup'               => 'Seleccionar grupo de modificadores',
 ],
+
+'billing' => [
+    'bankName'              => 'Nombre del banco',
+    'bankAccountDetails'    => 'Detalles de la cuenta bancaria',
+    'offlinePaymentDetails' => 'Detalles de pago fuera de línea',
+],
 ];
