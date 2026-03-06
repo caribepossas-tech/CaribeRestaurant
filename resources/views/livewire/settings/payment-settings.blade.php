@@ -230,13 +230,13 @@
                                 <div class="space-y-4">
                                     <div>
                                         <x-label for="bankName" :value="__('modules.billing.bankName')" class="mb-2" />
-                                        <x-input id="bankName" wire:model="bankName" class="block w-full" type="text" placeholder="e.g. Chase, Bank of America, Nequi..." />
+                                        <x-input id="bankName" wire:model="bankName" class="block w-full" type="text" placeholder="{{ __('modules.billing.bankNamePlaceholder', ['default' => 'e.g. Chase, Bank of America, Nequi...']) }}" />
                                         <x-input-error for="bankName" class="mt-2" />
                                     </div>
 
                                     <div>
                                         <x-label for="bankAccountDetails" :value="__('modules.billing.bankAccountDetails')" class="mb-2" />
-                                        <x-textarea id="bankAccountDetails" wire:model="bankAccountDetails" class="block w-full" rows="3" placeholder="Account Number, SWIFT, etc..." />
+                                        <x-textarea id="bankAccountDetails" wire:model="bankAccountDetails" class="block w-full" rows="3" placeholder="{{ __('modules.billing.bankAccountDetailsPlaceholder', ['default' => 'Account Number, SWIFT, etc...']) }}" />
                                         <x-input-error for="bankAccountDetails" class="mt-2" />
                                     </div>
 

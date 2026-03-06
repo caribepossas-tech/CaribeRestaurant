@@ -237,7 +237,7 @@
                                 @for($i = 1; $i <= $numberOfSplits; $i++)
                                     <div class="flex items-center gap-1">
                                         <div class="px-4 py-2 rounded-lg text-sm border">
-                                            <span>Split {{ $i }}</span>
+                                            <span>{{ __('modules.order.split') }} {{ $i }}</span>
                                         </div>
                                         @if($numberOfSplits > 2)
                                             <button wire:click="removeSplit({{ $i }})"
@@ -252,14 +252,14 @@
                             </div>
                             <button wire:click="addNewSplit"
                                 class="px-3 py-2 text-sm border rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 shrink-0">
-                                + New Split
+                                + {{ __('modules.order.newSplit') }}
                             </button>
                         </div>
                         <div class="flex-1 grid grid-cols-2 gap-4 content-start mt-2">
                             @for($i = 1; $i <= $numberOfSplits; $i++)
                                 <div class="flex items-center gap-4 p-3 bg-gray-50 dark:bg-gray-600 rounded-lg">
                                     <div class="flex-1 flex justify-between items-center gap-3">
-                                        <span>Split {{ $i }}</span>
+                                        <span>{{ __('modules.order.split') }} {{ $i }}</span>
                                         <input type="number"  readonly
                                             wire:model.live="splits.{{ $i }}.amount"
                                             class="w-32 rounded-lg border-gray-300 text-right"
@@ -287,7 +287,7 @@
                                 @foreach($customSplits as $splitNumber)
                                     <div class="flex items-center gap-1">
                                         <div class="px-4 py-2 rounded-lg text-sm border">
-                                            <span>Split {{ $splitNumber }}</span>
+                                            <span>{{ __('modules.order.split') }} {{ $splitNumber }}</span>
                                         </div>
                                         @if(count($customSplits) > 2)
                                             <button wire:click="removeCustomSplit({{ $splitNumber }})"
