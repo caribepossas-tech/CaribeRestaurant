@@ -158,6 +158,8 @@ return [
 'offline' => 'Sin conexión',
 'transactionId' => 'ID de transacción',
 'cancelOrder' => 'Cancelar pedido',
+'viewReceipt' => 'Ver comprobante',
+'approvePayment' => 'Aprobar pago',
 'cancelOrderMessage' => 'Esto cancelará el pedido.',
 'activeOrder' => 'Pedidos activos',
 'todayOrder' => 'Pedidos de hoy',
@@ -927,5 +929,11 @@ return [
     'allowMultipleSelection'            => 'Permitir selección múltiple',
     'allowMultipleSelectionDescription' => 'Permitir a los usuarios seleccionar múltiples opciones',
     'selectModifierGroup'               => 'Seleccionar grupo de modificadores',
+],
+
+'billing' => [
+    'bankName'              => 'Nombre del banco',
+    'bankAccountDetails'    => 'Detalles de la cuenta bancaria',
+    'offlinePaymentDetails' => 'Detalles de pago fuera de línea',
 ],
 ];
