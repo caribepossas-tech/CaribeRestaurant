@@ -423,6 +423,15 @@ class Cart extends Component
             return;
         }
 
+        if ($pay) {
+            $this->posPaymentMethods = POSPaymentMethod::withoutGlobalScopes()
+                ->where('restaurant_id', $this->restaurant->id)
+                ->where('type', 'offline')
+                ->where('status', 'active')
+                ->where('show_in_shop', true)
+                ->get();
+        }
+
         if ($this->orderType == 'dine_in' && $this->getTable) {
             $this->getAvailableTable();
             $this->showTableModal = true;

@@ -189,6 +189,7 @@ class PaymentSettings extends Component
             ]);
 
         $this->cancelEdit();
+        $this->fetchPOSPaymentMethods();
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
