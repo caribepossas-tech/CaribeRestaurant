@@ -731,7 +731,8 @@
             </x-slot>
 
             <x-slot name="content">
-                <div class="flex items-center justify-between cursor-pointer mb-6  bg-gray-50 dark:bg-gray-800 rounded-md p-2">
+                <div class="max-h-[65vh] overflow-y-auto pr-2 pb-4">
+                    <div class="flex items-center justify-between cursor-pointer mb-6  bg-gray-50 dark:bg-gray-800 rounded-md p-2">
                     <div class="flex items-center min-w-0">
                         <div>
                             <div class="font-medium text-gray-700 truncate dark:text-white">
@@ -832,7 +833,7 @@
                                         <div class="relative group">
                                             <input type="file" id="receiptFile" wire:model="receiptFile" class="hidden" accept="image/*">
                                             <label for="receiptFile" @class([
-                                                'flex flex-col items-center justify-center px-4 py-8 rounded-xl border-3 border-dashed cursor-pointer transition-all duration-200',
+                                                'flex flex-col items-center justify-center px-4 py-6 md:py-8 rounded-xl border-2 md:border-3 border-dashed cursor-pointer transition-all duration-200',
                                                 'bg-green-50/50 border-green-300 dark:bg-green-900/10 dark:border-green-600' => $receiptFile,
                                                 'bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' => !$receiptFile,
                                             ])>
@@ -987,6 +988,7 @@
 
                     </div>
                 @endif
+                </div>
             </x-slot>
 
             <x-slot name="footer">
