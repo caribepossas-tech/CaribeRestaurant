@@ -483,8 +483,8 @@
                     </x-alert>
                 @endif
             @endif
-            @endif
         @endif
+    </div>
     </div>
 
 </div>
