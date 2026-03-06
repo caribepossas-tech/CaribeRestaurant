@@ -731,7 +731,7 @@
             </x-slot>
 
             <x-slot name="content">
-                <div class="max-h-[65vh] overflow-y-auto pr-2 pb-4">
+                <div class="max-h-[50vh] md:max-h-[70vh] overflow-y-auto pr-2 pb-4 overscroll-contain">
                     <div class="flex items-center justify-between cursor-pointer mb-6  bg-gray-50 dark:bg-gray-800 rounded-md p-2">
                     <div class="flex items-center min-w-0">
                         <div>
@@ -838,11 +838,8 @@
                                                 'bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' => !$receiptFile,
                                             ])>
                                                 @if($receiptFile)
-                                                    <div class="flex flex-col items-center gap-3 text-green-600 dark:text-green-400">
-                                                        <div class="bg-green-100 dark:bg-green-900/40 p-3 rounded-full">
-                                                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                                                            </svg>
+                                                        <div class="w-full max-w-[200px] aspect-video rounded-lg overflow-hidden border border-green-200 dark:border-green-800 shadow-sm bg-white">
+                                                            <img src="{{ $receiptFile->temporaryUrl() }}" class="w-full h-full object-cover">
                                                         </div>
                                                         <div class="text-center">
                                                             <span class="text-sm font-bold block truncate max-w-[200px]">{{ $receiptFile->getClientOriginalName() }}</span>
