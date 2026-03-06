@@ -42,8 +42,14 @@ class PaymentSettings extends Component
     public $settings;
     public $posPaymentMethods;
     public $newMethodName = '';
+    public $newBankName = '';
+    public $newBankAccountDetails = '';
+    public $newShowInShop = false;
     public $editingMethodId = null;
     public $editingMethodName = '';
+    public $editingBankName = '';
+    public $editingBankAccountDetails = '';
+    public $editingShowInShop = false;
     public $wompiStatus = false;
     public $isWompiEnabled = false;
 
@@ -114,16 +120,25 @@ class PaymentSettings extends Component
         }
 
         $this->validate([
-            'newMethodName' => 'required|string|max:255'
+            'newMethodName' => 'required|string|max:255',
+            'newBankName' => 'nullable|string|max:255',
+            'newBankAccountDetails' => 'nullable|string',
+            'newShowInShop' => 'boolean'
         ]);
 
         POSPaymentMethod::create([
             'restaurant_id' => $restaurant->id,
             'name' => $this->newMethodName,
+            'bank_name' => $this->newBankName,
+            'bank_account_details' => $this->newBankAccountDetails,
+            'show_in_shop' => $this->newShowInShop,
             'status' => 'active'
         ]);
 
         $this->newMethodName = '';
+        $this->newBankName = '';
+        $this->newBankAccountDetails = '';
+        $this->newShowInShop = false;
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
@@ -141,21 +156,31 @@ class PaymentSettings extends Component
         if ($method) {
             $this->editingMethodId = $id;
             $this->editingMethodName = $method->name;
+            $this->editingBankName = $method->bank_name;
+            $this->editingBankAccountDetails = $method->bank_account_details;
+            $this->editingShowInShop = (bool)$method->show_in_shop;
         }
     }
 
     public function updatePOSPaymentMethod()
     {
         $this->validate([
-            'editingMethodName' => 'required|string|max:255'
+            'editingMethodName' => 'required|string|max:255',
+            'editingBankName' => 'nullable|string|max:255',
+            'editingBankAccountDetails' => 'nullable|string',
+            'editingShowInShop' => 'boolean'
         ]);
 
         POSPaymentMethod::where('id', $this->editingMethodId)
             ->where('restaurant_id', restaurant()->id)
-            ->update(['name' => $this->editingMethodName]);
+            ->update([
+                'name' => $this->editingMethodName,
+                'bank_name' => $this->editingBankName,
+                'bank_account_details' => $this->editingBankAccountDetails,
+                'show_in_shop' => $this->editingShowInShop,
+            ]);
 
-        $this->editingMethodId = null;
-        $this->editingMethodName = '';
+        $this->cancelEdit();
         $this->updatePaymentStatus();
         $this->alertSuccess();
     }
@@ -164,6 +189,9 @@ class PaymentSettings extends Component
     {
         $this->editingMethodId = null;
         $this->editingMethodName = '';
+        $this->editingBankName = '';
+        $this->editingBankAccountDetails = '';
+        $this->editingShowInShop = false;
     }
 
     public function toggleMethodStatus($id)
@@ -171,6 +199,16 @@ class PaymentSettings extends Component
         $method = POSPaymentMethod::where('id', $id)->first();
         if ($method) {
             $method->status = $method->status === 'active' ? 'inactive' : 'active';
+            $method->save();
+            $this->updatePaymentStatus();
+        }
+    }
+
+    public function toggleShowInShop($id)
+    {
+        $method = POSPaymentMethod::where('id', $id)->first();
+        if ($method) {
+            $method->show_in_shop = !$method->show_in_shop;
             $method->save();
             $this->updatePaymentStatus();
         }
