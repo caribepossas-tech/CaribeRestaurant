@@ -8,15 +8,17 @@ class ItemVariations extends Component
 {
 
     public $menuItem;
+    public $currencyId;
     public $itemVariation;
     public $variationName;
     public $variationPrice;
     public $showEditVariationsModal = false;
     public $showDeleteVariationsModal = false;
 
-    public function mount($menuItem)
+    public function mount($menuItem, $currencyId = null)
     {
-        $this->menuItem = $menuItem->loadMissing('variations', 'menu', 'menu.branch', 'menu.branch.restaurant');
+        $this->menuItem = $menuItem->loadMissing('variations');
+        $this->currencyId = $currencyId;
     }
 
     public function setItemVariation($id)

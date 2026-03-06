@@ -629,7 +629,7 @@
 
         <x-slot name="content">
             @if ($menuItem)
-                @livewire('pos.itemVariations', ['menuItem' => $menuItem], key(str()->random(50)))
+                @livewire('pos.itemVariations', ['menuItem' => $menuItem, 'currencyId' => $restaurant->currency_id], key(str()->random(50)))
             @endif
         </x-slot>
 

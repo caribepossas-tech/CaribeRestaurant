@@ -16,6 +16,21 @@
                             <div class="flex items-center flex-1 text-xs text-gray-500">
                                {{ $order->items->count() }} @lang('modules.menu.item') | {{ $order->date_time->timezone($restaurant->timezone)->translatedFormat('M d, Y H:i A') }}
                             </div>
+                            @php
+                                $statusConfig = [
+                                    'draft'       => ['color' => 'bg-gray-100 text-gray-700 border-gray-300 dark:bg-gray-700 dark:text-gray-300', 'icon' => '🕐', 'label' => 'modules.order.infodraft'],
+                                    'kot'         => ['color' => 'bg-yellow-100 text-yellow-800 border-yellow-400 dark:bg-yellow-700 dark:text-yellow-300', 'icon' => '👨‍🍳', 'label' => 'modules.order.infokot'],
+                                    'paid'        => ['color' => 'bg-green-100 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-200', 'icon' => '✅', 'label' => 'modules.order.infopaid'],
+                                    'payment_due' => ['color' => 'bg-orange-100 text-orange-800 border-orange-400 dark:bg-orange-800 dark:text-orange-200', 'icon' => '💳', 'label' => 'modules.order.infopayment_due'],
+                                    'food_ready'  => ['color' => 'bg-blue-100 text-blue-800 border-blue-400 dark:bg-blue-800 dark:text-blue-200', 'icon' => '🍽️', 'label' => 'modules.order.food_ready'],
+                                    'delivered'   => ['color' => 'bg-teal-100 text-teal-800 border-teal-400 dark:bg-teal-800 dark:text-teal-200', 'icon' => '📦', 'label' => 'modules.order.infodelivered'],
+                                ];
+                                $cfg = $statusConfig[$order->status] ?? ['color' => 'bg-gray-100 text-gray-600 border-gray-300', 'icon' => '📋', 'label' => 'modules.order.status'];
+                            @endphp
+                            <span class="mt-1 border {{ $cfg['color'] }} text-xs font-medium px-2 py-0.5 rounded whitespace-nowrap inline-flex items-center gap-1">
+                                <span>{{ $cfg['icon'] }}</span>
+                                @lang($cfg['label'])
+                            </span>
                         </div>
                     </div>
                     <div class="inline-flex flex-col text-right text-base font-semibold text-gray-900 dark:text-white">
