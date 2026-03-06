@@ -418,6 +418,8 @@ class Cart extends Component
             return;
         }
 
+        $table = null;
+
         if (!is_null($this->tableID)) {
             $table = Table::where('hash', $this->tableID)->firstOrFail();
         }
@@ -457,7 +459,7 @@ class Cart extends Component
 
         $kot = Kot::create([
             'branch_id' => $this->shopBranch->id,
-            'kot_number' => (Kot::generateKotNumber($this->shopBranch) + 1),
+            'kot_number' => (Kot::generateKotNumber($this->shopBranch)),
             'order_id' => $order->id,
             'transaction_id' => $transactionId
         ]);
