@@ -19,12 +19,15 @@
 
                         @php
                             $statusConfig = [
-                                'draft'       => ['color' => 'bg-gray-100 text-gray-700 border-gray-400 dark:bg-gray-700 dark:text-gray-300', 'icon' => '🕐', 'label' => 'modules.order.infodraft'],
-                                'kot'         => ['color' => 'bg-yellow-100 text-yellow-800 border-yellow-400 dark:bg-yellow-700 dark:text-yellow-300', 'icon' => '👨‍🍳', 'label' => 'modules.order.infokot'],
-                                'paid'        => ['color' => 'bg-green-100 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-200', 'icon' => '✅', 'label' => 'modules.order.infopaid'],
-                                'payment_due' => ['color' => 'bg-orange-100 text-orange-800 border-orange-400 dark:bg-orange-800 dark:text-orange-200', 'icon' => '💳', 'label' => 'modules.order.infopayment_due'],
-                                'food_ready'  => ['color' => 'bg-blue-100 text-blue-800 border-blue-400 dark:bg-blue-800 dark:text-blue-200', 'icon' => '🍽️', 'label' => 'modules.order.food_ready'],
-                                'delivered'   => ['color' => 'bg-teal-100 text-teal-800 border-teal-400 dark:bg-teal-800 dark:text-teal-200', 'icon' => '📦', 'label' => 'modules.order.infodelivered'],
+                                'draft'            => ['color' => 'bg-gray-100 text-gray-700 border-gray-400 dark:bg-gray-700 dark:text-gray-300',         'icon' => '🕐', 'label' => 'modules.order.infodraft'],
+                                'kot'              => ['color' => 'bg-yellow-100 text-yellow-800 border-yellow-400 dark:bg-yellow-700 dark:text-yellow-300', 'icon' => '👨‍🍳', 'label' => 'modules.order.infokot'],
+                                'billed'           => ['color' => 'bg-amber-100 text-amber-800 border-amber-400 dark:bg-amber-800 dark:text-amber-200',      'icon' => '🧾', 'label' => 'modules.order.infobilled'],
+                                'payment_due'      => ['color' => 'bg-orange-100 text-orange-800 border-orange-400 dark:bg-orange-800 dark:text-orange-200', 'icon' => '💳', 'label' => 'modules.order.infopayment_due'],
+                                'paid'             => ['color' => 'bg-green-100 text-green-800 border-green-400 dark:bg-green-800 dark:text-green-200',      'icon' => '✅', 'label' => 'modules.order.infopaid'],
+                                'ready'            => ['color' => 'bg-blue-100 text-blue-800 border-blue-400 dark:bg-blue-800 dark:text-blue-200',           'icon' => '🍽️', 'label' => 'modules.order.food_ready'],
+                                'out_for_delivery' => ['color' => 'bg-indigo-100 text-indigo-800 border-indigo-400 dark:bg-indigo-800 dark:text-indigo-200', 'icon' => '🛵', 'label' => 'modules.order.infoout_for_delivery'],
+                                'delivered'        => ['color' => 'bg-teal-100 text-teal-800 border-teal-400 dark:bg-teal-800 dark:text-teal-200',          'icon' => '📦', 'label' => 'modules.order.infodelivered'],
+                                'canceled'         => ['color' => 'bg-red-100 text-red-800 border-red-400 dark:bg-red-800 dark:text-red-200',               'icon' => '❌', 'label' => 'modules.order.infocanceled'],
                             ];
                             $cfg = $statusConfig[$order->status] ?? ['color' => 'bg-gray-100 text-gray-700 border-gray-300', 'icon' => '📋', 'label' => 'modules.order.status'];
                         @endphp
