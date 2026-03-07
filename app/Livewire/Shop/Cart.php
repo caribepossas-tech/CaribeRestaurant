@@ -611,8 +611,8 @@ class Cart extends Component
 
         $receiptName = Files::uploadLocalOrS3($this->receiptFile, Payment::RECEIPT_FOLDER);
 
-        $methodName = 'offline';
-        if ($this->selectedPOSMethod) {
+        $methodName = $this->showQrCode ? 'qr' : 'offline';
+        if (!$this->showQrCode && $this->selectedPOSMethod) {
             $method = $this->getOfflinePaymentMethods()->firstWhere('id', $this->selectedPOSMethod);
             if ($method) {
                 $methodName = $method->name;

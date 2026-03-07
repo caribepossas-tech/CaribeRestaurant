@@ -755,6 +755,54 @@
                             @if ($showQrCode)
                                 <img src="{{ $paymentGateway->qr_code_image_url }}" alt="QR Code"
                                     class="rounded-md h-48 w-48 object-cover border dark:border-gray-600 shadow-sm">
+
+                                <div class="w-full mt-4 space-y-3">
+                                    <x-label for="receiptFile" class="font-bold">
+                                        @lang('modules.billing.uploadReceipt')
+                                        <span class="text-red-500">*</span>
+                                    </x-label>
+                                    <div class="relative group">
+                                        <input type="file" id="receiptFile" wire:model="receiptFile" class="hidden" accept="image/*">
+                                        <label for="receiptFile" @class([
+                                            'flex flex-col items-center justify-center px-4 py-6 md:py-8 rounded-xl border-2 md:border-3 border-dashed cursor-pointer transition-all duration-200',
+                                            'bg-green-50/50 border-green-300 dark:bg-green-900/10 dark:border-green-600' => $receiptFile,
+                                            'bg-gray-50 dark:bg-gray-800/50 border-gray-300 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700' => !$receiptFile,
+                                        ])>
+                                            @if($receiptFile)
+                                                <div class="w-full max-w-[200px] aspect-video rounded-lg overflow-hidden border border-green-200 dark:border-green-800 shadow-sm bg-white">
+                                                    <img src="{{ $receiptFile->temporaryUrl() }}" class="w-full h-full object-cover">
+                                                </div>
+                                                <div class="text-center">
+                                                    <span class="text-sm font-bold block truncate max-w-[200px]">{{ $receiptFile->getClientOriginalName() }}</span>
+                                                    <span class="text-xs opacity-75">@lang('app.clickToChange')</span>
+                                                </div>
+                                            @else
+                                                <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
+                                                    <div class="bg-white dark:bg-gray-700 p-4 rounded-full shadow-sm group-hover:scale-110 transition-transform duration-200">
+                                                        <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                                                        </svg>
+                                                    </div>
+                                                    <div class="text-center">
+                                                        <span class="text-sm font-semibold text-gray-700 dark:text-gray-300">@lang('modules.billing.clickToUploadReceipt')</span>
+                                                        <span class="text-xs block mt-1">PNG, JPG @lang('app.upTo') 5MB</span>
+                                                    </div>
+                                                </div>
+                                            @endif
+                                        </label>
+
+                                        <div wire:loading wire:target="receiptFile" class="absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex items-center justify-center rounded-xl z-10">
+                                            <div class="flex flex-col items-center gap-3">
+                                                <svg class="animate-spin h-10 w-10 text-skin-base" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                                <span class="text-sm font-medium text-gray-600 dark:text-gray-400">@lang('app.uploading')...</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <x-input-error for="receiptFile" class="mt-2" />
+                                </div>
                             @else
                                 @if($posPaymentMethods->count() > 0)
                                     <div class="space-y-4">
@@ -845,7 +893,6 @@
                                                             <span class="text-sm font-bold block truncate max-w-[200px]">{{ $receiptFile->getClientOriginalName() }}</span>
                                                             <span class="text-xs opacity-75">@lang('app.clickToChange')</span>
                                                         </div>
-                                                    </div>
                                                 @else
                                                     <div class="flex flex-col items-center gap-3 text-gray-400 dark:text-gray-500">
                                                         <div class="bg-white dark:bg-gray-700 p-4 rounded-full shadow-sm group-hover:scale-110 transition-transform duration-200">
@@ -875,8 +922,6 @@
                                     </div>
                                 </div>
                             @endif
-                        </div>
-                    </div>
                 @else
                     <div class="grid items-center grid-cols-1 md:grid-cols-2 w-full mt-4 gap-6">
                         @if ($paymentGateway->stripe_status)
@@ -990,18 +1035,14 @@
 
             <x-slot name="footer">
                 @if ($showQrCode || $showPaymentDetail)
-                    @if ($showPaymentDetail)
-                        <x-button class="ml-3" wire:click="uploadReceipt" wire:loading.attr="disabled" :disabled="!$receiptFile">
-                            <span class="flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
-                                </svg>
-                                @lang('modules.billing.uploadReceipt')
-                            </span>
-                        </x-button>
-                    @else
-                        <x-button class="ml-3" wire:click="placeOrder(false, {{ $paymentOrder->id }})" wire:loading.attr="disabled">@lang('modules.billing.paymentDone')</x-button>
-                    @endif
+                    <x-button class="ml-3" wire:click="uploadReceipt" wire:loading.attr="disabled" :disabled="!$receiptFile">
+                        <span class="flex items-center gap-2">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/>
+                            </svg>
+                            @lang('modules.billing.uploadReceipt')
+                        </span>
+                    </x-button>
                 @endif
                 <x-button-cancel wire:click="hidePaymentModal" wire:loading.attr="disabled" />
             </x-slot>
