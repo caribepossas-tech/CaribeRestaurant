@@ -15,7 +15,7 @@ class PusherSettinSeeder extends Seeder
     {
         $setting = PusherSetting::count();
 
-        if ($setting > 0) {
+        if ($setting == 0) {
             $setting = new PusherSetting();
             $setting->save();
         }

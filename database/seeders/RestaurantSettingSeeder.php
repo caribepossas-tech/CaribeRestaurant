@@ -48,6 +48,11 @@ class RestaurantSettingSeeder extends Seeder
         ];
 
 
+        if (Restaurant::count() > 0) {
+            $this->command->info('Restaurants already seeded. Skipping...');
+            return;
+        }
+
         for ($i = 0; $i < $count; $i++) {
             $this->command->info('Seeding Restaurant: ' . ($i + 1));
 

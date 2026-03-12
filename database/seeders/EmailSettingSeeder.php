@@ -14,16 +14,18 @@ class EmailSettingSeeder extends Seeder
      */
     public function run(): void
     {
-        EmailSetting::create([
-            'mail_from_name' => config('app.name'),
-            'mail_from_email' => 'from@email.com',
-            'smtp_host' => 'smtp.gmail.com',
-            'smtp_port' => '465',
-            'mail_driver' => 'smtp',
-            'smtp_encryption' => 'ssl',
-            'mail_username' => 'myemail@gmail.com',
-            'enable_queue' => 'no',
-        ]);
+        EmailSetting::firstOrCreate(
+            ['mail_username' => 'myemail@gmail.com'],
+            [
+                'mail_from_name' => config('app.name'),
+                'mail_from_email' => 'from@email.com',
+                'smtp_host' => 'smtp.gmail.com',
+                'smtp_port' => '465',
+                'mail_driver' => 'smtp',
+                'smtp_encryption' => 'ssl',
+                'enable_queue' => 'no',
+            ]
+        );
     }
 
 }

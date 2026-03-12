@@ -14,6 +14,10 @@ class CountrySeeder extends Seeder
      */
     public function run(): void
     {
+        if (DB::table('countries')->count() > 0) {
+            return;
+        }
+
         DB::statement("INSERT INTO `countries` (`id`, `countries_code`, `countries_name`, `phonecode`) VALUES 
 	(1,'AF','Afghanistan','93'),
 	(2,'AX','Åland Islands','358'),

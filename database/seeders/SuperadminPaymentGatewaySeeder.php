@@ -16,7 +16,7 @@ class SuperadminPaymentGatewaySeeder extends Seeder
     {
         $gateway = SuperadminPaymentGateway::count();
 
-        if ($gateway > 0) {
+        if ($gateway == 0) {
             $setting = new SuperadminPaymentGateway();
             $setting->save();
         }
