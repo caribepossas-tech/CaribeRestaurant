@@ -31,6 +31,7 @@ class GeneralSettings extends Component
     public $showChargesForm = false;
     public $selectedChargeId;
     public $confirmDeleteChargeModal = false;
+    public $stockCheckMode;
 
     public function mount()
     {
@@ -38,6 +39,7 @@ class GeneralSettings extends Component
         $this->restaurantAddress = $this->settings->address;
         $this->restaurantEmailAddress = $this->settings->email;
         $this->restaurantPhoneNumber = $this->settings->phone_number;
+        $this->stockCheckMode = $this->settings->stock_check_mode;
         $this->fatchData();
         if (empty($this->taxFields)) {
             $this->addMoreTaxFields();
@@ -84,6 +86,7 @@ class GeneralSettings extends Component
         $this->settings->name = $this->restaurantName;
         $this->settings->phone_number = $this->restaurantPhoneNumber;
         $this->settings->address = $this->restaurantAddress;
+        $this->settings->stock_check_mode = $this->stockCheckMode;
         $this->settings->save();
 
         session()->forget(['restaurant', 'timezone', 'currency']);

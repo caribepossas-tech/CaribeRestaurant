@@ -109,4 +109,50 @@ class MenuItem extends Model
     {
         return $this->belongsToMany(ModifierGroup::class, 'item_modifiers', 'menu_item_id', 'modifier_group_id');
     }
+
+    public function recipe(): HasOne
+    {
+        return $this->hasOne(Recipe::class);
+    }
+
+    public function checkIngredientsStock(int $requestedQuantity): array
+    {
+        $branch = $this->branch;
+        $restaurant = $branch->restaurant;
+        $recipe = $this->recipe;
+
+        if (!$recipe) {
+            return ['status' => true];
+        }
+
+        foreach ($recipe->ingredients as $recipeIngredient) {
+            $ingredient = $recipeIngredient->ingredient;
+            $requiredTotal = $recipeIngredient->quantity * $requestedQuantity;
+
+            if ($ingredient->quantity < $requiredTotal) {
+                return [
+                    'status' => false,
+                    'message' => "Insufficient stock for ingredient: {$ingredient->name}. Required: {$requiredTotal} {$ingredient->unit}, available: {$ingredient->quantity} {$ingredient->unit}.",
+                    'mode' => $restaurant->stock_check_mode
+                ];
+            }
+        }
+
+        return ['status' => true];
+    }
+
+    public function deductStock(int $quantity): void
+    {
+        $recipe = $this->recipe;
+
+        if (!$recipe) {
+            return;
+        }
+
+        foreach ($recipe->ingredients as $recipeIngredient) {
+            $ingredient = $recipeIngredient->ingredient;
+            $requiredTotal = $recipeIngredient->quantity * $quantity;
+            $ingredient->decrement('quantity', $requiredTotal);
+        }
+    }
 }

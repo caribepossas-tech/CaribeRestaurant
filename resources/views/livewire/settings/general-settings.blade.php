@@ -39,6 +39,15 @@
                             <x-textarea class="block mt-2 w-full" wire:model='restaurantAddress' rows='3' />
                             <x-input-error for="restaurantAddress" class="mt-2" />
                         </div>
+                        <div>
+                            <x-label class="mt-4" for="stockCheckMode"
+                                value="Modo de Control de Stock" />
+                            <select id="stockCheckMode" wire:model="stockCheckMode" class="block mt-2 w-full border-gray-300 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-300 focus:border-indigo-500 dark:focus:border-indigo-600 focus:ring-indigo-500 dark:focus:ring-indigo-600 rounded-md shadow-sm">
+                                <option value="flexible">Flexible (Solo avisar)</option>
+                                <option value="strict">Estricto (Impedir venta)</option>
+                            </select>
+                            <x-input-error for="stockCheckMode" class="mt-2" />
+                        </div>
                     </div>
                     <div class="col-span-2 mt-3">
                         <x-button>@lang('app.save')</x-button>
