@@ -29,6 +29,7 @@ class DatabaseSeeder extends Seeder
         $this->call(EmailSettingSeeder::class);
         $this->call(SuperadminPaymentGatewaySeeder::class);
         $this->call(PusherSettinSeeder::class);
+        $this->call(\Modules\Inventory\Database\Seeders\InventoryDatabaseSeeder::class);
 
         $restaurants = Restaurant::with('branches')->get();
 
