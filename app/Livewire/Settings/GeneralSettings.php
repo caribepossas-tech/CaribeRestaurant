@@ -39,7 +39,7 @@ class GeneralSettings extends Component
         $this->restaurantAddress = $this->settings->address;
         $this->restaurantEmailAddress = $this->settings->email;
         $this->restaurantPhoneNumber = $this->settings->phone_number;
-        $this->stockCheckMode = $this->settings->stock_check_mode;
+        $this->stockCheckMode = $this->settings->stock_check_mode ?? 'flexible';
         $this->fatchData();
         if (empty($this->taxFields)) {
             $this->addMoreTaxFields();

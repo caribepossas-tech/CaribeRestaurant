@@ -236,6 +236,12 @@ class Cart extends Component
 
     public function syncCart($id)
     {
+        if (!$this->menuItem) {
+            $this->menuItem = MenuItem::find($id);
+        }
+
+        if (!$this->menuItem) return;
+
         $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
 
         if (!$check['status']) {

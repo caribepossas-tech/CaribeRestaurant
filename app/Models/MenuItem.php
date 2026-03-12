@@ -118,7 +118,15 @@ class MenuItem extends Model
     public function checkIngredientsStock(int $requestedQuantity): array
     {
         $branch = $this->branch;
+        if (!$branch) {
+            return ['status' => true];
+        }
+        
         $restaurant = $branch->restaurant;
+        if (!$restaurant) {
+            return ['status' => true];
+        }
+
         $recipe = $this->recipe;
 
         if (!$recipe) {
@@ -127,13 +135,15 @@ class MenuItem extends Model
 
         foreach ($recipe->ingredients as $recipeIngredient) {
             $ingredient = $recipeIngredient->ingredient;
+            if (!$ingredient) continue;
+
             $requiredTotal = $recipeIngredient->quantity * $requestedQuantity;
 
             if ($ingredient->quantity < $requiredTotal) {
                 return [
                     'status' => false,
                     'message' => "Insufficient stock for ingredient: {$ingredient->name}. Required: {$requiredTotal} {$ingredient->unit}, available: {$ingredient->quantity} {$ingredient->unit}.",
-                    'mode' => $restaurant->stock_check_mode
+                    'mode' => $restaurant->stock_check_mode ?? 'flexible'
                 ];
             }
         }
