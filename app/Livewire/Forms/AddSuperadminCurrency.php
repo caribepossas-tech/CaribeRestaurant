@@ -13,14 +13,14 @@ class AddSuperadminCurrency extends Component
     public $currencyPosition;
     public $thousandSeparator;
     public $decimalSeparator;
-    public int $numberOfdecimals;
+    public int $numberOfDecimals;
 
     public function mount()
     {
         $this->currencyPosition = 'left';
         $this->thousandSeparator = ',';
         $this->decimalSeparator = '.';
-        $this->numberOfdecimals = '2';
+        $this->numberOfDecimals = '2';
     }
 
     public function submitForm()
@@ -38,7 +38,7 @@ class AddSuperadminCurrency extends Component
         $currency->currency_position = $this->currencyPosition;
         $currency->thousand_separator = $this->thousandSeparator;
         $currency->decimal_separator = $this->decimalSeparator;
-        $currency->no_of_decimal = $this->numberOfdecimals;
+        $currency->no_of_decimal = $this->numberOfDecimals;
         $currency->save();
 
         $this->dispatch('hideAddCurrency');
@@ -47,7 +47,7 @@ class AddSuperadminCurrency extends Component
     public function currencyFormat($amount)
     {
         $currency_position = $this->currencyPosition;
-        $no_of_decimal = !is_null($this->numberOfdecimals) ? $this->numberOfdecimals : '0';
+        $no_of_decimal = !is_null($this->numberOfDecimals) ? $this->numberOfDecimals : '0';
         $thousand_separator = !is_null($this->thousandSeparator) ? $this->thousandSeparator : '';
         $decimal_separator = !is_null($this->decimalSeparator) ? $this->decimalSeparator : '0';
         $currency_symbol = !is_null($this->currencySymbol) ? $this->currencySymbol : '';

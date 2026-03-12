@@ -26,13 +26,15 @@ class LocaleMiddleware
             return $next($request);
         }
 
-        if (isset($user)) {
-            App::setLocale($user?->locale ?? session('locale') ?? 'en');
+        if (session()->has('locale')) {
+            App::setLocale(session('locale'));
+        } elseif (isset($user) && !is_null($user->locale)) {
+            App::setLocale($user->locale);
         } else {
             try {
-                App::setLocale(session('locale') ?? global_setting()?->locale);
+                App::setLocale(global_setting()?->locale ?? config('app.locale'));
             } catch (\Exception $e) {
-                App::setLocale('en');
+                App::setLocale(config('app.locale'));
             }
         }
 

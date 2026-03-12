@@ -253,7 +253,15 @@ if (!function_exists('global_setting')) {
             return cache('global_setting');
         }
 
-        cache(['global_setting' => GlobalSetting::first()]);
+        $setting = GlobalSetting::first();
+
+        if (!$setting) {
+            $setting = new GlobalSetting();
+            $setting->theme_hex = '#1a1a1a';
+            $setting->theme_rgb = '26, 26, 26';
+        }
+
+        cache(['global_setting' => $setting]);
 
         return cache('global_setting');
     }

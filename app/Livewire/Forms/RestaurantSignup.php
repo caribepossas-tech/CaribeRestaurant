@@ -40,10 +40,13 @@ class RestaurantSignup extends Component
         $this->countries = Country::all();
 
         $ipCountry = (new User)->getCountryFromIp();
-
         $defaultCountry = Country::where('countries_code', $ipCountry)->first();
 
-        $this->country = $defaultCountry->id;
+        if ($defaultCountry) {
+            $this->country = $defaultCountry->id;
+        } else {
+            $this->country = $this->countries->first()?->id;
+        }
     }
 
     public function submitForm()
@@ -121,11 +124,11 @@ class RestaurantSignup extends Component
             'branch_id' => $branch->id,
         ]);
 
-        $adminRole = Role::create(['name' => 'Admin_' . $restaurant->id, 'display_name' => 'Admin', 'guard_name' => 'web', 'restaurant_id' => $restaurant->id]);
-        $branchHeadRole = Role::create(['name' => 'Branch Head_' . $restaurant->id, 'display_name' => 'Branch Head', 'guard_name' => 'web', 'restaurant_id' => $restaurant->id]);
+        $adminRole = Role::firstOrCreate(['name' => 'Admin_' . $restaurant->id, 'guard_name' => 'web'], ['display_name' => 'Admin', 'restaurant_id' => $restaurant->id]);
+        $branchHeadRole = Role::firstOrCreate(['name' => 'Branch Head_' . $restaurant->id, 'guard_name' => 'web'], ['display_name' => 'Branch Head', 'restaurant_id' => $restaurant->id]);
 
-        Role::create(['name' => 'Waiter_' . $restaurant->id, 'display_name' => 'Waiter', 'guard_name' => 'web', 'restaurant_id' => $restaurant->id]);
-        Role::create(['name' => 'Chef_' . $restaurant->id, 'display_name' => 'Chef', 'guard_name' => 'web', 'restaurant_id' => $restaurant->id]);
+        Role::firstOrCreate(['name' => 'Waiter_' . $restaurant->id, 'guard_name' => 'web'], ['display_name' => 'Waiter', 'restaurant_id' => $restaurant->id]);
+        Role::firstOrCreate(['name' => 'Chef_' . $restaurant->id, 'guard_name' => 'web'], ['display_name' => 'Chef', 'restaurant_id' => $restaurant->id]);
 
         $allPermissions = Permission::get()->pluck('name')->toArray();
 
