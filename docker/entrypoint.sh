@@ -28,6 +28,6 @@ if [ "$RUN_MIGRATIONS" = "true" ]; then
 fi
 
 # Fix permissions
-chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/user-uploads
 
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
