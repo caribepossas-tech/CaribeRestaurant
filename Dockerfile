@@ -79,7 +79,7 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Fix permissions
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/log/supervisor \
     && chmod +x /usr/local/bin/entrypoint.sh \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
