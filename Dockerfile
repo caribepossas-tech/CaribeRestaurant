@@ -10,6 +10,8 @@ RUN apk add --no-cache \
     libzip \
     libxml2 \
     oniguruma \
+    git \
+    unzip \
     && apk add --no-cache --virtual .build-deps \
     libpng-dev \
     libxml2-dev \
@@ -31,13 +33,13 @@ RUN apk add --no-cache \
     zip \
     && apk del .build-deps
 
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
 # Step 2: PHP Dependencies
 FROM base AS vendor
 
 WORKDIR /var/www/html
-
-# Install Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # Copy composer files and install
 COPY composer.json composer.lock ./
