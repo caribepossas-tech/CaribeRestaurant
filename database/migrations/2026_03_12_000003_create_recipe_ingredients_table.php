@@ -8,16 +8,18 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('recipe_ingredients', function (Blueprint $table) {
-            $table->id();
-            $table->unsignedBigInteger('recipe_id');
-            $table->unsignedBigInteger('ingredient_id');
-            $table->double('quantity');
-            $table->timestamps();
+        if (!Schema::hasTable('recipe_ingredients')) {
+            Schema::create('recipe_ingredients', function (Blueprint $table) {
+                $table->id();
+                $table->unsignedBigInteger('recipe_id');
+                $table->unsignedBigInteger('ingredient_id');
+                $table->double('quantity');
+                $table->timestamps();
 
-            $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
-            $table->foreign('ingredient_id')->references('id')->on('ingredients')->onDelete('cascade');
-        });
+                $table->foreign('recipe_id')->references('id')->on('recipes')->onDelete('cascade');
+                $table->foreign('ingredient_id')->references('id')->on('ingredients')->onDelete('cascade');
+            });
+        }
     }
 
     public function down(): void

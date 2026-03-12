@@ -8,9 +8,11 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->enum('stock_check_mode', ['strict', 'flexible'])->default('flexible');
-        });
+        if (!Schema::hasColumn('restaurants', 'stock_check_mode')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->enum('stock_check_mode', ['strict', 'flexible'])->default('flexible');
+            });
+        }
     }
 
     public function down(): void
