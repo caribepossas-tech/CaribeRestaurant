@@ -32,7 +32,9 @@ class ModuleSeeder extends Seeder
             ['name' => 'Waiter Request'],
         ];
 
-        Module::insert($modules);
+        foreach ($modules as $module) {
+            Module::firstOrCreate($module);
+        }
     }
 
 }

@@ -15,17 +15,19 @@ class GlobalSettingSeeder extends Seeder
      */
     public function run(): void
     {
-        $setting = new GlobalSetting();
-        $setting->name = 'RestPOS';
-        $setting->theme_hex = '#f5be22';
-        $setting->theme_rgb = '245, 190, 34';
-        $setting->hash = md5(microtime());
-        $setting->installed_url = config('app.url');
-        $setting->facebook_link = 'https://www.facebook.com/';
-        $setting->instagram_link = 'https://www.instagram.com/';
-        $setting->twitter_link = 'https://www.twitter.com/';
-        $setting->default_currency_id = GlobalCurrency::first()->id;
-        $setting->save();
+        GlobalSetting::firstOrCreate(
+            ['hash' => md5('global_setting')], // Use a stable identifier or check if any exists
+            [
+                'name' => 'RestPOS',
+                'theme_hex' => '#f5be22',
+                'theme_rgb' => '245, 190, 34',
+                'installed_url' => config('app.url'),
+                'facebook_link' => 'https://www.facebook.com/',
+                'instagram_link' => 'https://www.instagram.com/',
+                'twitter_link' => 'https://www.twitter.com/',
+                'default_currency_id' => GlobalCurrency::first()->id ?? 1,
+            ]
+        );
 
         StorageSetting::firstOrCreate([
             'filesystem' => 'local',

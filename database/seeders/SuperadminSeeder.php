@@ -15,16 +15,17 @@ class SuperadminSeeder extends Seeder
      */
     public function run(): void
     {
-        Role::create(['name' => 'Super Admin', 'display_name' => 'Super Admin', 'guard_name' => 'web']);
+        Role::firstOrCreate(['name' => 'Super Admin'], ['display_name' => 'Super Admin', 'guard_name' => 'web']);
 
-        $user  = User::create([
-            'name' => 'CaribePOS SAS',
-            'email' => 'admin@caribepos.com',
-            'password' => bcrypt('CaribePOS2025@'),
-        ]);
+        $user = User::firstOrCreate(
+            ['email' => 'admin@caribepos.com'],
+            [
+                'name' => 'CaribePOS SAS',
+                'password' => bcrypt('CaribePOS2025@'),
+            ]
+        );
 
         $user->assignRole('Super Admin');
-
     }
 
 }
