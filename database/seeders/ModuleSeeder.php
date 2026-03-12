@@ -30,6 +30,7 @@ class ModuleSeeder extends Seeder
             ['name' => 'Settings'],
             ['name' => 'Delivery Executive'],
             ['name' => 'Waiter Request'],
+            ['name' => 'Inventory'],
         ];
 
         foreach ($modules as $module) {

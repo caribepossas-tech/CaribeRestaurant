@@ -31,6 +31,8 @@ class PermissionSeeder extends Seeder
         $settingsModule = Module::where('name', 'Settings')->first();
         $deliveryExecutiveModule = Module::where('name', 'Delivery Executive')->first();
         $waiterRequestModule = Module::where('name', 'Waiter Request')->first();
+        $inventoryModule = Module::where('name', 'Inventory')->first();
+
         $permissions = [
             ['guard_name' => 'web', 'name' => 'Create Menu', 'module_id' => $menuModule->id],
             ['guard_name' => 'web', 'name' => 'Show Menu', 'module_id' => $menuModule->id],
@@ -91,6 +93,8 @@ class PermissionSeeder extends Seeder
             ['guard_name' => 'web', 'name' => 'Manage Settings', 'module_id' => $settingsModule->id],
 
             ['guard_name' => 'web', 'name' => 'Manage Waiter Request', 'module_id' => $waiterRequestModule->id],
+
+            ['guard_name' => 'web', 'name' => 'Manage Inventory', 'module_id' => $inventoryModule->id],
         ];
 
         foreach ($permissions as $permission) {

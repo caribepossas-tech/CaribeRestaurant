@@ -78,10 +78,11 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
-# Fix permissions
+# Fix permissions and setup cron
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/log/supervisor \
     && chmod +x /usr/local/bin/entrypoint.sh \
-    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+    && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && echo "* * * * * /usr/local/bin/php /var/www/html/artisan schedule:run >> /dev/null 2>&1" > /var/spool/cron/crontabs/www-data
 
 # Generate optimized autoloader after full copy
 RUN /usr/bin/composer dump-autoload --optimize --no-dev
