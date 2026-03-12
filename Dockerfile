@@ -1,24 +1,25 @@
-# Step 1: PHP Dependencies
-FROM php:8.3-fpm-alpine AS vendor
+# Step 1: Base image with PHP extensions
+FROM php:8.3-fpm-alpine AS base
 
-WORKDIR /var/www/html
-
-# Install system dependencies
+# Install runtime and build dependencies
 RUN apk add --no-cache \
-    curl \
+    libpng \
+    libjpeg-turbo \
+    freetype \
+    icu-libs \
+    libzip \
+    libxml2 \
+    oniguruma \
+    && apk add --no-cache --virtual .build-deps \
     libpng-dev \
     libxml2-dev \
-    zip \
-    unzip \
-    git \
     oniguruma-dev \
     icu-dev \
     libzip-dev \
     libjpeg-turbo-dev \
-    freetype-dev
-
-# Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
+    freetype-dev \
+    linux-headers \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
     pdo_mysql \
     mbstring \
@@ -27,7 +28,13 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     bcmath \
     gd \
     intl \
-    zip
+    zip \
+    && apk del .build-deps
+
+# Step 2: PHP Dependencies
+FROM base AS vendor
+
+WORKDIR /var/www/html
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -36,7 +43,7 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 COPY composer.json composer.lock ./
 RUN composer install --no-dev --no-scripts --no-autoloader --prefer-dist
 
-# Step 2: Frontend Assets
+# Step 3: Frontend Assets
 FROM node:20-alpine AS frontend
 
 WORKDIR /var/www/html
@@ -49,33 +56,15 @@ RUN npm install
 COPY . .
 RUN npm run build
 
-# Step 3: Final Production Image
-FROM php:8.3-fpm-alpine
+# Step 4: Final Production Image
+FROM base
 
 WORKDIR /var/www/html
 
-# Install runtime dependencies
+# Install runtime dependencies (nginx and supervisor)
 RUN apk add --no-cache \
     nginx \
-    supervisor \
-    libpng \
-    libjpeg-turbo \
-    freetype \
-    icu-libs \
-    libzip \
-    libxml2 \
-    oniguruma
-
-# Install PHP extensions for runtime
-RUN docker-php-ext-install \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    gd \
-    intl \
-    zip
+    supervisor
 
 # Copy application files
 COPY --from=vendor /var/www/html/vendor ./vendor
