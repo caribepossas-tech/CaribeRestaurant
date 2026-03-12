@@ -64,7 +64,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        if (config('app.redirect_https')) {
+        if (config('app.redirect_https') || $this->app->environment('production')) {
             $this->app['request']->server->set('HTTPS', true);
         }
     }
@@ -74,7 +74,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        if (config('app.redirect_https')) {
+        if (config('app.redirect_https') || $this->app->environment('production')) {
             URL::forceScheme('https');
         }
 
