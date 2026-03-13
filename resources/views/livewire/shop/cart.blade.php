@@ -1148,9 +1148,19 @@
             });
 
             function payViaRazorpay(payment) {
+                if (typeof Razorpay === 'undefined') {
+                    console.error('Razorpay SDK not loaded');
+                    return;
+                }
+
+                const razorpayKey = "{{ $restaurant->paymentGateways->razorpay_key }}";
+                if (!razorpayKey) {
+                    console.error('Razorpay key is missing');
+                    return;
+                }
 
                 var options = {
-                    "key": "{{ $restaurant->paymentGateways->razorpay_key }}", // Enter the Key ID generated from the Dashboard
+                    "key": razorpayKey, // Enter the Key ID generated from the Dashboard
                     "amount": (parseFloat(payment.payment.amount) * 100),
                     "currency": "{{ $restaurant->currency->currency_code }}",
                     "description": "Order Payment",

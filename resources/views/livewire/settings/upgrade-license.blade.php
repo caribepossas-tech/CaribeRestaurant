@@ -57,8 +57,19 @@
     });
 
     function payViaRazorpay(payment) {
+        if (typeof Razorpay === 'undefined') {
+            console.error('Razorpay SDK not loaded');
+            return;
+        }
+
+        const razorpayKey = "{{ $credential->razorpay_key }}";
+        if (!razorpayKey) {
+            console.error('Razorpay key is missing');
+            return;
+        }
+
         var options = {
-            "key": "{{ $credential->razorpay_key }}",
+            "key": razorpayKey,
             "amount": (parseFloat(payment.payment.amount) * 100),
             "currency": "{{ package()->currency->currency_code }}",
             "description": "License Payment",
