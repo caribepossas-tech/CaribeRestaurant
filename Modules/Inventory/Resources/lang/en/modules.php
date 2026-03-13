@@ -278,6 +278,10 @@ return [
 'confirm_delete' => '¿Estás seguro de que deseas eliminar esta receta?',
 'delete_recipe' => 'Eliminar Receta',
 'ingredients_cost' => 'Costo de los Ingredientes',
+'variation' => 'Variación',
+'variation_optional' => 'opcional – dejar en blanco para aplicar a todas las variaciones',
+'all_variations' => 'Todas las variaciones (receta base)',
+'insufficient_stock' => 'Stock insuficiente para :ingredient. Requerido: :required, disponible: :available.',
     ],
     'purchaseOrder' => [
         'purchase_order' => 'Orden de Compra',

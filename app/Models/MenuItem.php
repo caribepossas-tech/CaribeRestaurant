@@ -110,40 +110,44 @@ class MenuItem extends Model
         return $this->belongsToMany(ModifierGroup::class, 'item_modifiers', 'menu_item_id', 'modifier_group_id');
     }
 
-    public function recipe(): HasOne
-    {
-        return $this->hasOne(Recipe::class);
-    }
-
-    public function checkIngredientsStock(int $requestedQuantity): array
+    public function checkIngredientsStock(int $requestedQuantity, ?int $variationId = null): array
     {
         $branch = $this->branch;
         if (!$branch) {
             return ['status' => true];
         }
-        
+
         $restaurant = $branch->restaurant;
         if (!$restaurant) {
             return ['status' => true];
         }
 
-        $recipe = $this->recipe;
+        $mode = $restaurant->stock_check_mode ?? 'flexible';
 
-        if (!$recipe) {
+        $recipes = $this->getInventoryRecipes($variationId);
+
+        if ($recipes->isEmpty()) {
             return ['status' => true];
         }
 
-        foreach ($recipe->ingredients as $recipeIngredient) {
-            $ingredient = $recipeIngredient->ingredient;
-            if (!$ingredient) continue;
+        foreach ($recipes as $recipe) {
+            $stock = \Modules\Inventory\Entities\InventoryStock::where('branch_id', $branch->id)
+                ->where('inventory_item_id', $recipe->inventory_item_id)
+                ->first();
 
-            $requiredTotal = $recipeIngredient->quantity * $requestedQuantity;
+            $currentStock = $stock?->quantity ?? 0;
+            $required = $recipe->quantity * $requestedQuantity;
 
-            if ($ingredient->quantity < $requiredTotal) {
+            if ($currentStock < $required) {
+                $itemName = $recipe->inventoryItem?->name ?? "ingredient #{$recipe->inventory_item_id}";
                 return [
                     'status' => false,
-                    'message' => "Insufficient stock for ingredient: {$ingredient->name}. Required: {$requiredTotal} {$ingredient->unit}, available: {$ingredient->quantity} {$ingredient->unit}.",
-                    'mode' => $restaurant->stock_check_mode ?? 'flexible'
+                    'message' => __('inventory::modules.recipe.insufficient_stock', [
+                        'ingredient' => $itemName,
+                        'required'   => $required,
+                        'available'  => $currentStock,
+                    ]),
+                    'mode' => $mode,
                 ];
             }
         }
@@ -151,59 +155,20 @@ class MenuItem extends Model
         return ['status' => true];
     }
 
-    public static function checkMultipleItemsStock(array $items, $restaurant): array
+    private function getInventoryRecipes(?int $variationId): \Illuminate\Support\Collection
     {
-        $ingredientNeeds = [];
-        $checkMode = $restaurant->stock_check_mode ?? 'flexible';
+        $query = \Modules\Inventory\Entities\Recipe::where('menu_item_id', $this->id);
 
-        foreach ($items as $itemData) {
-            $menuItem = $itemData['item'];
-            $quantity = $itemData['quantity'];
-            $recipe = $menuItem->recipe;
+        if ($variationId) {
+            $variationRecipes = (clone $query)
+                ->where('menu_item_variation_id', $variationId)
+                ->get();
 
-            if (!$recipe) continue;
-
-            foreach ($recipe->ingredients as $recipeIngredient) {
-                $ingredient = $recipeIngredient->ingredient;
-                if (!$ingredient) continue;
-
-                $ingredientId = $ingredient->id;
-                if (!isset($ingredientNeeds[$ingredientId])) {
-                    $ingredientNeeds[$ingredientId] = [
-                        'model' => $ingredient,
-                        'required' => 0
-                    ];
-                }
-                $ingredientNeeds[$ingredientId]['required'] += $recipeIngredient->quantity * $quantity;
+            if ($variationRecipes->isNotEmpty()) {
+                return $variationRecipes;
             }
         }
 
-        foreach ($ingredientNeeds as $id => $data) {
-            $ingredient = $data['model'];
-            if ($ingredient->quantity < $data['required']) {
-                return [
-                    'status' => false,
-                    'message' => "Insufficient stock for ingredient: {$ingredient->name}. Required: {$data['required']} {$ingredient->unit}, available: {$ingredient->quantity} {$ingredient->unit}.",
-                    'mode' => $checkMode
-                ];
-            }
-        }
-
-        return ['status' => true];
-    }
-
-    public function deductStock(int $quantity): void
-    {
-        $recipe = $this->recipe;
-
-        if (!$recipe) {
-            return;
-        }
-
-        foreach ($recipe->ingredients as $recipeIngredient) {
-            $ingredient = $recipeIngredient->ingredient;
-            $requiredTotal = $recipeIngredient->quantity * $quantity;
-            $ingredient->decrement('quantity', $requiredTotal);
-        }
+        return $query->whereNull('menu_item_variation_id')->get();
     }
 }

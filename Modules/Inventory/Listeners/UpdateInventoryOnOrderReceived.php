@@ -16,8 +16,22 @@ class UpdateInventoryOnOrderReceived
 
         // Get all order items
         foreach ($order->load('items')->items as $orderItem) {
-            // Get recipe for this menu item
-            $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)->get();
+            // Use variation-specific recipe if available, otherwise fall back to base recipe
+            if ($orderItem->menu_item_variation_id) {
+                $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
+                    ->where('menu_item_variation_id', $orderItem->menu_item_variation_id)
+                    ->get();
+
+                if ($recipes->isEmpty()) {
+                    $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
+                        ->whereNull('menu_item_variation_id')
+                        ->get();
+                }
+            } else {
+                $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
+                    ->whereNull('menu_item_variation_id')
+                    ->get();
+            }
             foreach ($recipes as $recipe) {
                 // Calculate quantity needed based on order quantity
                 $quantityNeeded = $recipe->quantity * $orderItem->quantity;

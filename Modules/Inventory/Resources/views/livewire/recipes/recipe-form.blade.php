@@ -24,6 +24,37 @@
         @error('menuItemId') <span class="mt-1 text-sm text-red-600">{{ $message }}</span> @enderror
     </div>
 
+    <!-- Variation Selection (optional) -->
+    @if(!$isEditing && count($availableVariations) > 0)
+    <div>
+        <label for="variationId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ __('inventory::modules.recipe.variation') }}
+            <span class="text-gray-400 text-xs">({{ __('inventory::modules.recipe.variation_optional') }})</span>
+        </label>
+        <select wire:model="variationId" id="variationId"
+            class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-700 dark:bg-gray-800 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+            <option value="">{{ __('inventory::modules.recipe.all_variations') }}</option>
+            @foreach($availableVariations as $variation)
+                <option value="{{ $variation['id'] }}">{{ $variation['name'] }}</option>
+            @endforeach
+        </select>
+        @error('variationId') <span class="mt-1 text-sm text-red-600">{{ $message }}</span> @enderror
+    </div>
+    @elseif($isEditing && count($availableVariations) > 0)
+    <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ __('inventory::modules.recipe.variation') }}
+        </label>
+        <div class="mt-1 py-2 text-sm text-gray-700 dark:text-gray-300">
+            @if($variationId)
+                {{ collect($availableVariations)->firstWhere('id', $variationId)['name'] ?? '' }}
+            @else
+                {{ __('inventory::modules.recipe.all_variations') }}
+            @endif
+        </div>
+    </div>
+    @endif
+
     <!-- Ingredients -->
     <div class="space-y-4">
         <div class="flex items-center justify-between">

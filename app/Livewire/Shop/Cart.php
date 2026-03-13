@@ -242,7 +242,8 @@ class Cart extends Component
 
         if (!$this->menuItem) return;
 
-        $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+        $variationId = $this->orderItemVariation[$id]?->id ?? null;
+        $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1, $variationId);
 
         if (!$check['status']) {
             if ($check['mode'] === 'strict') {
@@ -284,7 +285,8 @@ class Cart extends Component
         $item = $this->orderItemList[$id] ?? MenuItem::find($id);
         if (!$item) return;
 
-        $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+        $variationId = $this->orderItemVariation[$id]?->id ?? null;
+        $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1, $variationId);
 
         if (!$check['status']) {
             if ($check['mode'] === 'strict') {
@@ -606,12 +608,6 @@ class Cart extends Component
                 'amount' => $this->orderItemAmount[$key],
                 'transaction_id' => $transactionId
             ]);
-
-            // Deduct stock
-            $item = MenuItem::find($orderItem->menu_item_id);
-            if ($item) {
-                $item->deductStock($orderItem->quantity);
-            }
 
             $this->itemModifiersSelected[$key] = $this->itemModifiersSelected[$key] ?? [];
                 $orderItem->modifierOptions()->sync($this->itemModifiersSelected[$key]);
