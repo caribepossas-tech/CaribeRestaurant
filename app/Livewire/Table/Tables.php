@@ -40,6 +40,7 @@ class Tables extends Component
     }
 
     #[On('hideAddTable')]
+    #[On('tableAdded')]
     public function hideAddTable()
     {
         $this->showAddTableModal = false;

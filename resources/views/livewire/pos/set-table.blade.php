@@ -1,5 +1,5 @@
 <div>
-    <div class="flex flex-col my-4 grid gap-6 grid-cols-3">
+    <div class="my-4 grid gap-6 grid-cols-3">
         <!-- Card Section -->
         <div class="space-y-8 col-span-2">
             @foreach ($tables as $area)
@@ -50,7 +50,21 @@
 
 
         <div class="col-span-1 space-y-3">
-            <h4 class="text-base font-medium">@lang('modules.reservation.todayReservations')</h4>
+            <div class="flex justify-between items-center">
+                <h4 class="text-base font-medium">@lang('modules.reservation.todayReservations')</h4>
+
+                @if(user_can('Create Table'))
+                    <button type="button" 
+                        onclick="document.getElementById('drawer-add-table-trigger').click()"
+                        class="text-xs font-medium text-skin-base hover:text-skin-base/[.8] flex items-center gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="bi bi-plus-circle" viewBox="0 0 16 16">
+                            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14m0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16"/>
+                            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4"/>
+                        </svg>
+                        @lang('modules.table.addTable')
+                    </button>
+                @endif
+            </div>
 
             @forelse ($reservations as $item)
             <div class="flex flex-col bg-white border shadow-sm rounded-xl dark:bg-neutral-900 dark:border-neutral-700 dark:shadow-neutral-700/70 p-2">

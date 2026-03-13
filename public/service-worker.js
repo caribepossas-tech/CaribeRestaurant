@@ -32,6 +32,13 @@ self.addEventListener('push', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url);
+
+    // Skip interception for Minio image host (to avoid errors and signed URL caching issues)
+    if (url.hostname === 'herramientas-minio.z55ugh.easypanel.host') {
+        return;
+    }
+
     event.respondWith(
         fetch(event.request)
             .then((response) => {
