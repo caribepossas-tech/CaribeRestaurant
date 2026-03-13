@@ -9,7 +9,7 @@
     @livewire('forms.addTable')
 </x-right-drawer>
 
-<button data-drawer-target="drawer-add-table" aria-controls="drawer-add-table" type="button" class="hidden" id="drawer-add-table-trigger"></button>
+<button type="button" class="hidden" id="drawer-add-table-trigger"></button>
 
 <script>
     function toggleAddTableDrawer(show = true) {
@@ -20,6 +20,21 @@
     }
 
     document.addEventListener('livewire:navigated', () => {
+        // Manually initialize the drawer to have full control and ensure it's hidden
+        const $targetEl = document.getElementById('drawer-add-table');
+        if ($targetEl && typeof Drawer !== 'undefined') {
+            const options = {
+                placement: 'right',
+                backdrop: true,
+                bodyScrolling: false,
+                edge: false,
+                edgeOffset: '',
+                backdropClasses: 'bg-gray-900/50 dark:bg-gray-900/80 fixed inset-0 z-30',
+            };
+            const instance = new Drawer($targetEl, options);
+            instance.hide(); // Force hide on init
+        }
+
         Livewire.on('hideAddTable', () => toggleAddTableDrawer(false));
         Livewire.on('tableAdded', () => toggleAddTableDrawer(false));
     });
