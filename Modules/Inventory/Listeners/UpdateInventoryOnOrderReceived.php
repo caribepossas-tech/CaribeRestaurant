@@ -7,6 +7,7 @@ use Modules\Inventory\Entities\Recipe;
 use Modules\Inventory\Entities\InventoryMovement;
 use Modules\Inventory\Entities\InventoryStock;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class UpdateInventoryOnOrderReceived
 {
@@ -14,10 +15,12 @@ class UpdateInventoryOnOrderReceived
     {
         $order = $event->order;
 
+        $hasVariationColumn = Schema::hasColumn('recipes', 'menu_item_variation_id');
+
         // Get all order items
         foreach ($order->load('items')->items as $orderItem) {
             // Use variation-specific recipe if available, otherwise fall back to base recipe
-            if ($orderItem->menu_item_variation_id) {
+            if ($hasVariationColumn && $orderItem->menu_item_variation_id) {
                 $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
                     ->where('menu_item_variation_id', $orderItem->menu_item_variation_id)
                     ->get();
@@ -27,9 +30,12 @@ class UpdateInventoryOnOrderReceived
                         ->whereNull('menu_item_variation_id')
                         ->get();
                 }
-            } else {
+            } elseif ($hasVariationColumn) {
                 $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
                     ->whereNull('menu_item_variation_id')
+                    ->get();
+            } else {
+                $recipes = Recipe::where('menu_item_id', $orderItem->menu_item_id)
                     ->get();
             }
             foreach ($recipes as $recipe) {

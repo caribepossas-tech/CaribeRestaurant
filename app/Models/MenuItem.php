@@ -159,6 +159,13 @@ class MenuItem extends Model
     {
         $query = \Modules\Inventory\Entities\Recipe::where('menu_item_id', $this->id);
 
+        // Only apply variation filters when the column exists (after migration runs)
+        $hasVariationColumn = \Illuminate\Support\Facades\Schema::hasColumn('recipes', 'menu_item_variation_id');
+
+        if (!$hasVariationColumn) {
+            return $query->get();
+        }
+
         if ($variationId) {
             $variationRecipes = (clone $query)
                 ->where('menu_item_variation_id', $variationId)

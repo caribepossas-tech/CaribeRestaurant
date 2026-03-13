@@ -9,6 +9,7 @@ use Modules\Inventory\Entities\Unit;
 use App\Models\MenuItem;
 use App\Models\MenuItemVariation;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Schema;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
 class RecipeForm extends Component
@@ -74,7 +75,8 @@ class RecipeForm extends Component
         $this->variationId = null;
         if ($value) {
             $this->availableVariations = MenuItemVariation::where('menu_item_id', $value)
-                ->get(['id', 'name'])
+                ->get(['id', 'variation'])
+                ->map(fn($v) => ['id' => $v->id, 'name' => $v->variation])
                 ->toArray();
         } else {
             $this->availableVariations = [];
@@ -86,6 +88,8 @@ class RecipeForm extends Component
         $this->isEditing = true;
         $this->recipeId  = $recipeId;
 
+        $hasVariationColumn = Schema::hasColumn('recipes', 'menu_item_variation_id');
+
         $query = Recipe::with(['inventoryItem', 'unit'])
             ->join('menu_items', 'recipes.menu_item_id', '=', 'menu_items.id')
             ->where('menu_items.id', $recipeId)
@@ -93,10 +97,12 @@ class RecipeForm extends Component
             ->where('menu_items.branch_id', branch()->id)
             ->select('recipes.*', 'menu_items.item_name');
 
-        if ($variationId) {
-            $query->where('recipes.menu_item_variation_id', $variationId);
-        } else {
-            $query->whereNull('recipes.menu_item_variation_id');
+        if ($hasVariationColumn) {
+            if ($variationId) {
+                $query->where('recipes.menu_item_variation_id', $variationId);
+            } else {
+                $query->whereNull('recipes.menu_item_variation_id');
+            }
         }
 
         $recipe = $query->first();
@@ -113,7 +119,8 @@ class RecipeForm extends Component
         ]);
 
         $this->availableVariations = MenuItemVariation::where('menu_item_id', $this->menuItemId)
-            ->get(['id', 'name'])
+            ->get(['id', 'variation'])
+            ->map(fn($v) => ['id' => $v->id, 'name' => $v->variation])
             ->toArray();
 
         $ingredientsQuery = Recipe::where('menu_item_id', $recipeId)
@@ -122,10 +129,12 @@ class RecipeForm extends Component
             ->where('menu_items.branch_id', branch()->id)
             ->select('recipes.*', 'menu_items.item_name');
 
-        if ($variationId) {
-            $ingredientsQuery->where('recipes.menu_item_variation_id', $variationId);
-        } else {
-            $ingredientsQuery->whereNull('recipes.menu_item_variation_id');
+        if ($hasVariationColumn) {
+            if ($variationId) {
+                $ingredientsQuery->where('recipes.menu_item_variation_id', $variationId);
+            } else {
+                $ingredientsQuery->whereNull('recipes.menu_item_variation_id');
+            }
         }
 
         $this->ingredients = $ingredientsQuery->get()
@@ -153,24 +162,30 @@ class RecipeForm extends Component
     {
         $this->validate();
 
+        $hasVariationColumn = Schema::hasColumn('recipes', 'menu_item_variation_id');
+
         // Delete existing recipes for this menu item + variation combination
         $deleteQuery = Recipe::where('menu_item_id', $this->menuItemId);
-        if ($this->variationId) {
-            $deleteQuery->where('menu_item_variation_id', $this->variationId);
-        } else {
-            $deleteQuery->whereNull('menu_item_variation_id');
+        if ($hasVariationColumn) {
+            if ($this->variationId) {
+                $deleteQuery->where('menu_item_variation_id', $this->variationId);
+            } else {
+                $deleteQuery->whereNull('menu_item_variation_id');
+            }
         }
         $deleteQuery->delete();
 
         // Create new recipes
+        $recipeData = ['menu_item_id' => $this->menuItemId];
+        if ($hasVariationColumn) {
+            $recipeData['menu_item_variation_id'] = $this->variationId ?: null;
+        }
         foreach ($this->ingredients as $ingredient) {
-            Recipe::create([
-                'menu_item_id'            => $this->menuItemId,
-                'menu_item_variation_id'  => $this->variationId ?: null,
-                'inventory_item_id'       => $ingredient['inventory_item_id'],
-                'quantity'                => $ingredient['quantity'],
-                'unit_id'                 => $ingredient['unit_id'],
-            ]);
+            Recipe::create(array_merge($recipeData, [
+                'inventory_item_id' => $ingredient['inventory_item_id'],
+                'quantity'          => $ingredient['quantity'],
+                'unit_id'           => $ingredient['unit_id'],
+            ]));
         }
 
         $this->dispatch('recipeUpdated');
