@@ -9,23 +9,19 @@
     @livewire('forms.addTable')
 </x-right-drawer>
 
-<button data-drawer-target="drawer-add-table" data-drawer-show="drawer-add-table" aria-controls="drawer-add-table" type="button" class="hidden" id="drawer-add-table-trigger"></button>
+<button data-drawer-target="drawer-add-table" aria-controls="drawer-add-table" type="button" class="hidden" id="drawer-add-table-trigger"></button>
 
 <script>
-    document.addEventListener('livewire:navigated', () => {
-        Livewire.on('hideAddTable', () => {
-            const drawer = FlowbiteInstances.getInstance('drawer', 'drawer-add-table');
-            if (drawer) {
-                drawer.hide();
-            }
-        });
+    function toggleAddTableDrawer(show = true) {
+        const drawer = FlowbiteInstances.getInstance('drawer', 'drawer-add-table');
+        if (drawer) {
+            show ? drawer.show() : drawer.hide();
+        }
+    }
 
-        Livewire.on('tableAdded', () => {
-             const drawer = FlowbiteInstances.getInstance('drawer', 'drawer-add-table');
-            if (drawer) {
-                drawer.hide();
-            }
-        });
+    document.addEventListener('livewire:navigated', () => {
+        Livewire.on('hideAddTable', () => toggleAddTableDrawer(false));
+        Livewire.on('tableAdded', () => toggleAddTableDrawer(false));
     });
 </script>
 
