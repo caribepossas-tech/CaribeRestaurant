@@ -474,6 +474,27 @@ class Cart extends Component
 
     public function placeOrder($pay = false, $updateOrder = null)
     {
+        if (!$updateOrder) {
+            $itemsToCheck = [];
+            foreach ($this->orderItemList as $key => $value) {
+                $itemsToCheck[] = [
+                    'item' => MenuItem::find(isset($this->orderItemVariation[$key]) ? $this->orderItemVariation[$key]->menu_item_id : $this->orderItemList[$key]->id),
+                    'quantity' => $this->orderItemQty[$key]
+                ];
+            }
+
+            $check = MenuItem::checkMultipleItemsStock($itemsToCheck, $this->restaurant);
+
+            if (!$check['status'] && $check['mode'] === 'strict') {
+                $this->alert('error', $check['message'], [
+                    'toast' => false,
+                    'position' => 'center',
+                    'showCancelButton' => true,
+                    'cancelButtonText' => __('app.close')
+                ]);
+                return;
+            }
+        }
 
         if ($updateOrder) {
             $this->order = Order::find($updateOrder);

@@ -151,6 +151,47 @@ class MenuItem extends Model
         return ['status' => true];
     }
 
+    public static function checkMultipleItemsStock(array $items, $restaurant): array
+    {
+        $ingredientNeeds = [];
+        $checkMode = $restaurant->stock_check_mode ?? 'flexible';
+
+        foreach ($items as $itemData) {
+            $menuItem = $itemData['item'];
+            $quantity = $itemData['quantity'];
+            $recipe = $menuItem->recipe;
+
+            if (!$recipe) continue;
+
+            foreach ($recipe->ingredients as $recipeIngredient) {
+                $ingredient = $recipeIngredient->ingredient;
+                if (!$ingredient) continue;
+
+                $ingredientId = $ingredient->id;
+                if (!isset($ingredientNeeds[$ingredientId])) {
+                    $ingredientNeeds[$ingredientId] = [
+                        'model' => $ingredient,
+                        'required' => 0
+                    ];
+                }
+                $ingredientNeeds[$ingredientId]['required'] += $recipeIngredient->quantity * $quantity;
+            }
+        }
+
+        foreach ($ingredientNeeds as $id => $data) {
+            $ingredient = $data['model'];
+            if ($ingredient->quantity < $data['required']) {
+                return [
+                    'status' => false,
+                    'message' => "Insufficient stock for ingredient: {$ingredient->name}. Required: {$data['required']} {$ingredient->unit}, available: {$ingredient->quantity} {$ingredient->unit}.",
+                    'mode' => $checkMode
+                ];
+            }
+        }
+
+        return ['status' => true];
+    }
+
     public function deductStock(int $quantity): void
     {
         $recipe = $this->recipe;

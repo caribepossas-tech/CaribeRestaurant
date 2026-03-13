@@ -242,6 +242,32 @@ class Pos extends Component
 
     public function syncCart($id)
     {
+        if (!$this->menuItem) {
+            $this->menuItem = MenuItem::find($id);
+        }
+
+        if (!$this->menuItem) return;
+
+        $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+
+        if (!$check['status']) {
+            if ($check['mode'] === 'strict') {
+                $this->alert('error', $check['message'], [
+                    'toast' => false,
+                    'position' => 'center',
+                    'showCancelButton' => true,
+                    'cancelButtonText' => __('app.close')
+                ]);
+                return;
+            } else {
+                $this->alert('warning', $check['message'], [
+                    'toast' => true,
+                    'position' => 'top-end',
+                    'timer' => 5000
+                ]);
+            }
+        }
+
         if (!isset($this->orderItemList[$id])) {
             $this->orderItemList[$id] = $this->menuItem;
             $this->orderItemQty[$id] = $this->orderItemQty[$id] ?? 1;
@@ -301,6 +327,29 @@ class Pos extends Component
 
     public function addQty($id)
     {
+        $item = $this->orderItemList[$id] ?? MenuItem::find($id);
+        if (!$item) return;
+
+        $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+
+        if (!$check['status']) {
+            if ($check['mode'] === 'strict') {
+                $this->alert('error', $check['message'], [
+                    'toast' => false,
+                    'position' => 'center',
+                    'showCancelButton' => true,
+                    'cancelButtonText' => __('app.close')
+                ]);
+                return;
+            } else {
+                $this->alert('warning', $check['message'], [
+                    'toast' => true,
+                    'position' => 'top-end',
+                    'timer' => 5000
+                ]);
+            }
+        }
+
         $this->orderItemQty[$id] = isset($this->orderItemQty[$id]) ? ($this->orderItemQty[$id] + 1) : 1;
         $basePrice = $this->orderItemVariation[$id]->price ?? $this->orderItemList[$id]->price;
         $this->orderItemAmount[$id] = $this->orderItemQty[$id] * ($basePrice + ($this->orderItemModifiersPrice[$id] ?? 0));
@@ -449,24 +498,45 @@ class Pos extends Component
         $this->validate($rules, $messages);
 
         switch ($action) {
-        case 'bill':
-            $successMessage = __('messages.billedSuccess');
-            $status = 'billed';
-            $tableStatus = 'running';
-            break;
+            case 'bill':
+                $successMessage = __('messages.billedSuccess');
+                $status = 'billed';
+                $tableStatus = 'running';
+                break;
 
-        case 'kot':
-            $successMessage = __('messages.kotGenerated');
-            $status = 'kot';
-            $tableStatus = 'running';
-            break;
+            case 'kot':
+                $successMessage = __('messages.kotGenerated');
+                $status = 'kot';
+                $tableStatus = 'running';
+                break;
 
+            case 'cancel':
+                $successMessage = __('messages.orderCanceled');
+                $status = 'canceled';
+                $tableStatus = 'available';
+                break;
+        }
 
-        case 'cancel':
-            $successMessage = __('messages.orderCanceled');
-            $status = 'canceled';
-            $tableStatus = 'available';
-            break;
+        if ($status == 'kot' || $status == 'billed') {
+            $itemsToCheck = [];
+            foreach ($this->orderItemList as $key => $value) {
+                $itemsToCheck[] = [
+                    'item' => MenuItem::find(isset($this->orderItemVariation[$key]) ? $this->orderItemVariation[$key]->menu_item_id : $this->orderItemList[$key]->id),
+                    'quantity' => $this->orderItemQty[$key]
+                ];
+            }
+
+            $check = MenuItem::checkMultipleItemsStock($itemsToCheck, restaurant());
+
+            if (!$check['status'] && $check['mode'] === 'strict') {
+                $this->alert('error', $check['message'], [
+                    'toast' => false,
+                    'position' => 'center',
+                    'showCancelButton' => true,
+                    'cancelButtonText' => __('app.close')
+                ]);
+                return;
+            }
         }
 
 
@@ -534,6 +604,12 @@ class Pos extends Component
                     'quantity' => $this->orderItemQty[$key]
                 ]);
 
+                // Deduct stock
+                $item = MenuItem::find($kotItem->menu_item_id);
+                if ($item) {
+                    $item->deductStock($kotItem->quantity);
+                }
+
                 $this->itemModifiersSelected[$key] = $this->itemModifiersSelected[$key] ?? [];
                 $kotItem->modifierOptions()->sync($this->itemModifiersSelected[$key]);
             }
@@ -550,6 +626,12 @@ class Pos extends Component
                     'price' => (isset($this->orderItemVariation[$key]) ? $this->orderItemVariation[$key]->price : $value->price),
                     'amount' => $this->orderItemAmount[$key],
                 ]);
+
+                // Deduct stock
+                $item = MenuItem::find($orderItem->menu_item_id);
+                if ($item) {
+                    $item->deductStock($orderItem->quantity);
+                }
 
                 $this->itemModifiersSelected[$key] = $this->itemModifiersSelected[$key] ?? [];
                 $orderItem->modifierOptions()->sync($this->itemModifiersSelected[$key]);
