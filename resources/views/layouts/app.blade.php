@@ -2,7 +2,7 @@
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ isRtl() ? 'rtl' : 'ltr' }}">
 
 <head>
-   @php
+    @php
         $lastSegment = last(request()->segments());
     @endphp
     @if (user()->restaurant_id)
@@ -95,7 +95,7 @@
     @endif
 
 
-    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js" id="pusher-beams-script"></script>
+    <script src="https://js.pusher.com/beams/1.0/push-notifications-cdn.js" id="pusher-beams-script" data-navigate-track></script>
 
     <script>
         if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia(
@@ -186,7 +186,7 @@
     <x-livewire-alert::flash />
 
     @if (user()->restaurant_id)
-        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script src="https://checkout.razorpay.com/v1/checkout.js" data-navigate-track></script>
 
         @livewire('order.OrderDetail')
 
@@ -197,7 +197,7 @@
         @livewire('order.addPayment')
 
 
-        <script src="https://js.stripe.com/v3/"></script>
+        <script src="https://js.stripe.com/v3/" data-navigate-track></script>
 
         <form action="{{ route('stripe.license_payment') }}" method="POST" id="license-payment-form" class="hidden">
             @csrf
