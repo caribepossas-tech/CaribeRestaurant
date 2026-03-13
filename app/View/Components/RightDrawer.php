@@ -10,13 +10,15 @@ class RightDrawer extends Component
 {
 
     public $title;
+    public $id;
 
     /**
      * Create a new component instance.
      */
-    public function __construct($title)
+    public function __construct($title, $id = 'drawer-create-product-default')
     {
         $this->title = $title;
+        $this->id = $id;
     }
 
     /**

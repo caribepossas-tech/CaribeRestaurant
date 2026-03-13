@@ -5,8 +5,8 @@
 @livewire('area.areas')
 
 <!-- Product Drawer -->
-<x-right-drawer :title='__("modules.menu.addMenu")'>
-    @livewire('forms.addMenu')
+<x-right-drawer :title='__("modules.table.addArea")' id="drawer-add-area">
+    @livewire('forms.addArea')
 </x-right-drawer>
 
     

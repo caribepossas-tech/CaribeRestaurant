@@ -1,9 +1,10 @@
-<div id="drawer-create-product-default" class="fixed top-0 right-0 z-40 w-full h-screen max-w-md p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-gray-800"
+<div id="{{ $id }}" class="fixed top-0 right-0 z-40 w-full h-screen max-w-md p-4 overflow-y-auto transition-transform translate-x-full bg-white dark:bg-gray-800"
     tabindex="-1" aria-labelledby="drawer-label" aria-hidden="true">
     <h5 id="drawer-label"
-        class="inline-flex items-center mb-6 font-bold text-gray-800 uppercase dark:text-gray-400">{{ $title }}</h5>
-    <button type="button" data-drawer-dismiss="drawer-create-product-default"
-        aria-controls="drawer-create-product-default"
+        class="inline-flex items-center mb-4 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400">
+        {{ $title }}</h5>
+    <button type="button" data-drawer-dismiss="{{ $id }}"
+        aria-controls="{{ $id }}"
         class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white">
         <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20"
             xmlns="http://www.w3.org/2000/svg">

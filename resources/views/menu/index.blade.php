@@ -5,7 +5,7 @@
 @livewire('menu.menus')
 
 <!-- Product Drawer -->
-<x-right-drawer :title='__("modules.menu.addMenu")'>
+<x-right-drawer :title='__("modules.menu.addMenu")' id="drawer-create-product-default">
     @livewire('forms.addMenu')
 </x-right-drawer>
 

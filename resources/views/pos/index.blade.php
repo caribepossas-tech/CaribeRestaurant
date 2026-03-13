@@ -5,7 +5,7 @@
 @livewire('pos.pos')
 
 <!-- Product Drawer -->
-<x-right-drawer :title='__("modules.menu.addMenu")'>
+<x-right-drawer :title='__("modules.table.addTable")' id="drawer-add-table">
     @livewire('forms.addTable')
 </x-right-drawer>
 
