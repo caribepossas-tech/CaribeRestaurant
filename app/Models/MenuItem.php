@@ -155,6 +155,77 @@ class MenuItem extends Model
         return ['status' => true];
     }
 
+    public static function checkMultipleItemsStock(array $items, $restaurant): array
+    {
+        $checkMode = $restaurant->stock_check_mode ?? 'flexible';
+        $hasVariationColumn = \Illuminate\Support\Facades\Schema::hasColumn('recipes', 'menu_item_variation_id');
+        $needs = [];
+
+        foreach ($items as $itemData) {
+            $menuItem = $itemData['item'];
+            $quantity  = $itemData['quantity'];
+
+            if (!$menuItem) continue;
+
+            $branch = $menuItem->branch;
+            if (!$branch) continue;
+
+            $query = \Modules\Inventory\Entities\Recipe::where('menu_item_id', $menuItem->id);
+            if ($hasVariationColumn) {
+                $query->whereNull('menu_item_variation_id');
+            }
+            $recipes = $query->get();
+
+            foreach ($recipes as $recipe) {
+                $key = $branch->id . '_' . $recipe->inventory_item_id;
+                if (!isset($needs[$key])) {
+                    $needs[$key] = [
+                        'branch_id'         => $branch->id,
+                        'inventory_item_id' => $recipe->inventory_item_id,
+                        'required'          => 0,
+                        'item_name'         => $recipe->inventoryItem?->name ?? "#{$recipe->inventory_item_id}",
+                    ];
+                }
+                $needs[$key]['required'] += $recipe->quantity * $quantity;
+            }
+        }
+
+        foreach ($needs as $data) {
+            $stock = \Modules\Inventory\Entities\InventoryStock::where('branch_id', $data['branch_id'])
+                ->where('inventory_item_id', $data['inventory_item_id'])
+                ->first();
+
+            $available = $stock?->quantity ?? 0;
+            if ($available < $data['required']) {
+                return [
+                    'status'  => false,
+                    'message' => __('inventory::modules.recipe.insufficient_stock', [
+                        'ingredient' => $data['item_name'],
+                        'required'   => $data['required'],
+                        'available'  => $available,
+                    ]),
+                    'mode' => $checkMode,
+                ];
+            }
+        }
+
+        return ['status' => true];
+    }
+
+    public function deductStock(int $quantity): void
+    {
+        $branch = $this->branch;
+        if (!$branch) return;
+
+        $recipes = $this->getInventoryRecipes(null);
+
+        foreach ($recipes as $recipe) {
+            \Modules\Inventory\Entities\InventoryStock::where('branch_id', $branch->id)
+                ->where('inventory_item_id', $recipe->inventory_item_id)
+                ->decrement('quantity', $recipe->quantity * $quantity);
+        }
+    }
+
     private function getInventoryRecipes(?int $variationId): \Illuminate\Support\Collection
     {
         $query = \Modules\Inventory\Entities\Recipe::where('menu_item_id', $this->id);
