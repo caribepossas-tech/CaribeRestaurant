@@ -243,7 +243,9 @@ class Pos extends Component
     public function syncCart($id)
     {
         if (!$this->menuItem) {
-            $this->menuItem = MenuItem::find($id);
+            $cleanId = str_replace('"', '', $id);
+            $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
+            $this->menuItem = MenuItem::find($menuItemId);
         }
 
         if (!$this->menuItem) return;
@@ -327,7 +329,9 @@ class Pos extends Component
 
     public function addQty($id)
     {
-        $item = $this->orderItemList[$id] ?? MenuItem::find($id);
+        $cleanId = str_replace('"', '', $id);
+        $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
+        $item = $this->orderItemList[$id] ?? MenuItem::find($menuItemId);
         if (!$item) return;
 
         $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
@@ -604,10 +608,13 @@ class Pos extends Component
                     'quantity' => $this->orderItemQty[$key]
                 ]);
 
-                // Deduct stock
-                $item = MenuItem::find($kotItem->menu_item_id);
-                if ($item) {
-                    $item->deductStock($kotItem->quantity);
+                // Deduct stock only for new items (not already in a KOT)
+                $isAlreadyInKot = str_contains($key, 'kot_');
+                if (!$isAlreadyInKot) {
+                    $item = MenuItem::find($kotItem->menu_item_id);
+                    if ($item) {
+                        $item->deductStock($kotItem->quantity);
+                    }
                 }
 
                 $this->itemModifiersSelected[$key] = $this->itemModifiersSelected[$key] ?? [];
@@ -627,10 +634,13 @@ class Pos extends Component
                     'amount' => $this->orderItemAmount[$key],
                 ]);
 
-                // Deduct stock
-                $item = MenuItem::find($orderItem->menu_item_id);
-                if ($item) {
-                    $item->deductStock($orderItem->quantity);
+                // Deduct stock only for new items (not already in a KOT)
+                $isAlreadyInKot = str_contains($key, 'kot_');
+                if (!$isAlreadyInKot) {
+                    $item = MenuItem::find($orderItem->menu_item_id);
+                    if ($item) {
+                        $item->deductStock($orderItem->quantity);
+                    }
                 }
 
                 $this->itemModifiersSelected[$key] = $this->itemModifiersSelected[$key] ?? [];
