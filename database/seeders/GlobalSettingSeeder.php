@@ -33,5 +33,7 @@ class GlobalSettingSeeder extends Seeder
             'filesystem' => 'local',
             'status' => 'enabled',
         ]);
+
+        cache()->forget('global_setting');
     }
 }

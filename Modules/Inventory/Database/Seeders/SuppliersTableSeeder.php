@@ -3,12 +3,14 @@
 namespace Modules\Inventory\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Restaurant;
 use Modules\Inventory\Entities\Supplier;
 
 class SuppliersTableSeeder extends Seeder
 {
     public function run(): void
     {
+        $restaurantId = Restaurant::first()->id;
         $suppliers = [
             [
                 'name' => 'Fresh Produce Co.',

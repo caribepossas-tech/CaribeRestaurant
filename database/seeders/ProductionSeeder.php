@@ -18,6 +18,9 @@ class ProductionSeeder extends Seeder
     {
         $this->command->info('Seeding production data...');
 
+        // Clear global setting cache to avoid issues with Boot process caching an empty model
+        cache()->forget('global_setting');
+
         // 1. Global data (countries, currencies, settings)
         $this->call(CountrySeeder::class);
         $this->call(GlobalCurrencySeeder::class);

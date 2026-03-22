@@ -115,10 +115,19 @@ class RestaurantObserver
             $currency->saveQuietly();
         }
 
-        $defaultCurrency = Currency::where('currency_code', global_setting()->defaultCurrency->currency_code)->where('restaurant_id', $restaurant->id)->first();
+        $globalSetting = global_setting();
+        $defaultGlobalCurrency = $globalSetting->defaultCurrency ?? GlobalCurrency::first();
 
-        $restaurant->currency_id = $defaultCurrency->id;
-        $restaurant->save();
+        if ($defaultGlobalCurrency) {
+            $defaultCurrency = Currency::where('currency_code', $defaultGlobalCurrency->currency_code)
+                ->where('restaurant_id', $restaurant->id)
+                ->first();
+
+            if ($defaultCurrency) {
+                $restaurant->currency_id = $defaultCurrency->id;
+                $restaurant->save();
+            }
+        }
     }
 
     public function addNotificationSettings($restaurant)

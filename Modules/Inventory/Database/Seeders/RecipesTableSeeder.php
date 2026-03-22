@@ -6,14 +6,17 @@ use Illuminate\Database\Seeder;
 use Modules\Inventory\Entities\Recipe;
 use Modules\Inventory\Entities\InventoryItem;
 use App\Models\MenuItem;
+use App\Models\Branch;
 use Modules\Inventory\Entities\Unit;
 
 class RecipesTableSeeder extends Seeder
 {
     public function run(): void
     {
+        $branchId = Branch::first()->id;
+
         // Get units from database
-        $units = Unit::where('branch_id', 1)->get();
+        $units = Unit::where('branch_id', $branchId)->get();
         $kg = $units->where('symbol', 'kg')->first();
         $gram = $units->where('symbol', 'g')->first();
         $liter = $units->where('symbol', 'L')->first();
