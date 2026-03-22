@@ -35,6 +35,7 @@ return new class extends Migration
      */
     public function down(): void
     {
+        Schema::dropIfExists('kot_item_modifier_options');
         Schema::dropIfExists('order_item_modifier_options');
     }
 };
