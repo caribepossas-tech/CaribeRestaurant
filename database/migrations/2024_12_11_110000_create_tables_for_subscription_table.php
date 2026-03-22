@@ -123,7 +123,7 @@ return new class extends Migration
             });
         }
 
-        if (Schema::hasTable('packages')) {
+        if (Schema::hasTable('packages') && !Schema::hasColumn('packages', 'description')) {
             Schema::table('packages', function (Blueprint $table) {
                 $table->string('description')->nullable();
                 $table->decimal('annual_price', 16, 2)->nullable();
@@ -152,9 +152,9 @@ return new class extends Migration
             });
         }
 
-        if (Schema::hasTable('restaurants')) {
+        if (Schema::hasTable('restaurants') && !Schema::hasColumn('restaurants', 'package_id')) {
             Schema::table('restaurants', function (Blueprint $table) {
-            $table->unsignedBigInteger('package_id')->nullable();
+                $table->unsignedBigInteger('package_id')->nullable();
             $table->foreign('package_id')->references('id')->on('packages')->onDelete('SET NULL')->onUpdate('cascade');
             $table->string('package_type')->nullable();
             $table->enum('status', ['active', 'inactive', 'license_expired'])->default('active');

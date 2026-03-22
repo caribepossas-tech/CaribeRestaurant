@@ -15,7 +15,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::rename('restaurant_settings', 'restaurants');
+        if (Schema::hasTable('restaurant_settings') && !Schema::hasTable('restaurants')) {
+            Schema::rename('restaurant_settings', 'restaurants');
+        }
 
         Schema::create('branches', function (Blueprint $table) {
             $table->id();
