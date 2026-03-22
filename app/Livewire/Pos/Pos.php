@@ -243,7 +243,7 @@ class Pos extends Component
     public function syncCart($id)
     {
         $cleanId = str_replace('"', '', $id);
-        $variationId = str_contains($cleanId, '_') ? explode('_', $cleanId)[1] : null;
+        $variationId = str_contains($cleanId, '_') ? (int) explode('_', $cleanId)[1] : null;
 
         if (!$this->menuItem) {
             $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
@@ -333,7 +333,7 @@ class Pos extends Component
     {
         $cleanId = str_replace('"', '', $id);
         $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
-        $variationId = str_contains($cleanId, '_') ? explode('_', $cleanId)[1] : null;
+        $variationId = str_contains($cleanId, '_') ? (int) explode('_', $cleanId)[1] : null;
         $item = $this->orderItemList[$id] ?? MenuItem::find($menuItemId);
         if (!$item) return;
 
