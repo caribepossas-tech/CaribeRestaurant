@@ -13,42 +13,46 @@ return new class extends Migration
     public function up(): void {
 
         Schema::table('inventory_items', function (Blueprint $table) {
-            // Check if foreign key exists before trying to drop it
-            $foreignKeys = [];
-            $foreignKeyName = null;
+            if (DB::getDriverName() === 'sqlite') {
+                $table->dropForeign(['preferred_supplier_id']);
+            } else {
+                // Check if foreign key exists before trying to drop it
+                $foreignKeys = [];
+                $foreignKeyName = null;
 
-            // Get foreign keys using DB facade instead of Doctrine
-            $constraints = DB::select(
-                "SELECT CONSTRAINT_NAME
-                FROM information_schema.TABLE_CONSTRAINTS
-                WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'
-                AND TABLE_NAME = 'inventory_items'
-                AND TABLE_SCHEMA = DATABASE()"
-            );
-
-            foreach ($constraints as $constraint) {
-                $keyName = $constraint->CONSTRAINT_NAME;
-                $columns = DB::select(
-                    "SELECT COLUMN_NAME
-                    FROM information_schema.KEY_COLUMN_USAGE
-                    WHERE CONSTRAINT_NAME = ?
+                // Get foreign keys using DB facade instead of Doctrine
+                $constraints = DB::select(
+                    "SELECT CONSTRAINT_NAME
+                    FROM information_schema.TABLE_CONSTRAINTS
+                    WHERE CONSTRAINT_TYPE = 'FOREIGN KEY'
                     AND TABLE_NAME = 'inventory_items'
-                    AND TABLE_SCHEMA = DATABASE()",
-                    [$keyName]
+                    AND TABLE_SCHEMA = DATABASE()"
                 );
 
-                $columnNames = array_map(function($col) {
-                    return $col->COLUMN_NAME;
-                }, $columns);
+                foreach ($constraints as $constraint) {
+                    $keyName = $constraint->CONSTRAINT_NAME;
+                    $columns = DB::select(
+                        "SELECT COLUMN_NAME
+                        FROM information_schema.KEY_COLUMN_USAGE
+                        WHERE CONSTRAINT_NAME = ?
+                        AND TABLE_NAME = 'inventory_items'
+                        AND TABLE_SCHEMA = DATABASE()",
+                        [$keyName]
+                    );
 
-                if (in_array('preferred_supplier_id', $columnNames)) {
-                    $foreignKeyName = $keyName;
-                    break;
+                    $columnNames = array_map(function($col) {
+                        return $col->COLUMN_NAME;
+                    }, $columns);
+
+                    if (in_array('preferred_supplier_id', $columnNames)) {
+                        $foreignKeyName = $keyName;
+                        break;
+                    }
                 }
-            }
 
-            if ($foreignKeyName) {
-                $table->dropForeign($foreignKeyName);
+                if ($foreignKeyName) {
+                    $table->dropForeign($foreignKeyName);
+                }
             }
 
             // Add the new foreign key constraint

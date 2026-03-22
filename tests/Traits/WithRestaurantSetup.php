@@ -33,7 +33,7 @@ trait WithRestaurantSetup
 
         $country = Country::firstOrCreate(
             ['countries_code' => 'US'],
-            ['name' => 'United States', 'phonecode' => 1]
+            ['countries_name' => 'United States', 'phonecode' => 1]
         );
 
         GlobalSetting::firstOrCreate(

@@ -2,7 +2,6 @@
 
 namespace App\Livewire\SuperadminSettings;
 
-use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Symfony\Component\Process\Process;
@@ -106,7 +105,7 @@ class BackupSettings extends Component
 
         // Build command as shell string to handle password safely
         $cmd = sprintf(
-            '%s --host=%s --port=%s --user=%s %s --databases %s --single-transaction --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
+            '%s --host=%s --port=%s --user=%s %s --databases %s --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
             escapeshellarg($mysqldump),
             escapeshellarg($host),
             escapeshellarg($port),
