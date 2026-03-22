@@ -253,31 +253,31 @@
                 @if ($storage == 'minio')
                     <div>
                         <x-label for="minioEndpoint" value="{{ __('modules.settings.minioEndpoint') }}" />
-                        <x-input type="text" id="minioEndpoint" class="block mt-1 w-full" wire:model='minioEndpoint' placeholder="https://minio:9000" />
+                        <x-input type="text" id="minioEndpoint" class="block mt-1 w-full" wire:model='minioEndpoint' placeholder="Ej: https://s3.tudominio.com o http://192.168.1.10:9000" />
                         <x-input-error for="minioEndpoint" class="mt-2" />
                     </div>
 
                     <div>
                         <x-label for="minioAccessKey" value="{{ __('modules.settings.minioAccessKey') }}" />
-                        <x-input type="text" id="minioAccessKey" class="block mt-1 w-full" wire:model='minioAccessKey' />
+                        <x-input type="text" id="minioAccessKey" class="block mt-1 w-full" wire:model='minioAccessKey' placeholder="Ej: admin123 (Tu Access Key de MinIO)" />
                         <x-input-error for="minioAccessKey" class="mt-2" />
                     </div>
 
                     <div>
                         <x-label for="minioSecretKey" value="{{ __('modules.settings.minioSecretKey') }}" />
-                        <x-input-password type="text" id="minioSecretKey" class="block mt-1 w-full" wire:model='minioSecretKey' />
+                        <x-input-password type="text" id="minioSecretKey" class="block mt-1 w-full" wire:model='minioSecretKey' placeholder="Ej: SuperSecreta456 (Tu Secret Key de MinIO)" />
                         <x-input-error for="minioSecretKey" class="mt-2" />
                     </div>
 
                     <div>
                         <x-label for="minioBucket" value="{{ __('modules.settings.minioBucket') }}" />
-                        <x-input type="text" id="minioBucket" class="block mt-1 w-full" wire:model='minioBucket' />
+                        <x-input type="text" id="minioBucket" class="block mt-1 w-full" wire:model='minioBucket' placeholder="Ej: caribe-restaurant-bucket" />
                         <x-input-error for="minioBucket" class="mt-2" />
                     </div>
 
                     <div>
                         <x-label for="minioRegion" value="{{ __('modules.settings.minioRegion') }}" />
-                        <x-input type="text" id="minioRegion" class="block mt-1 w-full" wire:model='minioRegion' />
+                        <x-input type="text" id="minioRegion" class="block mt-1 w-full" wire:model='minioRegion' placeholder="Ej: us-east-1" />
                         <x-input-error for="minioRegion" class="mt-2" />
                     </div>
 

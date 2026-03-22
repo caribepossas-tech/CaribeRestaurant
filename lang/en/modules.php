@@ -943,4 +943,23 @@ return [
         'allowMultipleSelectionDescription' => 'Allow users to select multiple options',
         'selectModifierGroup' => 'Select Modifier Group',
     ],
+
+    'backup' => [
+        'title'               => 'Backup',
+        'generate'            => 'Generate Backup',
+        'generating'          => 'Generating...',
+        'description'         => 'Generate a backup of the database and uploaded files (logos, product images). The resulting ZIP file can be used to migrate to another server.',
+        'fileName'            => 'File',
+        'date'                => 'Date',
+        'size'                => 'Size',
+        'actions'             => 'Actions',
+        'noBackups'           => 'No backups available. Generate one to get started.',
+        'backupCreated'       => 'Backup generated successfully.',
+        'backupFailed'        => 'Backup generation failed',
+        'backupDeleted'       => 'Backup deleted.',
+        'fileNotFound'        => 'Backup file not found.',
+        'confirmDelete'       => 'Are you sure you want to delete this backup?',
+        'restoreTitle'        => 'Restore on another server',
+        'restoreInstructions' => 'To restore on a new server: 1) Upload the project code. 2) Extract the backup ZIP. 3) Import database.sql with: mysql -u user -p database < database.sql. 4) Copy the storage/ folder to the project. 5) Replace the .env file with the new server configuration. 6) Run: php artisan optimize:clear.',
+    ],
 ];

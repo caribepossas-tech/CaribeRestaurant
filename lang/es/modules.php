@@ -963,4 +963,23 @@ return [
     'payOffline'            => 'Pagar fuera de línea',
     'accountDetails'        => 'Detalles de la cuenta:',
 ],
+
+'backup' => [
+    'title'               => 'Backup',
+    'generate'            => 'Generar Backup',
+    'generating'          => 'Generando...',
+    'description'         => 'Genera un backup de la base de datos y archivos subidos (logos, imágenes de productos). El archivo ZIP resultante puede usarse para migrar a otro servidor.',
+    'fileName'            => 'Archivo',
+    'date'                => 'Fecha',
+    'size'                => 'Tamaño',
+    'actions'             => 'Acciones',
+    'noBackups'           => 'No hay backups disponibles. Genera uno para comenzar.',
+    'backupCreated'       => 'Backup generado exitosamente.',
+    'backupFailed'        => 'Error al generar el backup',
+    'backupDeleted'       => 'Backup eliminado.',
+    'fileNotFound'        => 'Archivo de backup no encontrado.',
+    'confirmDelete'       => '¿Estás seguro de que deseas eliminar este backup?',
+    'restoreTitle'        => 'Restaurar en otro servidor',
+    'restoreInstructions' => 'Para restaurar en un nuevo servidor: 1) Sube el código del proyecto. 2) Descomprime el backup ZIP. 3) Importa database.sql con: mysql -u usuario -p base_de_datos < database.sql. 4) Copia la carpeta storage/ al proyecto. 5) Reemplaza el archivo .env con la configuración del nuevo servidor. 6) Ejecuta: php artisan optimize:clear.',
+],
 ];

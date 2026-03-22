@@ -59,8 +59,7 @@
                                 </td>
 
                                 <td class="py-2.5 px-4 space-x-2 whitespace-nowrap text-right">
-                                    <x-secondary-button-table wire:click='showEditCurrency({{ $item->id }})' wire:key='member-edit-{{ $item->id . microtime() }}'
-                                        wire:key='editmenu-item-button-{{ $item->id }}'>
+                                    <x-secondary-button-table wire:click='showEditCurrency({{ $item->id }})' wire:key='member-edit-{{ $item->id . microtime() }}'>
                                         <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20"
                                             xmlns="http://www.w3.org/2000/svg">
                                             <path

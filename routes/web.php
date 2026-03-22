@@ -138,6 +138,13 @@ Route::middleware(['auth', config('jetstream.auth_session'), 'verified', SuperAd
 
         Route::resource('superadmin-settings', SuperadminSettingController::class);
 
+        Route::get('backup/download/{filename}', function (string $filename) {
+            $filename = basename($filename);
+            $path = storage_path('app/backups/' . $filename);
+            abort_if(!file_exists($path), 404);
+            return response()->download($path);
+        })->name('backup.download');
+
         Route::post('app-update/deleteFile', [GlobalSettingController::class, 'deleteFile'])->name('app-update.deleteFile');
         Route::resource('app-update', GlobalSettingController::class);
         Route::post('custom-modules/verify-purchase', [CustomModuleController::class, 'verifyingModulePurchase'])->name('custom-modules.verify_purchase');

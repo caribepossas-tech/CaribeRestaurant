@@ -43,6 +43,11 @@
                 @class(["inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activeSetting != 'storage'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activeSetting == 'storage')])>@lang('modules.settings.storageSettings')</a>
             </li>
 
+            <li class="me-2">
+                <a href="{{ route('superadmin.superadmin-settings.index').'?tab=backup' }}" wire:navigate
+                @class(["inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300", 'border-transparent' => ($activeSetting != 'backup'), 'active border-skin-base dark:text-skin-base dark:border-skin-base text-skin-base' => ($activeSetting == 'backup')])>@lang('modules.backup.title')</a>
+            </li>
+
             <!-- NAV ITEM - CUSTOM MODULES  -->
             @foreach (custom_module_plugins() as $item)
                 @includeIf(strtolower($item) . '::sections.superadmin-settings.sidebar')
@@ -85,6 +90,10 @@
 
                 @case('storage')
                 @livewire('settings.storageSettings')
+                @break
+
+                @case('backup')
+                @livewire('superadminSettings.backupSettings')
                 @break
 
                 @default
