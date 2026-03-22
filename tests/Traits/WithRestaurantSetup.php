@@ -55,8 +55,9 @@ trait WithRestaurantSetup
         $package = Package::firstOrCreate(
             ['id' => 1],
             [
-                'name' => 'Test Package',
+                'package_name' => 'Test Package',
                 'price' => 0,
+                'package_type' => 'default',
                 'branch_limit' => 5,
                 'additional_features' => json_encode(['Order', 'Table Reservation']),
             ]

@@ -2,6 +2,8 @@
 
 namespace App\Livewire\SuperadminSettings;
 
+use App\Models\StorageSetting;
+use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Symfony\Component\Process\Process;
@@ -152,16 +154,42 @@ class BackupSettings extends Component
             $zip->addFile($envPath, '.env');
         }
 
-        // Add uploaded files from storage
-        $uploadDirs = ['app/public', 'app/logo', 'app/item'];
-        foreach ($uploadDirs as $dir) {
-            $fullPath = storage_path($dir);
-            if (is_dir($fullPath)) {
-                $this->addDirectoryToZip($zip, $fullPath, 'storage/' . $dir);
+        $defaultDisk = config('filesystems.default');
+        $isCloud = in_array($defaultDisk, StorageSetting::S3_COMPATIBLE_STORAGE);
+
+        if ($isCloud) {
+            // Download files from Minio/S3 and add to ZIP
+            $this->addCloudFilesToZip($zip, $defaultDisk);
+        } else {
+            // Add local uploaded files
+            $uploadDirs = ['app/public', 'app/logo', 'app/item'];
+            foreach ($uploadDirs as $dir) {
+                $fullPath = storage_path($dir);
+                if (is_dir($fullPath)) {
+                    $this->addDirectoryToZip($zip, $fullPath, 'storage/' . $dir);
+                }
             }
         }
 
         $zip->close();
+    }
+
+    protected function addCloudFilesToZip(ZipArchive $zip, string $disk): void
+    {
+        $storage = Storage::disk($disk);
+        $allFiles = $storage->allFiles('/');
+
+        foreach ($allFiles as $file) {
+            try {
+                $contents = $storage->get($file);
+                if ($contents !== null) {
+                    $zip->addFromString('storage/' . $file, $contents);
+                }
+            } catch (\Exception $e) {
+                // Skip files that can't be downloaded
+                continue;
+            }
+        }
     }
 
     protected function addDirectoryToZip(ZipArchive $zip, string $dirPath, string $zipDir): void

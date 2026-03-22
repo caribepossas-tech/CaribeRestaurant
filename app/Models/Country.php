@@ -11,6 +11,8 @@ class Country extends Model
 
     use HasFactory;
 
+    public $timestamps = false;
+
     public function flagUrl(): Attribute
     {
         return Attribute::get(function (): string {
