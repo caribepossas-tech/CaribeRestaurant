@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class BackupSettings extends Component
@@ -88,63 +87,63 @@ class BackupSettings extends Component
         }
     }
 
-    protected function findBinary(array $candidates): string
-    {
-        foreach ($candidates as $name) {
-            $paths = ["/usr/bin/{$name}", "/usr/local/bin/{$name}", "/usr/local/mysql/bin/{$name}"];
-            foreach ($paths as $path) {
-                if (file_exists($path)) {
-                    return $path;
-                }
-            }
-        }
-
-        return $candidates[0]; // fallback to first candidate name
-    }
-
     protected function dumpDatabase(string $outputPath): void
     {
-        $config = config('database.connections.mysql');
+        $db = config('database.connections.mysql.database');
+        $pdo = \DB::connection()->getPdo();
 
-        // Prefer mariadb-dump over mysqldump (MariaDB renamed the binaries)
-        $mysqldump = $this->findBinary(['mariadb-dump', 'mysqldump']);
-
-        $host = $config['host'] ?? '127.0.0.1';
-        $port = $config['port'] ?? '3306';
-        $user = $config['username'] ?? 'root';
-        $pass = $config['password'] ?? '';
-        $db   = $config['database'];
-
-        // Build command as shell string to handle password safely
-        $cmd = sprintf(
-            '%s --host=%s --port=%s --user=%s %s --ssl=false --databases %s --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
-            escapeshellarg($mysqldump),
-            escapeshellarg($host),
-            escapeshellarg($port),
-            escapeshellarg($user),
-            $pass !== '' ? '--password=' . escapeshellarg($pass) : '',
-            escapeshellarg($db),
-            escapeshellarg($outputPath)
-        );
-
-        $process = Process::fromShellCommandline($cmd);
-        $process->setTimeout(300);
-        $process->run();
-
-        $error = $process->getErrorOutput() ?: $process->getOutput();
-
-        // Filter out the password warning and deprecated name warning
-        $filteredError = $error;
-        $filteredError = preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $filteredError);
-        $filteredError = preg_replace('/.*Deprecated program name.*/i', '', $filteredError);
-        $filteredError = trim($filteredError);
-
-        if (!$process->isSuccessful() && !empty($filteredError)) {
-            throw new \RuntimeException('mysqldump failed: ' . $filteredError);
+        $file = fopen($outputPath, 'w');
+        if ($file === false) {
+            throw new \RuntimeException('Cannot create SQL dump file');
         }
 
+        fwrite($file, "-- Backup generated at " . now()->toDateTimeString() . "\n");
+        fwrite($file, "SET FOREIGN_KEY_CHECKS = 0;\n\n");
+        fwrite($file, "CREATE DATABASE IF NOT EXISTS `{$db}`;\nUSE `{$db}`;\n\n");
+
+        // Get all tables
+        $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
+
+        foreach ($tables as $table) {
+            // Drop + Create table
+            fwrite($file, "DROP TABLE IF EXISTS `{$table}`;\n");
+            $createStmt = $pdo->query("SHOW CREATE TABLE `{$table}`")->fetch(\PDO::FETCH_ASSOC);
+            fwrite($file, $createStmt['Create Table'] . ";\n\n");
+
+            // Dump rows in batches
+            $count = $pdo->query("SELECT COUNT(*) FROM `{$table}`")->fetchColumn();
+            $batchSize = 1000;
+
+            for ($offset = 0; $offset < $count; $offset += $batchSize) {
+                $rows = $pdo->query("SELECT * FROM `{$table}` LIMIT {$batchSize} OFFSET {$offset}")->fetchAll(\PDO::FETCH_ASSOC);
+
+                if (empty($rows)) {
+                    break;
+                }
+
+                $columns = array_keys($rows[0]);
+                $columnList = implode('`, `', $columns);
+
+                foreach ($rows as $row) {
+                    $values = array_map(function ($value) use ($pdo) {
+                        if ($value === null) {
+                            return 'NULL';
+                        }
+                        return $pdo->quote($value);
+                    }, array_values($row));
+
+                    fwrite($file, "INSERT INTO `{$table}` (`{$columnList}`) VALUES (" . implode(', ', $values) . ");\n");
+                }
+            }
+
+            fwrite($file, "\n");
+        }
+
+        fwrite($file, "SET FOREIGN_KEY_CHECKS = 1;\n");
+        fclose($file);
+
         if (!file_exists($outputPath) || filesize($outputPath) === 0) {
-            throw new \RuntimeException('mysqldump produced an empty file');
+            throw new \RuntimeException('Database dump produced an empty file');
         }
     }
 
@@ -312,41 +311,37 @@ class BackupSettings extends Component
 
     protected function importDatabase(string $sqlPath): void
     {
-        $config = config('database.connections.mysql');
+        $pdo = \DB::connection()->getPdo();
+        $sql = file_get_contents($sqlPath);
 
-        // Prefer mariadb over mysql (MariaDB renamed the binaries)
-        $mysql = $this->findBinary(['mariadb', 'mysql']);
-
-        $host = $config['host'] ?? '127.0.0.1';
-        $port = $config['port'] ?? '3306';
-        $user = $config['username'] ?? 'root';
-        $pass = $config['password'] ?? '';
-        $db   = $config['database'];
-
-        $cmd = sprintf(
-            '%s --host=%s --port=%s --user=%s %s --ssl=false %s < %s 2>&1',
-            escapeshellarg($mysql),
-            escapeshellarg($host),
-            escapeshellarg($port),
-            escapeshellarg($user),
-            $pass !== '' ? '--password=' . escapeshellarg($pass) : '',
-            escapeshellarg($db),
-            escapeshellarg($sqlPath)
-        );
-
-        $process = Process::fromShellCommandline($cmd);
-        $process->setTimeout(600);
-        $process->run();
-
-        $error = $process->getErrorOutput() ?: $process->getOutput();
-        $filteredError = $error;
-        $filteredError = preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $filteredError);
-        $filteredError = preg_replace('/.*Deprecated program name.*/i', '', $filteredError);
-        $filteredError = trim($filteredError);
-
-        if (!$process->isSuccessful() && !empty($filteredError)) {
-            throw new \RuntimeException('mysql import failed: ' . $filteredError);
+        if ($sql === false) {
+            throw new \RuntimeException('Cannot read SQL file');
         }
+
+        $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
+
+        // Split SQL by statement-ending semicolons (handle multi-line statements)
+        $statements = preg_split('/;\s*\n/', $sql, -1, PREG_SPLIT_NO_EMPTY);
+
+        foreach ($statements as $statement) {
+            $statement = trim($statement);
+            if (empty($statement) || str_starts_with($statement, '--') || str_starts_with($statement, '/*')) {
+                continue;
+            }
+
+            try {
+                $pdo->exec($statement);
+            } catch (\PDOException $e) {
+                // Skip "database exists" and "table exists" errors, re-throw others
+                if (!in_array($e->getCode(), ['HY000', '42S01', '42000']) ||
+                    !preg_match('/already exists|database exists/i', $e->getMessage())) {
+                    throw new \RuntimeException('SQL import error: ' . $e->getMessage());
+                }
+            }
+        }
+
+        $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
     }
 
     protected function restoreStorageFiles(string $storageDir): void
