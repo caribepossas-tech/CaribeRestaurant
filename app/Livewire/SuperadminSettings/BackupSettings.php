@@ -330,14 +330,27 @@ class BackupSettings extends Component
                 continue;
             }
 
+            // Skip statements that require SUPER/admin privileges
+            if (preg_match('/^SET @@(SESSION|GLOBAL)\./i', $statement) ||
+                preg_match('/^SET @@/i', $statement) ||
+                preg_match('/^(\/\*!\d+\s+)?SET @@/i', $statement) ||
+                preg_match('/DEFINER\s*=/i', $statement) ||
+                preg_match('/^CREATE\s+(DEFINER|ALGORITHM)/i', $statement) ||
+                preg_match('/SQL_LOG_BIN/i', $statement)) {
+                continue;
+            }
+
+            // Remove DEFINER clause from CREATE statements (triggers, views, procedures)
+            $statement = preg_replace('/DEFINER\s*=\s*`[^`]*`@`[^`]*`\s*/i', '', $statement);
+
             try {
                 $pdo->exec($statement);
             } catch (\PDOException $e) {
-                // Skip "database exists" and "table exists" errors, re-throw others
-                if (!in_array($e->getCode(), ['HY000', '42S01', '42000']) ||
-                    !preg_match('/already exists|database exists/i', $e->getMessage())) {
-                    throw new \RuntimeException('SQL import error: ' . $e->getMessage());
+                // Skip non-critical errors: database/table already exists, access denied for SET variables
+                if (preg_match('/already exists|database exists|Access denied.*privilege/i', $e->getMessage())) {
+                    continue;
                 }
+                throw new \RuntimeException('SQL import error: ' . $e->getMessage());
             }
         }
 
