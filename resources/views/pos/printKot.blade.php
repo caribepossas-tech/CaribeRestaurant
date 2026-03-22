@@ -27,14 +27,14 @@
 
         .header h2 {
             margin: 0;
-            font-size: 5mm;
+            font-size: 16pt;
             font-weight: bold;
             text-transform: uppercase;
         }
 
         .header p {
             margin: 1mm 0;
-            font-size: 4mm;
+            font-size: 12pt;
         }
 
         table {
@@ -44,7 +44,7 @@
         }
 
         th, td {
-            font-size: 4mm;
+            font-size: 13pt;
             padding: 2mm;
             text-align: left;
             border-bottom: 1px dashed #000;
@@ -56,7 +56,7 @@
 
         .footer {
             margin-top: 5mm;
-            font-size: 4mm;
+            font-size: 12pt;
         }
 
         .footer p {
@@ -68,7 +68,7 @@
         }
 
         .modifiers {
-            font-size: 10pt;
+            font-size: 11pt;
             color: #555;
         }
 

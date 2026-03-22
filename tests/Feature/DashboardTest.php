@@ -20,6 +20,10 @@ class DashboardTest extends TestCase
     {
         parent::setUp();
         $this->setUpRestaurant();
+        
+        $this->actingAs($this->admin);
+        session(['user' => $this->admin]);
+        session(['role_permissions' => ['Show Order', 'Show Reports', 'Show Customer']]);
     }
 
     public function test_dashboard_page_loads_successfully()
