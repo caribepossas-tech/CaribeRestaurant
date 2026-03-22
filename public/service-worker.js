@@ -1,81 +1,98 @@
 importScripts("https://js.pusher.com/beams/service-worker.js");
 
-const CACHE_NAME = 'your-cache-name';
-const OFFLINE_URL = '/offline'; // Make sure this path is correct
+const CACHE_VERSION = 'v1';
+const CACHE_NAME = 'app-cache-' + CACHE_VERSION;
 
 self.addEventListener('install', (event) => {
+    self.skipWaiting();
+});
+
+self.addEventListener('activate', (event) => {
     event.waitUntil(
-        caches.open('app-cache').then(async (cache) => {
-            return fetch('/manifest.json')
-                .then((response) => response.json())
-                .then((manifest) => {
-                    const fullStartUrl = manifest.start_url_base + (manifest.query_params ? manifest.query_params : '');
-                    return cache.add(fullStartUrl);
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((name) => {
+                    if (name !== CACHE_NAME) {
+                        return caches.delete(name);
+                    }
                 })
-                .catch(error => console.error("Manifest fetch error:", error));
-        })
+            );
+        }).then(() => self.clients.claim())
     );
 });
 
-
-
 self.addEventListener('push', (event) => {
-  let options = {
-    body: event.data.text(),
-    icon: '/img/192x192.png',
-    badge: '/icons/badge-72x72.png'
-  };
+    let options = {
+        body: event.data.text(),
+        icon: '/img/192x192.png',
+        badge: '/icons/badge-72x72.png'
+    };
 
-  event.waitUntil(
-    self.registration.showNotification('New Notification', options)
-  );
+    event.waitUntil(
+        self.registration.showNotification('New Notification', options)
+    );
 });
 
 self.addEventListener('fetch', (event) => {
     const url = new URL(event.request.url);
 
-    // Skip interception for Minio image host (to avoid errors and signed URL caching issues)
+    // Skip non-GET requests
+    if (event.request.method !== 'GET') {
+        return;
+    }
+
+    // Skip Minio/S3 host
     if (url.hostname === 'herramientas-minio.z55ugh.easypanel.host') {
         return;
     }
 
-    event.respondWith(
-        fetch(event.request)
-            .then((response) => {
-                if (!response || response.status !== 200 || response.type !== 'basic') {
-                    return response; // Skip caching if the response is not valid
+    // Skip Livewire, API, and dynamic requests
+    if (url.pathname.startsWith('/livewire') || url.pathname.startsWith('/api')) {
+        return;
+    }
+
+    // Vite hashed assets (e.g. /build/assets/app-BLvSENOF.js) — cache-first since hash changes on rebuild
+    if (url.pathname.startsWith('/build/assets/')) {
+        event.respondWith(
+            caches.match(event.request).then((cached) => {
+                if (cached) {
+                    return cached;
                 }
-
-                let responseClone = response.clone();
-                caches.open('app-cache').then((cache) => {
-                    cache.put(event.request, responseClone).catch((err) => {
-                        console.error("Cache Add Failed:", err);
-                    });
-                });
-
-                return response;
-            })
-            .catch(() => caches.match(event.request)) // Serve from cache if offline
-    );
-});
-
-
-// Activate Event - Clean up old caches (optional)
-self.addEventListener('activate', (event) => {
-    const cacheWhitelist = [CACHE_NAME];
-    event.waitUntil(
-        caches.keys().then((cacheNames) => {
-            return Promise.all(
-                cacheNames.map((cacheName) => {
-                    if (!cacheWhitelist.includes(cacheName)) {
-                        return caches.delete(cacheName);
+                return fetch(event.request).then((response) => {
+                    if (response && response.status === 200) {
+                        const clone = response.clone();
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, clone);
+                        });
                     }
-                })
-            );
-        })
+                    return response;
+                });
+            })
+        );
+        return;
+    }
+
+    // Static assets (images, fonts, vendor JS) — network-first with cache fallback
+    const isStaticAsset = /\.(png|jpg|jpeg|gif|svg|ico|woff2?|ttf|eot)$/.test(url.pathname)
+        || url.pathname.startsWith('/vendor/');
+
+    if (isStaticAsset) {
+        event.respondWith(
+            fetch(event.request).then((response) => {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const clone = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, clone);
+                    });
+                }
+                return response;
+            }).catch(() => caches.match(event.request))
+        );
+        return;
+    }
+
+    // Navigation & HTML — always network-first, no caching
+    event.respondWith(
+        fetch(event.request).catch(() => caches.match(event.request))
     );
 });
-
-
-
-

@@ -16,8 +16,11 @@ class DashboardTest extends TestCase
 {
     use RefreshDatabase, WithRestaurantSetup;
 
+    protected function setUp(): void
+    {
         parent::setUp();
         cache()->forget('package');
+        session()->forget('package');
         $this->setUpRestaurant();
         
         $currency = \App\Models\GlobalCurrency::create([
@@ -26,11 +29,16 @@ class DashboardTest extends TestCase
             'currency_code' => 'USD',
         ]);
 
-        \App\Models\Package::create([
-            'package_name' => 'Basic',
-            'currency_id' => $currency->id,
-            'price' => 0,
-        ]);
+        $package = \App\Models\Package::first();
+        if ($package) {
+            $package->update(['currency_id' => $currency->id]);
+        } else {
+            \App\Models\Package::create([
+                'package_name' => 'Basic',
+                'currency_id' => $currency->id,
+                'price' => 0,
+            ]);
+        }
 
         \App\Models\GlobalSetting::create([
             'name' => 'Test Restaurant',
