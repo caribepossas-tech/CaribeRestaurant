@@ -33,6 +33,7 @@ class EditMenuItem extends Component
     public $menus = [];
     public $variationName = [];
     public $variationPrice = [];
+    public $variationId = [];
     public $menuItem;
     public $preparationTime;
     public $isAvailable;
@@ -78,6 +79,7 @@ class EditMenuItem extends Component
         foreach ($this->menuItem->variations as $key => $value) {
             $this->variationName[$key] = $value->variation;
             $this->variationPrice[$key] = $value->price;
+            $this->variationId[$key] = $value->id;
             $this->i = $key + 1;
             array_push($this->inputs, $this->i);
         }
@@ -185,15 +187,30 @@ class EditMenuItem extends Component
         }
 
         if ($this->hasVariations) {
-            MenuItemVariation::where('menu_item_id', $this->menuItem->id)->delete();
-
+            $existingVariationIds = [];
             foreach ($this->inputs as $key => $value) {
-                MenuItemVariation::create([
-                    'variation' => $this->variationName[$key],
-                    'price' => $this->variationPrice[$key],
-                    'menu_item_id' => $this->menuItem->id
-                ]);
+                if (isset($this->variationId[$key])) {
+                    $variation = MenuItemVariation::find($this->variationId[$key]);
+                    if ($variation) {
+                        $variation->update([
+                            'variation' => $this->variationName[$key],
+                            'price' => $this->variationPrice[$key],
+                        ]);
+                        $existingVariationIds[] = $variation->id;
+                    }
+                } else {
+                    $newVariation = MenuItemVariation::create([
+                        'variation' => $this->variationName[$key],
+                        'price' => $this->variationPrice[$key],
+                        'menu_item_id' => $this->menuItem->id
+                    ]);
+                    $existingVariationIds[] = $newVariation->id;
+                }
             }
+            
+            MenuItemVariation::where('menu_item_id', $this->menuItem->id)
+                ->whereNotIn('id', $existingVariationIds)
+                ->delete();
         }
 
         $this->dispatch('hideEditMenuItem');
@@ -224,6 +241,7 @@ class EditMenuItem extends Component
         $this->preparationTime = null;
         $this->variationName = [];
         $this->variationPrice = [];
+        $this->variationId = [];
     }
 
     public function clearTranslationCache()
