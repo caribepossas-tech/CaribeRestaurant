@@ -15,6 +15,8 @@ class Kots extends Component
     public $dateRangeType;
     public $startDate;
     public $endDate;
+    public $confirmDeleteKotModal = false;
+    public $kotIdToDelete;
 
     public function mount()
     {
@@ -88,50 +90,88 @@ class Kots extends Component
     {
         $start = Carbon::createFromFormat('m/d/Y', $this->startDate)->startOfDay()->toDateTimeString();
         $end = Carbon::createFromFormat('m/d/Y', $this->endDate)->endOfDay()->toDateTimeString();
+
+        // Base query with eager loading for all required data
+        $query = Kot::with([
+            'order.table',
+            'order.waiter',
+            'items.menuItem',
+            'items.menuItemVariation',
+            'items.modifierOptions'
+        ])
+        ->withCount('items')
+        ->join('orders', 'kots.order_id', '=', 'orders.id')
+        ->select('kots.*') // Ensure we get Kot model attributes
+        ->whereBetween('kots.created_at', [$start, $end])
+        ->whereNotIn('orders.status', ['canceled', 'draft'])
+        ->orderBy('kots.id', 'desc');
+
+        // Fetch counts for tabs using separate counts or a single fetch
+        // For efficiency, we can fetch all filtered by date once and then filter in memory for counts
+        // BUT for the main list, we apply the specific status filter in SQL.
         
-        $kots = Kot::withCount('items')->orderBy('id', 'desc')
-            ->join('orders', 'kots.order_id', '=', 'orders.id')
-            ->whereDate('kots.created_at', '>=', $start)->whereDate('kots.created_at', '<=', $end)
-            ->where('orders.status', '<>', 'canceled')
-            ->where('orders.status', '<>', 'draft')
-            ->get();
+        $allKotsForPeriod = (clone $query)->get();
 
-        $inKitchen = $kots->filter(function ($order) {
-            return $order->status == 'in_kitchen';
-        });
+        $inKitchen = $allKotsForPeriod->filter(fn($kot) => $kot->status == 'in_kitchen');
+        $served = $allKotsForPeriod->filter(fn($kot) => $kot->status == 'served');
+        $foodReady = $allKotsForPeriod->filter(fn($kot) => $kot->status == 'food_ready');
 
-        $served = $kots->filter(function ($order) {
-            return $order->status == 'served';
-        });
-
-        $foodReady = $kots->filter(function ($order) {
-            return $order->status == 'food_ready';
-        });
-
-        switch ($this->filterOrders) {
-        case 'in_kitchen':
-            $kotList = $inKitchen;
-                break;
-
-        case 'served':
-            $kotList = $served;
-                break;
-            
-        case 'food_ready':
-            $kotList = $foodReady;
-                break;
-            
-        default:
-            $kotList = $kots;
-                break;
-        }
+        $kotList = match ($this->filterOrders) {
+            'in_kitchen' => $inKitchen,
+            'served' => $served,
+            'food_ready' => $foodReady,
+            default => $allKotsForPeriod,
+        };
 
         return view('livewire.kot.kots', [
             'kots' => $kotList,
-            'inKitchenCount' => count($inKitchen),
-            'servedCount' => count($served),
-            'foodReadyCount' => count($foodReady),
+            'inKitchenCount' => $inKitchen->count(),
+            'servedCount' => $served->count(),
+            'foodReadyCount' => $foodReady->count(),
         ]);
+    }
+
+    public function changeKotStatus($id, $status)
+    {
+        Kot::where('id', $id)->update([
+            'status' => $status
+        ]);
+
+        $this->dispatch('refreshKots');
+    }
+
+    public function confirmDeleteKot($id)
+    {
+        $this->kotIdToDelete = $id;
+        $this->confirmDeleteKotModal = true;
+    }
+
+    public function deleteKot()
+    {
+        $id = $this->kotIdToDelete;
+        $kot = Kot::find($id);
+        if (!$kot) return;
+
+        $order = $kot->order;
+        $kotCounts = $order->kot->count();
+        
+        if ($kotCounts == 1) {
+            $order->status = 'canceled';
+            $order->save();
+
+            if ($order->table) {
+                $order->table->update(['available_status' => 'available']);
+            }
+        }
+
+        Kot::destroy($id);
+        $this->confirmDeleteKotModal = false;
+        
+        $this->dispatch('refreshKots');
+
+        if ($kotCounts == 1) {
+            $order->delete();
+        }
     }
 
 }

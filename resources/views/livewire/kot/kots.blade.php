@@ -78,13 +78,31 @@
             <div class="space-y-4">
                 <div class="grid sm:grid-cols-3 2xl:grid-cols-4 gap-3 sm:gap-4">
                     @foreach ($kots as $item)
-                    @livewire('kot.kot-card', ['kot' => $item], key('kot-' . $item->id . microtime()))
+                        <x-kot.kot-card :kot="$item" wire:key="kot-card-{{ $item->id }}" />
                     @endforeach
                 </div>
             </div>
             <!-- End Card Section -->
 
-
+            <x-confirmation-modal wire:model="confirmDeleteKotModal">
+                <x-slot name="title">
+                    @lang('modules.order.cancelKot')?
+                </x-slot>
+        
+                <x-slot name="content">
+                    @lang('modules.order.cancelKotMessage')
+                </x-slot>
+        
+                <x-slot name="footer">
+                    <x-secondary-button wire:click="$set('confirmDeleteKotModal', false)" wire:loading.attr="disabled">
+                        {{ __('app.cancel') }}
+                    </x-secondary-button>
+        
+                    <x-danger-button class="ml-3" wire:click='deleteKot' wire:loading.attr="disabled">
+                        @lang('modules.order.cancelKot')
+                    </x-danger-button>
+                </x-slot>
+            </x-confirmation-modal>
         </div>
 
     </div>

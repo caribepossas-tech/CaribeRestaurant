@@ -5,6 +5,7 @@ namespace App\Livewire\Forms;
 use App\Models\Menu;
 use App\Models\LanguageSetting;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
+use Livewire\Component;
 
 class AddMenu extends Component
 {
