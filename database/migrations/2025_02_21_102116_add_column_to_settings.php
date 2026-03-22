@@ -30,7 +30,7 @@ return new class extends Migration
         Schema::table('restaurants', function (Blueprint $table) {
             $table->dropColumn('webmanifest');
         });
-        Schema::table('restaurants', function (Blueprint $table) {
+        Schema::table('global_settings', function (Blueprint $table) {
             $table->dropColumn('webmanifest');
         });
     }
