@@ -18,7 +18,7 @@
 
         <!-- Menu Name with Translation -->
         <div class="mb-4">
-            <x-label for="menuName" :value="__('modules.menu.menuName') . ' (' . $languages[$currentLanguage] . ')'" />
+            <x-label for="menuName" :value="__('modules.menu.menuName') . ' (' . ($languages[$currentLanguage] ?? strtoupper($currentLanguage)) . ')'" />
             <x-input id="menuName" class="block mt-1 w-full" type="text" placeholder="{{ __('placeholders.menuNamePlaceholder') }}" wire:model="menuName" wire:change="updateTranslation" />
             <x-input-error for="translations.{{ $globalLocale }}" class="mt-2" />
         </div>
