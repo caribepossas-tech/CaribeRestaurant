@@ -26,6 +26,8 @@
                         @livewire('sidebar-menu-item', ['name' => __('menu.landingSites'), 'icon' => 'landing', 'link' => route('superadmin.landing-sites.index'), 'active' => request()->routeIs('superadmin.landing-sites.*')])
 
                         @livewire('sidebar-menu-item', ['name' => __('menu.settings'), 'icon' => 'settings', 'link' => route('superadmin.superadmin-settings.index'), 'active' => request()->routeIs('superadmin.superadmin-settings.index')])
+                        
+                        @livewire('sidebar-menu-item', ['name' => __('menu.logs'), 'icon' => 'list-bullet', 'link' => route('log-viewer.index'), 'active' => request()->is('log-viewer*')])
 
                     </ul>
 

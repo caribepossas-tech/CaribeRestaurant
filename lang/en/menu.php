@@ -44,4 +44,5 @@ return array (
   'itemModifiers' => 'Item Modifiers',
   'modifierGroups' => 'Modifier Groups',
   'goBackToCustomModules' => 'Go Back to Custom Modules',
+  'logs' => 'System Logs',
 );

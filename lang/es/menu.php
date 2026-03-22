@@ -44,4 +44,5 @@ return array (
 'itemModifiers'       => 'Modificadores de artículo',
 'modifierGroups'      => 'Grupos de modificadores',
 'goBackToCustomModules' => 'Volver a módulos personalizados',
+'logs' => 'Logs del Sistema',
 );
