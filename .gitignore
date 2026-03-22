@@ -2,6 +2,7 @@
 /node_modules
 /public/hot
 /public/storage
+/public/build
 /storage/*.key
 /vendor
 .env
@@ -18,9 +19,8 @@ yarn-error.log
 /.idea
 /.vscode
 
-public/user-uploads/public/hot
-
 /public/css/app-custom.css
+/public/css/theme-custom.css
 /public/user-uploads/*
 !public/user-uploads/.htaccess
 
@@ -28,6 +28,8 @@ public/user-uploads/public/hot
 !public/qrcodes/.htaccess
 
 /storage/installed
+/storage/logs/*
+!storage/logs/.gitkeep
 ngrok
 /bootstrap/cache/*
 froiden-verify/
@@ -36,5 +38,3 @@ froiden-verify/
 resources/views/sections/custom_script.blade.php
 demo_db_copy.sql
 database/maxmind/
-public/css/app-custom.css
-public/css/theme-custom.css

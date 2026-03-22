@@ -27,12 +27,16 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->dropColumn('webmanifest');
-        });
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->dropColumn('webmanifest');
-        });
+        if (Schema::hasColumn('restaurants', 'webmanifest')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->dropColumn('webmanifest');
+            });
+        }
+        if (Schema::hasColumn('global_settings', 'webmanifest')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->dropColumn('webmanifest');
+            });
+        }
     }
 
 };
