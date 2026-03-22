@@ -32,6 +32,8 @@ RUN apk add --no-cache \
     intl \
     zip \
     fileinfo \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
     && apk del .build-deps
 
 # Install Composer
