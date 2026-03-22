@@ -312,47 +312,85 @@ class BackupSettings extends Component
     protected function importDatabase(string $sqlPath): void
     {
         $pdo = \DB::connection()->getPdo();
-        $sql = file_get_contents($sqlPath);
 
-        if ($sql === false) {
+        $handle = fopen($sqlPath, 'r');
+        if ($handle === false) {
             throw new \RuntimeException('Cannot read SQL file');
         }
 
         $pdo->setAttribute(\PDO::ATTR_EMULATE_PREPARES, true);
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 0');
 
-        // Split SQL by statement-ending semicolons (handle multi-line statements)
-        $statements = preg_split('/;\s*\n/', $sql, -1, PREG_SPLIT_NO_EMPTY);
+        // Drop all existing tables first to avoid duplicate key errors
+        $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
+        foreach ($tables as $table) {
+            $pdo->exec("DROP TABLE IF EXISTS `{$table}`");
+        }
 
-        foreach ($statements as $statement) {
-            $statement = trim($statement);
-            if (empty($statement) || str_starts_with($statement, '--') || str_starts_with($statement, '/*')) {
+        // Parse SQL file line by line, accumulating complete statements
+        $statement = '';
+        $inMultiLineComment = false;
+
+        while (($line = fgets($handle)) !== false) {
+            $trimmedLine = trim($line);
+
+            // Skip empty lines
+            if ($trimmedLine === '') {
                 continue;
             }
 
-            // Skip statements that require SUPER/admin privileges
-            if (preg_match('/^SET @@(SESSION|GLOBAL)\./i', $statement) ||
-                preg_match('/^SET @@/i', $statement) ||
-                preg_match('/^(\/\*!\d+\s+)?SET @@/i', $statement) ||
-                preg_match('/DEFINER\s*=/i', $statement) ||
-                preg_match('/^CREATE\s+(DEFINER|ALGORITHM)/i', $statement) ||
-                preg_match('/SQL_LOG_BIN/i', $statement)) {
+            // Handle multi-line comments
+            if ($inMultiLineComment) {
+                if (str_contains($trimmedLine, '*/')) {
+                    $inMultiLineComment = false;
+                }
                 continue;
             }
 
-            // Remove DEFINER clause from CREATE statements (triggers, views, procedures)
-            $statement = preg_replace('/DEFINER\s*=\s*`[^`]*`@`[^`]*`\s*/i', '', $statement);
+            if (str_starts_with($trimmedLine, '/*') && !str_contains($trimmedLine, '*/')) {
+                $inMultiLineComment = true;
+                continue;
+            }
 
-            try {
-                $pdo->exec($statement);
-            } catch (\PDOException $e) {
-                // Skip non-critical errors: database/table already exists, access denied for SET variables
-                if (preg_match('/already exists|database exists|Access denied.*privilege/i', $e->getMessage())) {
+            // Skip single-line comments
+            if (str_starts_with($trimmedLine, '--') || str_starts_with($trimmedLine, '/*')) {
+                continue;
+            }
+
+            $statement .= $line;
+
+            // Execute when we find a statement-ending semicolon
+            if (str_ends_with($trimmedLine, ';')) {
+                $stmt = trim($statement);
+                $statement = '';
+
+                if (empty($stmt)) {
                     continue;
                 }
-                throw new \RuntimeException('SQL import error: ' . $e->getMessage());
+
+                // Skip statements that require SUPER/admin privileges
+                if (preg_match('/^SET @@/i', $stmt) ||
+                    preg_match('/SQL_LOG_BIN/i', $stmt) ||
+                    preg_match('/^(\/\*!\d+\s+)?SET @@/i', $stmt)) {
+                    continue;
+                }
+
+                // Remove DEFINER clause from CREATE statements
+                $stmt = preg_replace('/\s*DEFINER\s*=\s*`[^`]*`@`[^`]*`\s*/i', ' ', $stmt);
+
+                try {
+                    $pdo->exec($stmt);
+                } catch (\PDOException $e) {
+                    // Skip non-critical errors
+                    if (preg_match('/already exists|database exists|Access denied.*privilege/i', $e->getMessage())) {
+                        continue;
+                    }
+                    throw new \RuntimeException('SQL import error: ' . $e->getMessage());
+                }
             }
         }
+
+        fclose($handle);
 
         $pdo->exec('SET FOREIGN_KEY_CHECKS = 1');
     }
