@@ -49,14 +49,14 @@
 
             <!-- Item Name and Description with Translation -->
             <div class="mb-4">
-                <x-label for="itemName" :value="__('modules.menu.itemName') . ' (' . $languages[$currentLanguage] . ')'" />
+                <x-label for="itemName" :value="__('modules.menu.itemName') . ' (' . ($languages[$currentLanguage] ?? strtoupper($currentLanguage)) . ')'" />
                 <x-input id="itemName" class="block mt-1 w-full" type="text" placeholder="{{ __('placeholders.menuItemNamePlaceholder') }}" wire:model="itemName" wire:change="updateTranslation" />
                 <x-input-error for="translationNames.{{ $globalLocale }}" class="mt-2" />
 
             </div>
 
             <div>
-                <x-label for="itemDescription" :value="__('modules.menu.itemDescription') . ' (' . $languages[$currentLanguage] . ')'" />
+                <x-label for="itemDescription" :value="__('modules.menu.itemDescription') . ' (' . ($languages[$currentLanguage] ?? strtoupper($currentLanguage)) . ')'" />
                 <x-textarea class="block mt-1 w-full" :placeholder="__('placeholders.itemDescriptionPlaceholder')"
                     wire:model='itemDescription' rows='2' wire:change="updateTranslation" data-gramm="false"/>
                 <x-input-error for="itemDescription" class="mt-2" />
