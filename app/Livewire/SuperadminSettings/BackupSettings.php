@@ -88,19 +88,26 @@ class BackupSettings extends Component
         }
     }
 
+    protected function findBinary(array $candidates): string
+    {
+        foreach ($candidates as $name) {
+            $paths = ["/usr/bin/{$name}", "/usr/local/bin/{$name}", "/usr/local/mysql/bin/{$name}"];
+            foreach ($paths as $path) {
+                if (file_exists($path)) {
+                    return $path;
+                }
+            }
+        }
+
+        return $candidates[0]; // fallback to first candidate name
+    }
+
     protected function dumpDatabase(string $outputPath): void
     {
         $config = config('database.connections.mysql');
 
-        // Find mysqldump binary - check common paths
-        $mysqldump = 'mysqldump';
-        $commonPaths = ['/usr/bin/mysqldump', '/usr/local/bin/mysqldump', '/usr/local/mysql/bin/mysqldump'];
-        foreach ($commonPaths as $path) {
-            if (file_exists($path)) {
-                $mysqldump = $path;
-                break;
-            }
-        }
+        // Prefer mariadb-dump over mysqldump (MariaDB renamed the binaries)
+        $mysqldump = $this->findBinary(['mariadb-dump', 'mysqldump']);
 
         $host = $config['host'] ?? '127.0.0.1';
         $port = $config['port'] ?? '3306';
@@ -110,7 +117,7 @@ class BackupSettings extends Component
 
         // Build command as shell string to handle password safely
         $cmd = sprintf(
-            '%s --host=%s --port=%s --user=%s %s --databases %s --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
+            '%s --host=%s --port=%s --user=%s %s --ssl=false --databases %s --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
             escapeshellarg($mysqldump),
             escapeshellarg($host),
             escapeshellarg($port),
@@ -126,8 +133,11 @@ class BackupSettings extends Component
 
         $error = $process->getErrorOutput() ?: $process->getOutput();
 
-        // Filter out the password warning - it's not an actual error
-        $filteredError = trim(preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $error));
+        // Filter out the password warning and deprecated name warning
+        $filteredError = $error;
+        $filteredError = preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $filteredError);
+        $filteredError = preg_replace('/.*Deprecated program name.*/i', '', $filteredError);
+        $filteredError = trim($filteredError);
 
         if (!$process->isSuccessful() && !empty($filteredError)) {
             throw new \RuntimeException('mysqldump failed: ' . $filteredError);
@@ -304,15 +314,8 @@ class BackupSettings extends Component
     {
         $config = config('database.connections.mysql');
 
-        // Find mysql binary
-        $mysql = 'mysql';
-        $commonPaths = ['/usr/bin/mysql', '/usr/local/bin/mysql', '/usr/local/mysql/bin/mysql'];
-        foreach ($commonPaths as $path) {
-            if (file_exists($path)) {
-                $mysql = $path;
-                break;
-            }
-        }
+        // Prefer mariadb over mysql (MariaDB renamed the binaries)
+        $mysql = $this->findBinary(['mariadb', 'mysql']);
 
         $host = $config['host'] ?? '127.0.0.1';
         $port = $config['port'] ?? '3306';
@@ -321,7 +324,7 @@ class BackupSettings extends Component
         $db   = $config['database'];
 
         $cmd = sprintf(
-            '%s --host=%s --port=%s --user=%s %s %s < %s 2>&1',
+            '%s --host=%s --port=%s --user=%s %s --ssl=false %s < %s 2>&1',
             escapeshellarg($mysql),
             escapeshellarg($host),
             escapeshellarg($port),
@@ -336,7 +339,10 @@ class BackupSettings extends Component
         $process->run();
 
         $error = $process->getErrorOutput() ?: $process->getOutput();
-        $filteredError = trim(preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $error));
+        $filteredError = $error;
+        $filteredError = preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $filteredError);
+        $filteredError = preg_replace('/.*Deprecated program name.*/i', '', $filteredError);
+        $filteredError = trim($filteredError);
 
         if (!$process->isSuccessful() && !empty($filteredError)) {
             throw new \RuntimeException('mysql import failed: ' . $filteredError);
