@@ -2,6 +2,7 @@
 namespace App\Livewire\Forms;
 
 use App\Models\Menu;
+use App\Models\LanguageSetting;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 
@@ -20,6 +21,13 @@ class EditMenu extends Component
     {
         $this->languages = collect(languages())->pluck('language_name', 'language_code')->toArray();
         $this->globalLocale = global_setting()->locale;
+
+        // Ensure global locale is in the languages list even if not active
+        if (!isset($this->languages[$this->globalLocale])) {
+            $language = LanguageSetting::where('language_code', $this->globalLocale)->first();
+            $this->languages[$this->globalLocale] = $language ? $language->language_name : strtoupper($this->globalLocale);
+        }
+
         $this->currentLanguage = $this->globalLocale;
         // Load existing translations
         $this->translations = $this->activeMenu->getTranslations('menu_name') ?? [];

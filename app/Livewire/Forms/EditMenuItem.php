@@ -9,6 +9,7 @@ use App\Models\MenuItem;
 use App\Models\ItemCategory;
 use Livewire\WithFileUploads;
 use App\Models\MenuItemVariation;
+use App\Models\LanguageSetting;
 use App\Scopes\AvailableMenuItemScope;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 
@@ -48,9 +49,16 @@ class EditMenuItem extends Component
     public function mount()
     {
         $this->languages = languages()->pluck('language_name', 'language_code')->toArray();
+        $this->globalLocale = auth()->user()->locale ?? global_setting()->locale;
+
+        // Ensure global locale is in the languages list even if not active
+        if (!isset($this->languages[$this->globalLocale])) {
+            $language = LanguageSetting::where('language_code', $this->globalLocale)->first();
+            $this->languages[$this->globalLocale] = $language ? $language->language_name : strtoupper($this->globalLocale);
+        }
+
         $this->translationNames = array_fill_keys(array_keys($this->languages), '');
         $this->translationDescriptions = array_fill_keys(array_keys($this->languages), '');
-        $this->globalLocale = auth()->user()->locale;
         $this->currentLanguage = $this->globalLocale;
         $this->categoryList = ItemCategory::all();
         $this->menus = Menu::all();

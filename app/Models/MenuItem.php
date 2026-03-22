@@ -55,12 +55,11 @@ class MenuItem extends Model
     public function getTranslatedValue(string $attribute, ?string $locale = null): string
     {
         $locale = $locale ?? app()->getLocale();
-        $cacheKey = "menu_item_{$this->id}_{$attribute}_{$locale}";
-
-        // return Cache::remember($cacheKey, 3600, function () use ($locale, $attribute) {
-            $translation = $this->translation($locale)->first();
-            return $translation?->{$attribute} ?? $this->attributes[$attribute] ?? '';
-        // });
+        
+        // Use the already loaded collection to avoid N+1 queries
+        $translation = $this->translations->firstWhere('locale', $locale);
+        
+        return $translation?->{$attribute} ?? $this->attributes[$attribute] ?? '';
     }
 
     public function getItemNameAttribute(): string
