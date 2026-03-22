@@ -111,6 +111,11 @@ class AppServiceProvider extends ServiceProvider
             return $user->hasRole('Admin_' . $user->restaurant_id) ? true : null;
         });
 
+        // Restrict LogViewer access exclusively to the global system admin (Super Admin)
+        \Opcodes\LogViewer\Facades\LogViewer::auth(function ($request) {
+            return $request->user() && $request->user()->hasRole('Super Admin');
+        });
+
         // Search macro for searching in tables.
         Builder::macro('search', function ($field, $string) {
             return $string ? $this->where($field, 'like', '%' . $string . '%') : $this;

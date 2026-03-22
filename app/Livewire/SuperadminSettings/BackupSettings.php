@@ -88,28 +88,49 @@ class BackupSettings extends Component
     {
         $config = config('database.connections.mysql');
 
-        $command = [
-            'mysqldump',
-            '--host=' . ($config['host'] ?? '127.0.0.1'),
-            '--port=' . ($config['port'] ?? '3306'),
-            '--user=' . ($config['username'] ?? 'root'),
-            '--databases', $config['database'],
-            '--single-transaction',
-            '--routines',
-            '--triggers',
-            '--result-file=' . $outputPath,
-        ];
-
-        if (!empty($config['password'])) {
-            $command[] = '--password=' . $config['password'];
+        // Find mysqldump binary - check common paths
+        $mysqldump = 'mysqldump';
+        $commonPaths = ['/usr/bin/mysqldump', '/usr/local/bin/mysqldump', '/usr/local/mysql/bin/mysqldump'];
+        foreach ($commonPaths as $path) {
+            if (file_exists($path)) {
+                $mysqldump = $path;
+                break;
+            }
         }
 
-        $process = new Process($command);
+        $host = $config['host'] ?? '127.0.0.1';
+        $port = $config['port'] ?? '3306';
+        $user = $config['username'] ?? 'root';
+        $pass = $config['password'] ?? '';
+        $db   = $config['database'];
+
+        // Build command as shell string to handle password safely
+        $cmd = sprintf(
+            '%s --host=%s --port=%s --user=%s %s --databases %s --single-transaction --no-tablespaces --skip-lock-tables --result-file=%s 2>&1',
+            escapeshellarg($mysqldump),
+            escapeshellarg($host),
+            escapeshellarg($port),
+            escapeshellarg($user),
+            $pass !== '' ? '--password=' . escapeshellarg($pass) : '',
+            escapeshellarg($db),
+            escapeshellarg($outputPath)
+        );
+
+        $process = Process::fromShellCommandline($cmd);
         $process->setTimeout(300);
         $process->run();
 
-        if (!$process->isSuccessful()) {
-            throw new \RuntimeException('mysqldump failed: ' . $process->getErrorOutput());
+        $error = $process->getErrorOutput() ?: $process->getOutput();
+
+        // Filter out the password warning - it's not an actual error
+        $filteredError = trim(preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $error));
+
+        if (!$process->isSuccessful() && !empty($filteredError)) {
+            throw new \RuntimeException('mysqldump failed: ' . $filteredError);
+        }
+
+        if (!file_exists($outputPath) || filesize($outputPath) === 0) {
+            throw new \RuntimeException('mysqldump produced an empty file');
         }
     }
 
