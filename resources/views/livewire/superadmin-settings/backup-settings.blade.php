@@ -82,8 +82,60 @@
         @endif
     </div>
 
-    <div class="mx-4 p-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg dark:bg-blue-900/20 dark:border-blue-800 sm:p-6">
-        <h4 class="text-sm font-semibold text-blue-800 dark:text-blue-300 mb-2">@lang('modules.backup.restoreTitle')</h4>
-        <p class="text-sm text-blue-700 dark:text-blue-400">@lang('modules.backup.restoreInstructions')</p>
+    <div class="mx-4 p-4 mb-4 bg-white border border-gray-200 rounded-lg shadow-sm dark:border-gray-700 sm:p-6 dark:bg-gray-800">
+        <h4 class="text-lg font-semibold dark:text-white mb-2">@lang('modules.backup.restoreTitle')</h4>
+
+        <div class="p-4 mb-4 text-sm text-yellow-800 bg-yellow-50 border border-yellow-200 rounded-lg dark:bg-yellow-900/20 dark:text-yellow-300 dark:border-yellow-800">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 mr-2 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                @lang('modules.backup.restoreWarning')
+            </div>
+        </div>
+
+        <div class="flex items-end gap-4">
+            <div class="flex-1">
+                <label class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                    @lang('modules.backup.selectFile')
+                </label>
+                <input type="file" wire:model="restoreFile" accept=".zip"
+                    class="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 dark:text-gray-400 focus:outline-none dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400"
+                    @if($isRestoring) disabled @endif>
+                @error('restoreFile')
+                    <p class="mt-1 text-sm text-red-600 dark:text-red-400">{{ $message }}</p>
+                @enderror
+            </div>
+
+            <button wire:click="restoreBackup"
+                wire:confirm="@lang('modules.backup.confirmRestore')"
+                wire:loading.attr="disabled"
+                @if(!$restoreFile || $isRestoring) disabled @endif
+                class="inline-flex items-center px-4 py-2.5 text-sm font-medium text-white bg-yellow-600 border border-transparent rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 disabled:opacity-50 disabled:cursor-not-allowed">
+                <span wire:loading.remove wire:target="restoreBackup">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    </svg>
+                    @lang('modules.backup.restore')
+                </span>
+                <span wire:loading wire:target="restoreBackup" class="inline-flex items-center">
+                    <svg class="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                    </svg>
+                    @lang('modules.backup.restoring')
+                </span>
+            </button>
+        </div>
+
+        <div wire:loading wire:target="restoreFile" class="mt-3">
+            <div class="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                <svg class="animate-spin mr-2 h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                </svg>
+                @lang('modules.backup.uploading')
+            </div>
+        </div>
     </div>
 </div>

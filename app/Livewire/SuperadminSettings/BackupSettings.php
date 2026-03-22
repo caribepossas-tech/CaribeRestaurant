@@ -6,15 +6,18 @@ use App\Models\StorageSetting;
 use Illuminate\Support\Facades\Storage;
 use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
+use Livewire\WithFileUploads;
 use Symfony\Component\Process\Process;
 use ZipArchive;
 
 class BackupSettings extends Component
 {
-    use LivewireAlert;
+    use LivewireAlert, WithFileUploads;
 
     public $backups = [];
     public bool $isGenerating = false;
+    public bool $isRestoring = false;
+    public $restoreFile;
 
     public function mount()
     {
@@ -235,6 +238,159 @@ class BackupSettings extends Component
                 'position' => 'top-end',
             ]);
         }
+    }
+
+    public function restoreBackup(): void
+    {
+        $this->validate([
+            'restoreFile' => 'required|file|mimes:zip|max:1048576',
+        ]);
+
+        $this->isRestoring = true;
+
+        $extractDir = storage_path('app/backups/restore_' . now()->format('Y-m-d_H-i-s'));
+
+        try {
+            // 1. Extract ZIP
+            $zip = new ZipArchive();
+            $zipPath = $this->restoreFile->getRealPath();
+
+            if ($zip->open($zipPath) !== true) {
+                throw new \RuntimeException(__('modules.backup.invalidBackup'));
+            }
+
+            mkdir($extractDir, 0755, true);
+            $zip->extractTo($extractDir);
+            $zip->close();
+
+            // 2. Validate ZIP contains database.sql
+            $sqlPath = $extractDir . '/database.sql';
+            if (!file_exists($sqlPath)) {
+                throw new \RuntimeException(__('modules.backup.invalidBackup') . ': database.sql not found');
+            }
+
+            // 3. Import database
+            $this->importDatabase($sqlPath);
+
+            // 4. Restore storage files
+            $storageDir = $extractDir . '/storage';
+            if (is_dir($storageDir)) {
+                $this->restoreStorageFiles($storageDir);
+            }
+
+            $this->alert('success', __('modules.backup.restoreSuccess'), [
+                'toast' => false,
+                'position' => 'center',
+            ]);
+        } catch (\Exception $e) {
+            $this->alert('error', __('modules.backup.restoreFailed') . ': ' . $e->getMessage(), [
+                'toast' => false,
+                'position' => 'center',
+                'showCancelButton' => true,
+                'cancelButtonText' => __('app.close'),
+            ]);
+        } finally {
+            // Clean up extracted files
+            if (is_dir($extractDir)) {
+                $this->deleteDirectory($extractDir);
+            }
+
+            $this->isRestoring = false;
+            $this->restoreFile = null;
+        }
+    }
+
+    protected function importDatabase(string $sqlPath): void
+    {
+        $config = config('database.connections.mysql');
+
+        // Find mysql binary
+        $mysql = 'mysql';
+        $commonPaths = ['/usr/bin/mysql', '/usr/local/bin/mysql', '/usr/local/mysql/bin/mysql'];
+        foreach ($commonPaths as $path) {
+            if (file_exists($path)) {
+                $mysql = $path;
+                break;
+            }
+        }
+
+        $host = $config['host'] ?? '127.0.0.1';
+        $port = $config['port'] ?? '3306';
+        $user = $config['username'] ?? 'root';
+        $pass = $config['password'] ?? '';
+        $db   = $config['database'];
+
+        $cmd = sprintf(
+            '%s --host=%s --port=%s --user=%s %s %s < %s 2>&1',
+            escapeshellarg($mysql),
+            escapeshellarg($host),
+            escapeshellarg($port),
+            escapeshellarg($user),
+            $pass !== '' ? '--password=' . escapeshellarg($pass) : '',
+            escapeshellarg($db),
+            escapeshellarg($sqlPath)
+        );
+
+        $process = Process::fromShellCommandline($cmd);
+        $process->setTimeout(600);
+        $process->run();
+
+        $error = $process->getErrorOutput() ?: $process->getOutput();
+        $filteredError = trim(preg_replace('/.*Using a password on the command line interface can be insecure.*/i', '', $error));
+
+        if (!$process->isSuccessful() && !empty($filteredError)) {
+            throw new \RuntimeException('mysql import failed: ' . $filteredError);
+        }
+    }
+
+    protected function restoreStorageFiles(string $storageDir): void
+    {
+        $defaultDisk = config('filesystems.default');
+        $isCloud = in_array($defaultDisk, StorageSetting::S3_COMPATIBLE_STORAGE);
+
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($storageDir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::LEAVES_ONLY
+        );
+
+        foreach ($iterator as $file) {
+            if (!$file->isFile()) {
+                continue;
+            }
+
+            $filePath = $file->getRealPath();
+            // Get path relative to the storage/ dir in the ZIP
+            $relativePath = substr($filePath, strlen($storageDir) + 1);
+
+            if ($isCloud) {
+                Storage::disk($defaultDisk)->put($relativePath, file_get_contents($filePath));
+            } else {
+                $destPath = storage_path($relativePath);
+                $destDir = dirname($destPath);
+                if (!is_dir($destDir)) {
+                    mkdir($destDir, 0755, true);
+                }
+                copy($filePath, $destPath);
+            }
+        }
+    }
+
+    protected function deleteDirectory(string $dir): void
+    {
+        $iterator = new \RecursiveIteratorIterator(
+            new \RecursiveDirectoryIterator($dir, \RecursiveDirectoryIterator::SKIP_DOTS),
+            \RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($iterator as $item) {
+            if ($item->isDir()) {
+                rmdir($item->getRealPath());
+            } else {
+                unlink($item->getRealPath());
+            }
+        }
+
+        rmdir($dir);
     }
 
     protected function formatSize(int $bytes): string

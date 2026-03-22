@@ -172,7 +172,11 @@ class MenuItem extends Model
 
             $query = \Modules\Inventory\Entities\Recipe::where('menu_item_id', $menuItem->id);
             if ($hasVariationColumn) {
-                $query->whereNull('menu_item_variation_id');
+                if (isset($itemData['variation_id']) && $itemData['variation_id']) {
+                    $query->where('menu_item_variation_id', $itemData['variation_id']);
+                } else {
+                    $query->whereNull('menu_item_variation_id');
+                }
             }
             $recipes = $query->get();
 
@@ -212,12 +216,12 @@ class MenuItem extends Model
         return ['status' => true];
     }
 
-    public function deductStock(int $quantity): void
+    public function deductStock(int $quantity, ?int $variationId = null): void
     {
         $branch = $this->branch;
         if (!$branch) return;
 
-        $recipes = $this->getInventoryRecipes(null);
+        $recipes = $this->getInventoryRecipes($variationId);
 
         foreach ($recipes as $recipe) {
             \Modules\Inventory\Entities\InventoryStock::where('branch_id', $branch->id)

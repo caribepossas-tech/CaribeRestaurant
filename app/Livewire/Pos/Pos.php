@@ -242,15 +242,17 @@ class Pos extends Component
 
     public function syncCart($id)
     {
+        $cleanId = str_replace('"', '', $id);
+        $variationId = str_contains($cleanId, '_') ? explode('_', $cleanId)[1] : null;
+
         if (!$this->menuItem) {
-            $cleanId = str_replace('"', '', $id);
             $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
             $this->menuItem = MenuItem::find($menuItemId);
         }
 
         if (!$this->menuItem) return;
 
-        $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+        $check = $this->menuItem->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1, $variationId);
 
         if (!$check['status']) {
             if ($check['mode'] === 'strict') {
@@ -331,10 +333,11 @@ class Pos extends Component
     {
         $cleanId = str_replace('"', '', $id);
         $menuItemId = str_contains($cleanId, '_') ? explode('_', $cleanId)[0] : $cleanId;
+        $variationId = str_contains($cleanId, '_') ? explode('_', $cleanId)[1] : null;
         $item = $this->orderItemList[$id] ?? MenuItem::find($menuItemId);
         if (!$item) return;
 
-        $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1);
+        $check = $item->checkIngredientsStock(($this->orderItemQty[$id] ?? 0) + 1, $variationId);
 
         if (!$check['status']) {
             if ($check['mode'] === 'strict') {
@@ -526,7 +529,8 @@ class Pos extends Component
             foreach ($this->orderItemList as $key => $value) {
                 $itemsToCheck[] = [
                     'item' => MenuItem::find(isset($this->orderItemVariation[$key]) ? $this->orderItemVariation[$key]->menu_item_id : $this->orderItemList[$key]->id),
-                    'quantity' => $this->orderItemQty[$key]
+                    'quantity' => $this->orderItemQty[$key],
+                    'variation_id' => isset($this->orderItemVariation[$key]) ? $this->orderItemVariation[$key]->id : null
                 ];
             }
 
@@ -613,7 +617,7 @@ class Pos extends Component
                 if (!$isAlreadyInKot) {
                     $item = MenuItem::find($kotItem->menu_item_id);
                     if ($item) {
-                        $item->deductStock($kotItem->quantity);
+                        $item->deductStock($kotItem->quantity, $kotItem->menu_item_variation_id);
                     }
                 }
 
@@ -639,7 +643,7 @@ class Pos extends Component
                 if (!$isAlreadyInKot) {
                     $item = MenuItem::find($orderItem->menu_item_id);
                     if ($item) {
-                        $item->deductStock($orderItem->quantity);
+                        $item->deductStock($orderItem->quantity, $orderItem->menu_item_variation_id);
                     }
                 }
 

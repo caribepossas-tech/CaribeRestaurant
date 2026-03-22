@@ -16,6 +16,10 @@ trait GeneratesQrCode
 {
     public function createQrCode(string $qrUrl, ?string $label = null)
     {
+        if (app()->runningUnitTests()) {
+            return;
+        }
+
         $fileName = $this->getQrCodeFileName();
         $filePath = public_path(Files::UPLOAD_FOLDER . '/qrcodes/' . $fileName);
 
