@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_gateway_credentials', function (Blueprint $table) {
-            $table->boolean('is_cash_payment_enabled')->default(false)->after('is_pickup_payment_enabled');
-        });
+        if (!Schema::hasColumn('payment_gateway_credentials', 'is_cash_payment_enabled')) {
+            Schema::table('payment_gateway_credentials', function (Blueprint $table) {
+                $table->boolean('is_cash_payment_enabled')->default(false)->after('is_pickup_payment_enabled');
+            });
+        }
     }
 
     /**

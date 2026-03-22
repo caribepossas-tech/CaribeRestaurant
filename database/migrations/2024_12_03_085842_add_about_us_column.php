@@ -12,16 +12,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->longText('about_us')->nullable();
-        });
+        if (!Schema::hasColumn('restaurants', 'about_us')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->longText('about_us')->nullable();
+            });
 
-        $defaultAboutUs = Restaurant::ABOUT_US_DEFAULT_TEXT;
+            $defaultAboutUs = Restaurant::ABOUT_US_DEFAULT_TEXT;
 
-        Restaurant::all()->each(function ($restaurant) use ($defaultAboutUs) {
-            $restaurant->about_us = $defaultAboutUs;
-            $restaurant->save();
-        });
+            Restaurant::all()->each(function ($restaurant) use ($defaultAboutUs) {
+                $restaurant->about_us = $defaultAboutUs;
+                $restaurant->save();
+            });
+        }
     }
 
     /**

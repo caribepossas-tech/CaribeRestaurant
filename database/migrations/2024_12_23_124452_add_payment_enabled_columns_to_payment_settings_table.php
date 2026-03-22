@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_gateway_credentials', function (Blueprint $table) {
-            $table->boolean('is_dine_in_payment_enabled')->default(false);
-            $table->boolean('is_delivery_payment_enabled')->default(false);
-            $table->boolean('is_pickup_payment_enabled')->default(false);
-        });
+        if (!Schema::hasColumn('payment_gateway_credentials', 'is_dine_in_payment_enabled')) {
+            Schema::table('payment_gateway_credentials', function (Blueprint $table) {
+                $table->boolean('is_dine_in_payment_enabled')->default(false);
+                $table->boolean('is_delivery_payment_enabled')->default(false);
+                $table->boolean('is_pickup_payment_enabled')->default(false);
+            });
+        }
     }
 
     /**

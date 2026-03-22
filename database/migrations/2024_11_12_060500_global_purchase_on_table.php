@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->timestamp('purchased_on')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'purchased_on')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->timestamp('purchased_on')->nullable();
+            });
+        }
     }
 
     /**

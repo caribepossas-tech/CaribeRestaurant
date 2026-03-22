@@ -12,11 +12,13 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('is_waiter_request_enabled_on_desktop')->default(1);
-            $table->boolean('is_waiter_request_enabled_on_mobile')->default(1);
-            $table->boolean('is_waiter_request_enabled_open_by_qr')->default(0);
-        });
+        if (!Schema::hasColumn('restaurants', 'is_waiter_request_enabled_on_desktop')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('is_waiter_request_enabled_on_desktop')->default(1);
+                $table->boolean('is_waiter_request_enabled_on_mobile')->default(1);
+                $table->boolean('is_waiter_request_enabled_open_by_qr')->default(0);
+            });
+        }
     }
 
     /**

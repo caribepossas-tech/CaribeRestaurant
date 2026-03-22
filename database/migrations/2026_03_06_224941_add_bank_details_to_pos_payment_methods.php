@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pos_payment_methods', function (Blueprint $table) {
-            $table->string('bank_name')->nullable()->after('name');
-            $table->text('bank_account_details')->nullable()->after('bank_name');
-            $table->boolean('show_in_shop')->default(false)->after('status');
-        });
+        if (!Schema::hasColumn('pos_payment_methods', 'bank_name')) {
+            Schema::table('pos_payment_methods', function (Blueprint $table) {
+                $table->string('bank_name')->nullable()->after('name');
+                $table->text('bank_account_details')->nullable()->after('bank_name');
+                $table->boolean('show_in_shop')->default(false)->after('status');
+            });
+        }
     }
 
     /**

@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('timezone')->nullable()->default('Asia/Kolkata');
-        });
+        if (!Schema::hasColumn('global_settings', 'timezone')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('timezone')->nullable()->default('Asia/Kolkata');
+            });
+        }
     }
 
     /**

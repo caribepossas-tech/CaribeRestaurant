@@ -11,14 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->boolean('requires_approval_after_signup')->default(false);
-        });
+        if (!Schema::hasColumn('global_settings', 'requires_approval_after_signup')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->boolean('requires_approval_after_signup')->default(false);
+            });
+        }
 
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->enum('approval_status', ['Pending', 'Approved', 'Rejected'])->default('Approved');
-            $table->text('rejection_reason')->nullable();
-        });
+        if (!Schema::hasColumn('restaurants', 'approval_status')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->enum('approval_status', ['Pending', 'Approved', 'Rejected'])->default('Approved');
+                $table->text('rejection_reason')->nullable();
+            });
+        }
 
         cache()->forget('global_setting');
     }

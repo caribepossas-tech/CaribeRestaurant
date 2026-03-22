@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('allow_customer_delivery_orders')->default(true);
-            $table->boolean('allow_customer_pickup_orders')->default(true);
-            $table->boolean('allow_customer_orders')->default(true);
-        });
+        if (!Schema::hasColumn('restaurants', 'allow_customer_delivery_orders')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('allow_customer_delivery_orders')->default(true);
+                $table->boolean('allow_customer_pickup_orders')->default(true);
+                $table->boolean('allow_customer_orders')->default(true);
+            });
+        }
     }
 
     /**

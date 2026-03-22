@@ -11,10 +11,12 @@ return new class extends Migration
 {
     public function up()
     {
-        Schema::table('roles', function (Blueprint $table) {
-            $table->foreignId('restaurant_id')->nullable()->constrained('restaurants')->onDelete('cascade')->after('id');
-            $table->string('display_name')->nullable()->after('name');
-        });
+        if (!Schema::hasColumn('roles', 'restaurant_id')) {
+            Schema::table('roles', function (Blueprint $table) {
+                $table->foreignId('restaurant_id')->nullable()->constrained('restaurants')->onDelete('cascade')->after('id');
+                $table->string('display_name')->nullable()->after('name');
+            });
+        }
 
         $restaurant = Restaurant::all();
         

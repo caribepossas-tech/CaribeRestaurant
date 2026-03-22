@@ -12,12 +12,13 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('hide_new_orders')->default(0)->after('country_id');
-            $table->boolean('hide_new_reservations')->default(0)->after('hide_new_orders');
-            $table->boolean('hide_new_waiter_request')->default(0)->after('hide_new_reservations');
-
-        });
+        if (!Schema::hasColumn('restaurants', 'hide_new_orders')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('hide_new_orders')->default(0)->after('country_id');
+                $table->boolean('hide_new_reservations')->default(0)->after('hide_new_orders');
+                $table->boolean('hide_new_waiter_request')->default(0)->after('hide_new_reservations');
+            });
+        }
     }
 
     /**

@@ -3,6 +3,7 @@
 namespace Modules\Inventory\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Restaurant;
 use Modules\Inventory\Entities\InventorySetting;
 
 class InventorySettingSeeder extends Seeder
@@ -12,8 +13,10 @@ class InventorySettingSeeder extends Seeder
      */
     public function run(): void
     {
+        $restaurantId = Restaurant::first()->id;
+
         InventorySetting::create([
-            'restaurant_id' => 1,
+            'restaurant_id' => $restaurantId,
             'allow_auto_purchase' => true,
         ]);
     }

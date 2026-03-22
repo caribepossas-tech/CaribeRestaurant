@@ -12,11 +12,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->boolean('disable_landing_site')->default(false);
-            $table->enum('landing_site_type', ['theme', 'custom'])->default('theme');
-            $table->string('landing_site_url')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'disable_landing_site')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->boolean('disable_landing_site')->default(false);
+                $table->enum('landing_site_type', ['theme', 'custom'])->default('theme');
+                $table->string('landing_site_url')->nullable();
+            });
+        }
     }
 
     /**

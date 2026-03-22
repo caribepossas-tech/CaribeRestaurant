@@ -20,10 +20,12 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('orders', function (Blueprint $table) {
-            $table->unsignedBigInteger('customer_id')->nullable()->after('table_id');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('SET NULL')->onUpdate('cascade');
-        });
+        if (!Schema::hasColumn('orders', 'customer_id')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->unsignedBigInteger('customer_id')->nullable()->after('table_id');
+                $table->foreign('customer_id')->references('id')->on('customers')->onDelete('SET NULL')->onUpdate('cascade');
+            });
+        }
 
 
     }

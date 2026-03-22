@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->unsignedBigInteger('default_currency_id')->nullable();
-            $table->foreign('default_currency_id')->references('id')->on('global_currencies')->onDelete('cascade')->onUpdate('cascade');
-        });
+        if (!Schema::hasColumn('global_settings', 'default_currency_id')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->unsignedBigInteger('default_currency_id')->nullable();
+                $table->foreign('default_currency_id')->references('id')->on('global_currencies')->onDelete('cascade')->onUpdate('cascade');
+            });
 
-        $globalSetting = GlobalSetting::first();
+            $globalSetting = GlobalSetting::first();
 
-        if ($globalSetting) {
-            $globalSetting->default_currency_id = GlobalCurrency::first()->id;
-            $globalSetting->save();
+            if ($globalSetting) {
+                $globalSetting->default_currency_id = GlobalCurrency::first()->id;
+                $globalSetting->save();
+            }
         }
     }
 

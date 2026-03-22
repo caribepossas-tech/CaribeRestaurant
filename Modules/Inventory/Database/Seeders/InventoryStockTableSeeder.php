@@ -3,6 +3,7 @@
 namespace Modules\Inventory\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Branch;
 use Modules\Inventory\Entities\InventoryStock;
 use Carbon\Carbon;
 
@@ -10,6 +11,7 @@ class InventoryStockTableSeeder extends Seeder
 {
     public function run(): void
     {
+        $branchId = Branch::first()->id;
         $stocks = [
             // Chicken Breast (ID: 1)
             [

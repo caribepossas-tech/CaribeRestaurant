@@ -26,14 +26,18 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->enum('license_type', ['free', 'paid'])->default('free')->after('currency_id');
-        });
+        if (!Schema::hasColumn('restaurants', 'license_type')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->enum('license_type', ['free', 'paid'])->default('free')->after('currency_id');
+            });
+        }
 
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('theme_hex')->nullable();
-            $table->string('theme_rgb')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'theme_hex')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('theme_hex')->nullable();
+                $table->string('theme_rgb')->nullable();
+            });
+        }
 
     }
 

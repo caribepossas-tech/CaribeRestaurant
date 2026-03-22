@@ -12,10 +12,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurant_payments', function (Blueprint $table) {
-            $table->string('stripe_payment_intent')->nullable();
-            $table->text('stripe_session_id')->nullable();
-        });
+        if (!Schema::hasColumn('restaurant_payments', 'stripe_payment_intent')) {
+            Schema::table('restaurant_payments', function (Blueprint $table) {
+                $table->string('stripe_payment_intent')->nullable();
+                $table->text('stripe_session_id')->nullable();
+            });
+        }
     }
 
     /**

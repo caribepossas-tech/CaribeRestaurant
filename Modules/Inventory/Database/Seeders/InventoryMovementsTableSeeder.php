@@ -6,6 +6,7 @@ use Illuminate\Database\Seeder;
 use Modules\Inventory\Entities\InventoryMovement;
 use Modules\Inventory\Entities\InventoryItem;
 use App\Models\User;
+use App\Models\Branch;
 use Carbon\Carbon;
 
 class InventoryMovementsTableSeeder extends Seeder
@@ -134,9 +135,11 @@ class InventoryMovementsTableSeeder extends Seeder
             ],
         ];
 
+        $branchId = Branch::first()->id;
+
         foreach ($movements as $movement) {
             InventoryMovement::create(array_merge($movement, [
-                'branch_id' => 1
+                'branch_id' => $branchId
             ]));
         }
     }

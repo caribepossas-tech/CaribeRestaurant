@@ -12,14 +12,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('webmanifest')->nullable();
-        });
+        if (!Schema::hasColumn('restaurants', 'webmanifest')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('webmanifest')->nullable();
+            });
+        }
 
-
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('webmanifest')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'webmanifest')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('webmanifest')->nullable();
+            });
+        }
     }
 
     /**

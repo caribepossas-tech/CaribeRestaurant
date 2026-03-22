@@ -44,7 +44,7 @@ class SuppliersTableSeeder extends Seeder
 
         foreach ($suppliers as $supplier) {
             Supplier::create(array_merge($supplier, [
-                'restaurant_id' => 1 // Assuming restaurant_id 1 exists
+                'restaurant_id' => $restaurantId // Assuming restaurant_id 1 exists
             ]));
         }
     }

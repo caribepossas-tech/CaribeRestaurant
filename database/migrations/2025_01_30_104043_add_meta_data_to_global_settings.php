@@ -12,16 +12,19 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
+        if (!Schema::hasColumn('global_settings', 'meta_keyword')) {
+            Schema::table('global_settings', function (Blueprint $table) {
                 $table->string('meta_keyword', 255)->nullable();
                 $table->longText('meta_description')->nullable();
+            });
+        }
 
-        });
-
-         Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('meta_keyword', 255)->nullable();
-            $table->longText('meta_description')->nullable();
-         });
+        if (!Schema::hasColumn('restaurants', 'meta_keyword')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('meta_keyword', 255)->nullable();
+                $table->longText('meta_description')->nullable();
+            });
+        }
 
     }
 

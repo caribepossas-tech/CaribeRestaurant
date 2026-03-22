@@ -48,10 +48,12 @@ return new class extends Migration
 
         
         foreach ($branchesTables as $table) {
-            Schema::table($table, function (Blueprint $table) {
-                $table->unsignedBigInteger('branch_id')->nullable()->after('id');
-                $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade')->onUpdate('cascade');
-            });
+            if (!Schema::hasColumn($table, 'branch_id')) {
+                Schema::table($table, function (Blueprint $table) {
+                    $table->unsignedBigInteger('branch_id')->nullable()->after('id');
+                    $table->foreign('branch_id')->references('id')->on('branches')->onDelete('cascade')->onUpdate('cascade');
+                });
+            }
         }
 
         $restaurantTables = [
@@ -64,10 +66,12 @@ return new class extends Migration
         ];
 
         foreach ($restaurantTables as $table) {
-            Schema::table($table, function (Blueprint $table) {
-                $table->unsignedBigInteger('restaurant_id')->nullable()->after('id');
-                $table->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade')->onUpdate('cascade');
-            });
+            if (!Schema::hasColumn($table, 'restaurant_id')) {
+                Schema::table($table, function (Blueprint $table) {
+                    $table->unsignedBigInteger('restaurant_id')->nullable()->after('id');
+                    $table->foreign('restaurant_id')->references('id')->on('restaurants')->onDelete('cascade')->onUpdate('cascade');
+                });
+            }
         }
 
         $restaurant = Restaurant::first();
@@ -87,10 +91,12 @@ return new class extends Migration
             
         }
 
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('name');
-            $table->string('logo')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'name')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('name');
+                $table->string('logo')->nullable();
+            });
+        }
 
 
     }

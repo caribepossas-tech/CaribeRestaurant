@@ -12,23 +12,27 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('upload_fav_icon_android_chrome_192')->nullable();
-            $table->string('upload_fav_icon_android_chrome_512')->nullable();
-            $table->string('upload_fav_icon_apple_touch_icon')->nullable();
-            $table->string('upload_favicon_16')->nullable();
-            $table->string('upload_favicon_32')->nullable();
-            $table->string('favicon')->nullable();
-        });
+        if (!Schema::hasColumn('restaurants', 'upload_fav_icon_android_chrome_192')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('upload_fav_icon_android_chrome_192')->nullable();
+                $table->string('upload_fav_icon_android_chrome_512')->nullable();
+                $table->string('upload_fav_icon_apple_touch_icon')->nullable();
+                $table->string('upload_favicon_16')->nullable();
+                $table->string('upload_favicon_32')->nullable();
+                $table->string('favicon')->nullable();
+            });
+        }
 
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('upload_fav_icon_android_chrome_192')->nullable();
-            $table->string('upload_fav_icon_android_chrome_512')->nullable();
-            $table->string('upload_fav_icon_apple_touch_icon')->nullable();
-            $table->string('upload_favicon_16')->nullable();
-            $table->string('upload_favicon_32')->nullable();
-            $table->string('favicon')->nullable();
-        });
+        if (!Schema::hasColumn('global_settings', 'upload_fav_icon_android_chrome_192')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('upload_fav_icon_android_chrome_192')->nullable();
+                $table->string('upload_fav_icon_android_chrome_512')->nullable();
+                $table->string('upload_fav_icon_apple_touch_icon')->nullable();
+                $table->string('upload_favicon_16')->nullable();
+                $table->string('upload_favicon_32')->nullable();
+                $table->string('favicon')->nullable();
+            });
+        }
     }
 
     /**

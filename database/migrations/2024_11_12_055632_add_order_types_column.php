@@ -12,18 +12,22 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->enum('order_type', ['dine_in', 'delivery', 'pickup'])->default('dine_in');
-            $table->enum('status', ['draft', 'kot', 'billed', 'paid', 'canceled', 'payment_due', 'ready', 'out_for_delivery', 'delivered'])->default('kot')->change();
-            $table->foreignId('delivery_executive_id')->nullable()->constrained('delivery_executives')->onDelete('set null');
-            $table->text('delivery_address')->nullable();
-            $table->datetime('delivery_time')->nullable();
-            $table->datetime('estimated_delivery_time')->nullable();
-        });
+        if (!Schema::hasColumn('orders', 'order_type')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->enum('order_type', ['dine_in', 'delivery', 'pickup'])->default('dine_in');
+                $table->enum('status', ['draft', 'kot', 'billed', 'paid', 'canceled', 'payment_due', 'ready', 'out_for_delivery', 'delivered'])->default('kot')->change();
+                $table->foreignId('delivery_executive_id')->nullable()->constrained('delivery_executives')->onDelete('set null');
+                $table->text('delivery_address')->nullable();
+                $table->datetime('delivery_time')->nullable();
+                $table->datetime('estimated_delivery_time')->nullable();
+            });
+        }
 
-        Schema::table('customers', function (Blueprint $table) {
-            $table->text('delivery_address')->nullable();
-        });
+        if (!Schema::hasColumn('customers', 'delivery_address')) {
+            Schema::table('customers', function (Blueprint $table) {
+                $table->text('delivery_address')->nullable();
+            });
+        }
     }
 
     /**

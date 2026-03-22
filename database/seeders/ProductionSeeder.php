@@ -37,11 +37,11 @@ class ProductionSeeder extends Seeder
         $this->call(SuperadminPaymentGatewaySeeder::class);
         $this->call(PusherSettinSeeder::class);
 
-        // 5. Inventory module
-        $this->call(\Modules\Inventory\Database\Seeders\InventoryDatabaseSeeder::class);
-
-        // 6. Production restaurant
+        // 5. Production restaurant
         $this->seedProductionRestaurant();
+
+        // 6. Inventory module
+        $this->call(\Modules\Inventory\Database\Seeders\InventoryDatabaseSeeder::class);
 
         $this->command->info('Production seeding completed!');
     }

@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('orders', function (Blueprint $table) {
-            $table->enum('split_type', ['even', 'custom', 'items'])->nullable();
-        });
+        if (!Schema::hasColumn('orders', 'split_type')) {
+            Schema::table('orders', function (Blueprint $table) {
+                $table->enum('split_type', ['even', 'custom', 'items'])->nullable();
+            });
+        }
 
         Schema::create('split_orders', function (Blueprint $table) {
             $table->id();

@@ -12,9 +12,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('meta_title')->nullable()->after('show_logo_text');
-        });
+        if (!Schema::hasColumn('global_settings', 'meta_title')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('meta_title')->nullable()->after('show_logo_text');
+            });
+        }
     }
 
     /**

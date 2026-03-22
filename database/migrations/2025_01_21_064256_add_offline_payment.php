@@ -12,12 +12,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_gateway_credentials', function (Blueprint $table) {
-            $table->boolean('is_qr_payment_enabled')->default(false);
-            $table->boolean('is_offline_payment_enabled')->default(false);
-            $table->string('offline_payment_detail')->nullable();
-            $table->string('qr_code_image')->nullable();
-        });
+        if (!Schema::hasColumn('payment_gateway_credentials', 'is_qr_payment_enabled')) {
+            Schema::table('payment_gateway_credentials', function (Blueprint $table) {
+                $table->boolean('is_qr_payment_enabled')->default(false);
+                $table->boolean('is_offline_payment_enabled')->default(false);
+                $table->string('offline_payment_detail')->nullable();
+                $table->string('qr_code_image')->nullable();
+            });
+        }
     }
 
     /**

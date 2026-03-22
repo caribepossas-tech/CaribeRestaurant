@@ -12,10 +12,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('yelp_link', 255)->nullable()->after('twitter_link');
-
-        });
+        if (!Schema::hasColumn('restaurants', 'yelp_link')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('yelp_link', 255)->nullable()->after('twitter_link');
+            });
+        }
     }
 
     /**

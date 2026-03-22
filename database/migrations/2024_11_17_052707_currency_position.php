@@ -11,12 +11,14 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('currencies', function (Blueprint $table) {
-            $table->enum('currency_position', ['left', 'right', 'left_with_space', 'right_with_space'])->default('left');
-            $table->unsignedInteger('no_of_decimal')->default(2);
-            $table->string('thousand_separator')->nullable()->default(',');
-            $table->string('decimal_separator')->nullable()->default('.');
-        });
+        if (!Schema::hasColumn('currencies', 'currency_position')) {
+            Schema::table('currencies', function (Blueprint $table) {
+                $table->enum('currency_position', ['left', 'right', 'left_with_space', 'right_with_space'])->default('left');
+                $table->unsignedInteger('no_of_decimal')->default(2);
+                $table->string('thousand_separator')->nullable()->default(',');
+                $table->string('decimal_separator')->nullable()->default('.');
+            });
+        }
     }
 
     /**

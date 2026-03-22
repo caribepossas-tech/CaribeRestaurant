@@ -22,9 +22,11 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('is_waiter_request_enabled')->default(true);
-        });
+        if (!Schema::hasColumn('restaurants', 'is_waiter_request_enabled')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('is_waiter_request_enabled')->default(true);
+            });
+        }
 
         $checkModule = Module::count();
         $checkWaiterRequestModule = Module::where('name', 'Waiter Request')->first();

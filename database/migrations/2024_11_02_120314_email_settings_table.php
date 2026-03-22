@@ -13,10 +13,12 @@ return new class extends Migration {
     public function up(): void
     {
 
-        Schema::table('email_settings', function (Blueprint $table) {
-            $table->boolean('email_verified')->default(0);
-            $table->boolean('verified')->default(0);
-        });
+        if (!Schema::hasColumn('email_settings', 'email_verified')) {
+            Schema::table('email_settings', function (Blueprint $table) {
+                $table->boolean('email_verified')->default(0);
+                $table->boolean('verified')->default(0);
+            });
+        }
     }
 
     /**

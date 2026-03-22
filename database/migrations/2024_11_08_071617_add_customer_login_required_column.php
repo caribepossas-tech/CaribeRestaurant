@@ -12,9 +12,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('customer_login_required')->default(0);
-        });
+        if (!Schema::hasColumn('restaurants', 'customer_login_required')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('customer_login_required')->default(0);
+            });
+        }
     }
 
     /**

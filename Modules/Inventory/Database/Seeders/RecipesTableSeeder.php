@@ -81,14 +81,14 @@ class RecipesTableSeeder extends Seeder
         foreach ($recipes as $menuItemName => $ingredients) {
             // Find the menu item
             $menuItem = MenuItem::where('item_name', $menuItemName)
-                ->where('branch_id', 1)
+                ->where('branch_id', $branchId)
                 ->first();
 
             if ($menuItem) {
                 foreach ($ingredients as $ingredient) {
                     // Find the inventory item
                     $inventoryItem = InventoryItem::where('name', $ingredient['inventory_item'])
-                        ->where('branch_id', 1)
+                        ->where('branch_id', $branchId)
                         ->first();
 
                     if ($inventoryItem) {

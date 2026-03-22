@@ -3,12 +3,14 @@
 namespace Modules\Inventory\Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Branch;
 use Modules\Inventory\Entities\InventoryItem;
 
 class InventoryItemsTableSeeder extends Seeder
 {
     public function run(): void
     {
+        $branchId = Branch::first()->id;
         $items = [
             // Meat & Poultry (Category 1)
             [
@@ -133,7 +135,7 @@ class InventoryItemsTableSeeder extends Seeder
 
         foreach ($items as $item) {
             InventoryItem::create(array_merge($item, [
-                'branch_id' => 1
+                'branch_id' => $branchId
             ]));
         }
     }

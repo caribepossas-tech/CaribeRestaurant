@@ -11,10 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('superadmin_payment_gateways', function (Blueprint $table) {
-            $table->text('test_wompi_integrity_secret')->nullable()->after('wompi_test_events_secret');
-            $table->text('live_wompi_integrity_secret')->nullable()->after('wompi_live_events_secret');
-        });
+        if (!Schema::hasColumn('superadmin_payment_gateways', 'test_wompi_integrity_secret')) {
+            Schema::table('superadmin_payment_gateways', function (Blueprint $table) {
+                $table->text('test_wompi_integrity_secret')->nullable()->after('wompi_test_events_secret');
+                $table->text('live_wompi_integrity_secret')->nullable()->after('wompi_live_events_secret');
+            });
+        }
     }
 
     /**

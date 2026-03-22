@@ -12,10 +12,11 @@ return new class extends Migration
 
     public function up(): void
     {
+        if (!Schema::hasColumn('global_settings', 'yelp_link')) {
             Schema::table('global_settings', function (Blueprint $table) {
                 $table->string('yelp_link', 255)->nullable()->after('twitter_link');
-
             });
+        }
     }
 
     /**

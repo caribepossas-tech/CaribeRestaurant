@@ -11,16 +11,18 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('payment_gateway_credentials', function (Blueprint $table) {
-            $table->string('bank_name')->nullable();
-            $table->text('bank_account_details')->nullable();
-        });
+        if (!Schema::hasColumn('payment_gateway_credentials', 'bank_name')) {
+            Schema::table('payment_gateway_credentials', function (Blueprint $table) {
+                $table->string('bank_name')->nullable();
+                $table->text('bank_account_details')->nullable();
+            });
+        }
 
-        Schema::table('payments', function (Blueprint $table) {
-            $table->string('receipt')->nullable();
-            // Change payment_method to allow 'offline' if not already
-            // Actually I'll use a new migration for that or just update the enum if possible
-        });
+        if (!Schema::hasColumn('payments', 'receipt')) {
+            Schema::table('payments', function (Blueprint $table) {
+                $table->string('receipt')->nullable();
+            });
+        }
     }
 
     /**

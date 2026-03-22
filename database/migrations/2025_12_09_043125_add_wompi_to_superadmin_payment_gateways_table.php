@@ -11,18 +11,20 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('superadmin_payment_gateways', function (Blueprint $table) {
-            $table->boolean('wompi_status')->default(false)->after('stripe_status');
-            $table->enum('wompi_type', ['test', 'live'])->default('test')->after('wompi_status');
+        if (!Schema::hasColumn('superadmin_payment_gateways', 'wompi_status')) {
+            Schema::table('superadmin_payment_gateways', function (Blueprint $table) {
+                $table->boolean('wompi_status')->default(false)->after('stripe_status');
+                $table->enum('wompi_type', ['test', 'live'])->default('test')->after('wompi_status');
 
-            $table->text('test_wompi_pub_key')->nullable()->after('wompi_type');
-            $table->text('test_wompi_prv_key')->nullable()->after('test_wompi_pub_key');
-            $table->text('wompi_test_events_secret')->nullable()->after('test_wompi_prv_key');
+                $table->text('test_wompi_pub_key')->nullable()->after('wompi_type');
+                $table->text('test_wompi_prv_key')->nullable()->after('test_wompi_pub_key');
+                $table->text('wompi_test_events_secret')->nullable()->after('test_wompi_prv_key');
 
-            $table->text('live_wompi_pub_key')->nullable()->after('wompi_test_events_secret');
-            $table->text('live_wompi_prv_key')->nullable()->after('live_wompi_pub_key');
-            $table->text('wompi_live_events_secret')->nullable()->after('live_wompi_prv_key');
-        });
+                $table->text('live_wompi_pub_key')->nullable()->after('wompi_test_events_secret');
+                $table->text('live_wompi_prv_key')->nullable()->after('live_wompi_pub_key');
+                $table->text('wompi_live_events_secret')->nullable()->after('live_wompi_prv_key');
+            });
+        }
     }
 
     /**

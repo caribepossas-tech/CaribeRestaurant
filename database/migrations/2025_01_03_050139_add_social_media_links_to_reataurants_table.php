@@ -12,11 +12,13 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->string('facebook_link', 255)->nullable();
-            $table->string('instagram_link', 255)->nullable();
-            $table->string('twitter_link', 255)->nullable();
-        });
+        if (!Schema::hasColumn('restaurants', 'facebook_link')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->string('facebook_link', 255)->nullable();
+                $table->string('instagram_link', 255)->nullable();
+                $table->string('twitter_link', 255)->nullable();
+            });
+        }
     }
 
     /**

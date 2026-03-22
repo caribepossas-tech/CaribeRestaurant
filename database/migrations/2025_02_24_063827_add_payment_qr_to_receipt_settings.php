@@ -12,9 +12,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('receipt_settings', function (Blueprint $table) {
-            $table->string('payment_qr_code')->nullable()->after('show_table_number');
-        });
+        if (!Schema::hasColumn('receipt_settings', 'payment_qr_code')) {
+            Schema::table('receipt_settings', function (Blueprint $table) {
+                $table->string('payment_qr_code')->nullable()->after('show_table_number');
+            });
+        }
     }
 
     /**

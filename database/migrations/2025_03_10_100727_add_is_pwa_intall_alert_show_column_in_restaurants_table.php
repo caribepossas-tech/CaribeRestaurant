@@ -11,13 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('is_pwa_install_alert_show')->default(1);
-        });
+        if (!Schema::hasColumn('restaurants', 'is_pwa_install_alert_show')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('is_pwa_install_alert_show')->default(1);
+            });
+        }
 
-         Schema::table('global_settings', function (Blueprint $table) {
-            $table->string('is_pwa_install_alert_show')->default(1);
-        });
+        if (!Schema::hasColumn('global_settings', 'is_pwa_install_alert_show')) {
+            Schema::table('global_settings', function (Blueprint $table) {
+                $table->string('is_pwa_install_alert_show')->default(1);
+            });
+        }
     }
 
     /**

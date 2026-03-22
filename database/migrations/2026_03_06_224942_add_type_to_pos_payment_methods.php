@@ -11,9 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('pos_payment_methods', function (Blueprint $table) {
-            $table->string('type')->default('pos')->after('restaurant_id');
-        });
+        if (!Schema::hasColumn('pos_payment_methods', 'type')) {
+            Schema::table('pos_payment_methods', function (Blueprint $table) {
+                $table->string('type')->default('pos')->after('restaurant_id');
+            });
+        }
     }
 
     /**

@@ -9,9 +9,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->boolean('allow_dine_in_orders')->default(1)->after('allow_customer_orders');
-        });
+        if (!Schema::hasColumn('restaurants', 'allow_dine_in_orders')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->boolean('allow_dine_in_orders')->default(1)->after('allow_customer_orders');
+            });
+        }
     }
 
     /**

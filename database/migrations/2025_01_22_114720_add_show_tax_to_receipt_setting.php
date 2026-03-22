@@ -12,9 +12,11 @@ return new class extends Migration
 
     public function up(): void
     {
-        Schema::table('receipt_settings', function (Blueprint $table) {
-            $table->boolean('show_tax')->default(false)->after('show_restaurant_logo');
-        });
+        if (!Schema::hasColumn('receipt_settings', 'show_tax')) {
+            Schema::table('receipt_settings', function (Blueprint $table) {
+                $table->boolean('show_tax')->default(false)->after('show_restaurant_logo');
+            });
+        }
     }
 
     /**

@@ -11,17 +11,23 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('kots', function (Blueprint $table) {
-            $table->string('transaction_id')->nullable()->after('order_id');
-        });
+        if (!Schema::hasColumn('kots', 'transaction_id')) {
+            Schema::table('kots', function (Blueprint $table) {
+                $table->string('transaction_id')->nullable()->after('order_id');
+            });
+        }
 
-        Schema::table('kot_items', function (Blueprint $table) {
-            $table->string('transaction_id')->nullable()->after('kot_id');
-        });
+        if (!Schema::hasColumn('kot_items', 'transaction_id')) {
+            Schema::table('kot_items', function (Blueprint $table) {
+                $table->string('transaction_id')->nullable()->after('kot_id');
+            });
+        }
 
-        Schema::table('order_items', function (Blueprint $table) {
-            $table->string('transaction_id')->nullable()->after('order_id');
-        });
+        if (!Schema::hasColumn('order_items', 'transaction_id')) {
+            Schema::table('order_items', function (Blueprint $table) {
+                $table->string('transaction_id')->nullable()->after('order_id');
+            });
+        }
 
     }
 
