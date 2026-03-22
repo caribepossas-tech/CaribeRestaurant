@@ -1,9 +1,9 @@
 #!/bin/sh
 set -e
 
-# Generate .env file from environment variables for compatibility
+# Generate .env file from environment variables
 echo "Generating .env file from environment variables..."
-env | grep -E '^APP_|^DB_|^MAIL_|^REDIS_|^CACHE_|^SESSION_|^QUEUE_|^LOG_|^SERVICES_|^MIX_|^VITE_|^PUSHER_|^RAZORPAY_|^STRIPE_|^PAYPAL_|^REDIRECT_HTTPS' > /var/www/html/.env
+env | grep -E '^(APP_|DB_|MAIL_|REDIS_|CACHE_|SESSION_|QUEUE_|LOG_|SERVICES_|VITE_|PUSHER_|STRIPE_|RAZORPAY_|PAYPAL_|REDIRECT_HTTPS|FILESYSTEM_|AWS_|MINIO_|DIGITALOCEAN_|WASABI_|MAIN_APPLICATION_SUBDOMAIN|SHORT_DOMAIN_NAME)' > /var/www/html/.env || true
 
 # Ensure storage and cache directories exist and are writable
 mkdir -p /var/www/html/storage/framework/cache/data \
@@ -12,8 +12,8 @@ mkdir -p /var/www/html/storage/framework/cache/data \
          /var/www/html/storage/logs \
          /var/www/html/bootstrap/cache
 
-# Cache configuration, routes and views
-if [ "$APP_ENV" = "production" ]; then
+# Cache configuration, routes and views (skip only for local dev)
+if [ "$APP_ENV" != "local" ]; then
     echo "Caching configuration..."
     php artisan config:cache
     php artisan route:cache

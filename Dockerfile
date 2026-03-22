@@ -64,10 +64,12 @@ FROM base
 
 WORKDIR /var/www/html
 
-# Install runtime dependencies (nginx and supervisor)
+# Install runtime dependencies (nginx, supervisor, curl for healthcheck)
 RUN apk add --no-cache \
     nginx \
-    supervisor
+    supervisor \
+    curl \
+    mysql-client
 
 # Copy application files
 COPY --from=vendor /var/www/html/vendor ./vendor
@@ -90,5 +92,8 @@ RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/p
 RUN /usr/bin/composer dump-autoload --optimize --no-dev
 
 EXPOSE 80
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost/ || exit 1
 
 ENTRYPOINT ["entrypoint.sh"]
