@@ -41,9 +41,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->dropColumn(['hash']);
-        });
+        Schema::dropIfExists('file_storage_settings');
+        Schema::dropIfExists('file_storage');
     }
 
 };

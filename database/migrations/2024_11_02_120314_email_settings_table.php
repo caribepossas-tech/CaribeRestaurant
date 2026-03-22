@@ -24,7 +24,11 @@ return new class extends Migration {
      */
     public function down(): void
     {
-        Schema::dropIfExists('flags');
+        if (Schema::hasColumn('email_settings', 'email_verified')) {
+            Schema::table('email_settings', function (Blueprint $table) {
+                $table->dropColumn(['email_verified', 'verified']);
+            });
+        }
     }
 
 };

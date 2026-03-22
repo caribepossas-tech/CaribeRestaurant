@@ -50,7 +50,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('unavailability');
         Schema::dropIfExists('reservation_settings');
         Schema::dropIfExists('reservations');
     }

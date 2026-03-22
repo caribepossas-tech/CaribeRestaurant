@@ -191,90 +191,76 @@ return new class extends Migration
      */
     public function down(): void
     {
-        // Drop foreign keys and tables
-        Schema::table('global_invoices', function (Blueprint $table) {
-            $table->dropForeign(['offline_method_id']);
-            $table->dropForeign(['global_subscription_id']);
-            $table->dropForeign(['currency_id']);
-            $table->dropForeign(['package_id']);
-            $table->dropForeign(['restaurant_id']);
-        });
+        // Drop foreign keys first
+        if (Schema::hasTable('global_invoices')) {
+            Schema::table('global_invoices', function (Blueprint $table) {
+                $table->dropForeign(['offline_method_id']);
+                $table->dropForeign(['global_subscription_id']);
+                $table->dropForeign(['currency_id']);
+                $table->dropForeign(['package_id']);
+                $table->dropForeign(['restaurant_id']);
+            });
+        }
 
-        Schema::table('offline_plan_changes', function (Blueprint $table) {
-            $table->dropForeign(['offline_method_id']);
-            $table->dropForeign(['invoice_id']);
-            $table->dropForeign(['package_id']);
-            $table->dropForeign(['restaurant_id']);
-        });
+        if (Schema::hasTable('offline_plan_changes')) {
+            Schema::table('offline_plan_changes', function (Blueprint $table) {
+                $table->dropForeign(['offline_method_id']);
+                $table->dropForeign(['invoice_id']);
+                $table->dropForeign(['package_id']);
+                $table->dropForeign(['restaurant_id']);
+            });
+        }
 
-        Schema::table('global_subscriptions', function (Blueprint $table) {
-            $table->dropForeign(['currency_id']);
-            $table->dropForeign(['package_id']);
-            $table->dropForeign(['restaurant_id']);
-        });
+        if (Schema::hasTable('global_subscriptions')) {
+            Schema::table('global_subscriptions', function (Blueprint $table) {
+                $table->dropForeign(['currency_id']);
+                $table->dropForeign(['package_id']);
+                $table->dropForeign(['restaurant_id']);
+            });
+        }
 
-        Schema::table('packages', function (Blueprint $table) {
-
-            // Drop the actual columns
-            $table->dropColumn('description');
-            $table->dropColumn('annual_price');
-            $table->dropColumn('monthly_price');
-            $table->dropColumn('monthly_status');
-            $table->dropColumn('annual_status');
-            $table->dropColumn('stripe_annual_plan_id');
-            $table->dropColumn('stripe_monthly_plan_id');
-            $table->dropColumn('razorpay_annual_plan_id');
-            $table->dropColumn('razorpay_monthly_plan_id');
-            $table->dropColumn('paystack_annual_plan_id');
-            $table->dropColumn('paystack_monthly_plan_id');
-            $table->string('stripe_lifetime_plan_id')->nullable();
-            $table->string('razorpay_lifetime_plan_id')->nullable();
-            $table->dropColumn('billing_cycle');
-            $table->dropColumn('sort_order');
-            $table->dropColumn('is_private');
-            $table->dropColumn('is_free');
-            $table->dropColumn('is_recommended');
-            $table->dropColumn('package_type');
-            $table->dropColumn('trial_days');
-            $table->dropColumn('trial_status');
-            $table->dropColumn('trial_notification_before_days');
-            $table->dropColumn('trial_message');
-            $table->dropColumn('additional_features');
-        });
-
-        Schema::table('restaurants', function (Blueprint $table) {
-            $table->dropForeign(['package_id']);
-            $table->dropColumn('package_id');
-            $table->dropColumn('package_type');
-            $table->dropColumn('status');
-            $table->dropColumn('license_expire_on');
-            $table->dropColumn('trial_ends_at');
-            $table->dropColumn('license_updated_at');
-            $table->dropColumn('subscription_updated_at');
-            $table->dropColumn('stripe_id');
-            $table->dropColumn('pm_type');
-            $table->dropColumn('pm_last_four');
-        });
-
-        Schema::table('restaurant_payments', function (Blueprint $table) {
-            $table->dropColumn('package_type');
-            $table->dropColumn('currency_id');
-        });
-
-        Schema::dropIfExists('package_modules');
-        Schema::dropIfExists('offline_payment_methods');
-        Schema::dropIfExists('global_subscriptions');
+        // Drop tables in correct order (children first)
         Schema::dropIfExists('offline_plan_changes');
         Schema::dropIfExists('global_invoices');
+        Schema::dropIfExists('global_subscriptions');
+        Schema::dropIfExists('package_modules');
+        Schema::dropIfExists('offline_payment_methods');
         Schema::dropIfExists('stripe_invoices');
         Schema::dropIfExists('razorpay_invoices');
 
+        // Drop added columns
+        if (Schema::hasTable('packages') && Schema::hasColumn('packages', 'description')) {
+            Schema::table('packages', function (Blueprint $table) {
+                $table->dropColumn([
+                    'description', 'annual_price', 'monthly_price', 'monthly_status', 'annual_status',
+                    'stripe_annual_plan_id', 'stripe_monthly_plan_id', 'razorpay_annual_plan_id',
+                    'razorpay_monthly_plan_id', 'paystack_annual_plan_id', 'paystack_monthly_plan_id',
+                    'stripe_lifetime_plan_id', 'razorpay_lifetime_plan_id', 'billing_cycle', 'sort_order',
+                    'is_private', 'is_free', 'is_recommended', 'package_type', 'trial_days', 'trial_status',
+                    'trial_notification_before_days', 'trial_message', 'additional_features',
+                ]);
+            });
+        }
+
+        if (Schema::hasTable('restaurants') && Schema::hasColumn('restaurants', 'package_id')) {
+            Schema::table('restaurants', function (Blueprint $table) {
+                $table->dropForeign(['package_id']);
+                $table->dropColumn([
+                    'package_id', 'package_type', 'status', 'license_expire_on', 'trial_ends_at',
+                    'license_updated_at', 'subscription_updated_at', 'stripe_id', 'pm_type', 'pm_last_four',
+                ]);
+            });
+        }
+
+        if (Schema::hasTable('restaurant_payments') && Schema::hasColumn('restaurant_payments', 'package_type')) {
+            Schema::table('restaurant_payments', function (Blueprint $table) {
+                $table->dropColumn(['package_type', 'currency_id']);
+            });
+        }
+
         if (Schema::hasColumn('users', 'stripe_id')) {
             Schema::table('users', function (Blueprint $table) {
-                $table->dropColumn('stripe_id');
-                $table->dropColumn('pm_type');
-                $table->dropColumn('pm_last_four');
-                $table->dropColumn('trial_ends_at');
+                $table->dropColumn(['stripe_id', 'pm_type', 'pm_last_four', 'trial_ends_at']);
             });
         }
     }

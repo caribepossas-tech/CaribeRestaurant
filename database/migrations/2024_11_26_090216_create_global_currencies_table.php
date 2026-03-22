@@ -55,11 +55,11 @@ class CreateGlobalCurrenciesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('global_currencies'); 
-        Schema::table('currencies', function (Blueprint $table) {
-            $table->dropColumn('exchange_rate');
-            $table->dropColumn('usd_price');
-            $table->dropColumn('is_cryptocurrency');
-        });
+        Schema::dropIfExists('global_currencies');
+        if (Schema::hasColumn('currencies', 'exchange_rate')) {
+            Schema::table('currencies', function (Blueprint $table) {
+                $table->dropColumn(['exchange_rate', 'usd_price', 'is_cryptocurrency']);
+            });
+        }
     }
 } 
