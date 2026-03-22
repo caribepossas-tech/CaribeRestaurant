@@ -83,7 +83,7 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 
 # Fix permissions and setup cron
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/user-uploads /var/log/supervisor \
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/user-uploads /var/log/supervisor /var/www/html/resources/views/modules/inventory \
     && chmod +x /usr/local/bin/entrypoint.sh \
     && chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public/user-uploads \
     && echo "* * * * * /usr/local/bin/php /var/www/html/artisan schedule:run >> /dev/null 2>&1" > /var/spool/cron/crontabs/www-data
