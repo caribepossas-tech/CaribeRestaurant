@@ -168,7 +168,7 @@ return new class extends Migration
             });
         }
 
-        if(Schema::hasTable('restaurant_payments')) {
+        if (Schema::hasTable('restaurant_payments') && !Schema::hasColumn('restaurant_payments', 'package_type')) {
             Schema::table('restaurant_payments', function (Blueprint $table) {
                 $table->string('package_type')->nullable();
                 $table->string('currency_id')->nullable();
