@@ -930,11 +930,23 @@ class Cart extends Component
 
         $menuList = Menu::withoutGlobalScopes()->where('branch_id', $this->shopBranch->id)->withCount('items')->get();
 
+        // Check which items are out of stock based on inventory recipes
+        $outOfStockItems = [];
+        foreach ($query as $categoryItems) {
+            foreach ($categoryItems as $item) {
+                $check = $item->checkIngredientsStock(1);
+                if (!$check['status']) {
+                    $outOfStockItems[$item->id] = true;
+                }
+            }
+        }
+
         return view('livewire.shop.cart', [
             'menuItems' => $query,
             'categoryList' => $categoryList,
             'menuList' => $menuList,
-            'posPaymentMethods' => $posPaymentMethods
+            'posPaymentMethods' => $posPaymentMethods,
+            'outOfStockItems' => $outOfStockItems,
         ]);
     }
 

@@ -14,18 +14,17 @@ class AverageDailyEarning extends Component
     
     public function mount()
     {
-        $currentMonth = now()->format('Y-m');
         $daysInMonth = now()->format('d');
-
-        $previousMonth = now()->subMonth()->format('Y-m');
         $daysInPreviousMonth = now()->subMonth()->daysInMonth;
-    
+
         $totalEarnings = Order::where('status', 'paid')
-            ->where(DB::raw("DATE_FORMAT(created_at, '%Y-%m')"), $currentMonth)
+            ->whereMonth('created_at', now()->month)
+            ->whereYear('created_at', now()->year)
             ->sum('total');
 
         $totalPreviousEarnings = Order::where('status', 'paid')
-            ->where(DB::raw("DATE_FORMAT(created_at, '%Y-%m')"), $previousMonth)
+            ->whereMonth('created_at', now()->subMonth()->month)
+            ->whereYear('created_at', now()->subMonth()->year)
             ->sum('total');
     
         $this->orderCount = ($totalEarnings / $daysInMonth);

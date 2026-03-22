@@ -161,10 +161,18 @@
                 <h3 class="lg:text-xl text-base font-semibold text-gray-900 dark:text-white my-4">{{ $key }}</h3>
                 <div class="space-y-4 lg:space-y-0 lg:grid lg:grid-cols-3 lg:gap-8">
                     @foreach ($itemCat as $item)
-                    <div class="flex items-center justify-between gap-6 border shadow-sm rounded-lg hover:shadow-md transition dark:border-gray-600 dark:lg:bg-gray-900 dark:shadow-sm lg:bg-white lg:rounded-md"
+                    @php $isOutOfStock = isset($outOfStockItems[$item->id]); @endphp
+                    <div class="flex items-center justify-between gap-6 border shadow-sm rounded-lg hover:shadow-md transition dark:border-gray-600 dark:lg:bg-gray-900 dark:shadow-sm lg:bg-white lg:rounded-md {{ $isOutOfStock ? 'opacity-50 pointer-events-none' : '' }}"
                         wire:key='menu-item-{{ $item->id . microtime() }}'>
-                        <div class="flex space-x-4 w-full p-3">
-                            <img class="w-16 h-16 lg:w-24 lg:h-24 rounded-md object-cover cursor-pointer" wire:click="showItemDetail({{ $item->id }})"
+                        <div class="flex space-x-4 w-full p-3 relative">
+                            @if($isOutOfStock)
+                                <div class="absolute top-2 right-2 z-10">
+                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-semibold bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300">
+                                        @lang('modules.menu.outOfStock')
+                                    </span>
+                                </div>
+                            @endif
+                            <img class="w-16 h-16 lg:w-24 lg:h-24 rounded-md object-cover {{ $isOutOfStock ? 'grayscale' : 'cursor-pointer' }}" @if(!$isOutOfStock) wire:click="showItemDetail({{ $item->id }})" @endif
                                 src="{{ $item->item_photo_url }}" alt="{{ $item->item_name }}">
                             <div
                                 class="text-sm lg:text-base font-normal text-gray-500 dark:text-gray-400 flex flex-col gap-1 w-full">

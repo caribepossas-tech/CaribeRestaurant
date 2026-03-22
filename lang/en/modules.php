@@ -53,6 +53,7 @@ return [
         'itemAvailability' => 'Item Availability',
         'available' => 'Available',
         'notAvailable' => 'Not Available',
+        'outOfStock' => 'Out of Stock',
         'drink' => 'Drink',
         'addCustomer' => 'Add Customer',
         'translations' => 'Translations',

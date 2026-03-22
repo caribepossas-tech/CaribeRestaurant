@@ -52,6 +52,7 @@ return [
 'itemAvailability'         => 'Disponibilidad del artículo',
 'available'                => 'Disponible',
 'notAvailable'             => 'No disponible',
+'outOfStock'               => 'Agotado',
 'drink'                    => 'Bebida',
 'addCustomer'              => 'Agregar cliente',
 'translations'             => 'Traducciones',
