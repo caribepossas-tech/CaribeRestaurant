@@ -194,7 +194,6 @@ class Cart extends Component
     {
         $this->menuId = $id;
         $this->menuItems = true;
-        $this->reset(['menuItem', 'selectedModifierItem', 'selectedItem', 'showVariationModal', 'showCartVariationModal', 'showModifiersModal', 'showItemDetailModal']);
     }
 
     public function showItemVariations($id)
@@ -413,7 +412,6 @@ class Cart extends Component
     {
         $this->filterCategories = $id;
         $this->showMenuModal = false;
-        $this->reset(['menuItem', 'selectedModifierItem', 'selectedItem', 'showVariationModal', 'showCartVariationModal', 'showModifiersModal', 'showItemDetailModal']);
     }
 
     #[On('showCartItems')]
@@ -969,6 +967,12 @@ class Cart extends Component
                 }
             }
         }
+        
+        \Illuminate\Support\Facades\Log::info('Shop Render', [
+            'category' => $this->filterCategories,
+            'itemIds' => $itemIds->toArray(),
+            'outOfStock' => array_keys($outOfStockItems)
+        ]);
 
         return view('livewire.shop.cart', [
             'menuItems' => $query,

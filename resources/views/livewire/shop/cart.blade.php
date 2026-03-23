@@ -643,7 +643,7 @@
         </x-slot>
 
         <x-slot name="content">
-            @if ($menuItem)
+            @if ($showVariationModal && $menuItem)
                 @livewire('pos.itemVariations', ['menuItem' => $menuItem, 'currencyId' => $restaurant->currency_id], key('variation-' . $menuItem->id))
             @endif
         </x-slot>
@@ -659,7 +659,7 @@
         </x-slot>
 
         <x-slot name="content">
-            @if ($menuItem)
+            @if ($showCartVariationModal && $menuItem)
                 @livewire('shop.cartItemVariations', ['menuItem' => $menuItem, 'orderItemQty' => $orderItemQty], key('cart-variation-' . $menuItem->id))
             @endif
         </x-slot>
@@ -1063,7 +1063,7 @@
         </x-slot>
 
         <x-slot name="content">
-            @if ($selectedModifierItem)
+            @if ($showModifiersModal && $selectedModifierItem)
                 @livewire('pos.itemModifiers', ['menuItemId' => $selectedModifierItem], key('modifiers-' . $selectedModifierItem))
             @endif
         </x-slot>
