@@ -40,7 +40,7 @@ class PurchaseOrder extends Model
 
     public function generatePoNumber(): void
     {
-        $latestPo = static::latest()->first();
+        $latestPo = static::orderBy('id', 'desc')->first();
         $number = $latestPo ? intval(substr($latestPo->po_number, 3)) + 1 : 1;
         $this->po_number = 'PO-' . str_pad($number, 6, '0', STR_PAD_LEFT);
     }

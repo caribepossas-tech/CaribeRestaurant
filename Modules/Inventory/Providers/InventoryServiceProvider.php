@@ -97,7 +97,7 @@ class InventoryServiceProvider extends ServiceProvider
     {
         $this->app->booted(function () {
             $schedule = $this->app->make(Schedule::class);
-            $schedule->command('inventory:create-auto-purchase-order')->daily();
+            $schedule->command('inventory:create-auto-purchase-order')->daily()->withoutOverlapping();
         });
     }
 
