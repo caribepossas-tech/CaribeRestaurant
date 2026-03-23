@@ -59,7 +59,9 @@ WORKDIR /var/www/html
 
 # Copy package files and install
 COPY package.json package-lock.json ./
-RUN npm install
+RUN npm config set fetch-retry-maxtimeout 600000 && \
+    npm config set fetch-retry-mintimeout 100000 && \
+    npm ci || (sleep 5 && npm ci)
 
 # Copy source and build
 COPY . .
