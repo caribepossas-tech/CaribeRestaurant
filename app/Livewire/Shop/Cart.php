@@ -194,6 +194,7 @@ class Cart extends Component
     {
         $this->menuId = $id;
         $this->menuItems = true;
+        $this->reset(['menuItem', 'selectedModifierItem', 'selectedItem', 'showVariationModal', 'showCartVariationModal', 'showModifiersModal', 'showItemDetailModal']);
     }
 
     public function showItemVariations($id)
@@ -412,6 +413,7 @@ class Cart extends Component
     {
         $this->filterCategories = $id;
         $this->showMenuModal = false;
+        $this->reset(['menuItem', 'selectedModifierItem', 'selectedItem', 'showVariationModal', 'showCartVariationModal', 'showModifiersModal', 'showItemDetailModal']);
     }
 
     #[On('showCartItems')]

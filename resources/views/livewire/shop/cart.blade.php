@@ -295,7 +295,7 @@
                 </x-button>
 
                 @if ($restaurant->is_waiter_request_enabled && $restaurant->is_waiter_request_enabled_on_mobile && $this->shouldShowWaiterButton )
-                    @livewire('forms.callWaiterButton', ['tableNumber' => $table->id ?? null, 'shopBranch' => $shopBranch])
+                    @livewire('forms.callWaiterButton', ['tableNumber' => $table->id ?? null, 'shopBranch' => $shopBranch], key('waiter-btn-' . ($table->id ?? 'no-table')))
                 @endif
             </div>
 
