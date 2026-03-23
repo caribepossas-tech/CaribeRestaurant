@@ -131,14 +131,14 @@ class Files
             if ($uploadedFile instanceof \Livewire\Features\SupportFileUploads\TemporaryUploadedFile) {
                 try {
                     Storage::disk(config('filesystems.default'))->exists($dir . '/' . $newName);
-                } catch (\Exception $e) {
+                } catch (\Throwable $e) {
                     // Non-critical: file was already stored, existence check may fail on some S3-compatible stores
                     \Log::warning('File existence check failed after upload: ' . $e->getMessage());
                 }
             }
 
             return $newName;
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new \Exception(__('app.fileNotUploaded') . ' ' . $e->getMessage() . ' on ' . config('filesystems.default'));
         }
     }

@@ -86,6 +86,7 @@ class FileStorageCustomConfigProvider extends ServiceProvider
                     config(['filesystems.disks.minio.region' => $region]);
                     config(['filesystems.disks.minio.bucket' => $bucket]);
                     config(['filesystems.disks.minio.endpoint' => $endpoint]);
+                    config(['filesystems.disks.minio.use_path_style_endpoint' => true]);
 
                     break;
 
