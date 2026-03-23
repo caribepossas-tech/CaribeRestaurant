@@ -21,7 +21,7 @@
                     'group flex items-center border shadow-sm rounded-lg hover:shadow-md transition dark:bg-gray-700 dark:border-gray-600',
                     'bg-skin-base' => is_null($menuId),
                     'bg-white' => !is_null($menuId),
-                ]) wire:key='menu-{{ 'all-' . microtime() }}'
+                ]) wire:key='menu-all'
                     wire:click='filterMenuItems(null)' href="javascript:;">
                     <div class="p-2 sm:p-3">
                         <div class="flex items-center gap-3">
@@ -57,7 +57,7 @@
                         'group flex flex-col border shadow-sm rounded-lg hover:shadow-md transition dark:bg-gray-700 dark:border-gray-600',
                         'bg-skin-base' => $menuId == $item->id,
                         'bg-white' => $menuId != $item->id,
-                    ]) wire:key='menu-{{ $item->id . microtime() }}'
+                    ]) wire:key='menu-{{ $item->id }}'
                         wire:click='filterMenuItems({{ $item->id }})' href="javascript:;">
                         <div class="p-2 sm:p-3">
                             <div class="flex items-center gap-3">
@@ -163,7 +163,7 @@
                     @foreach ($itemCat as $item)
                     @php $isOutOfStock = isset($outOfStockItems[$item->id]); @endphp
                     <div class="flex items-center justify-between gap-6 border shadow-sm rounded-lg hover:shadow-md transition dark:border-gray-600 dark:lg:bg-gray-900 dark:shadow-sm lg:bg-white lg:rounded-md {{ $isOutOfStock ? 'opacity-50 pointer-events-none' : '' }}"
-                        wire:key='menu-item-{{ $item->id . microtime() }}'>
+                        wire:key='menu-item-{{ $item->id }}'>
                         <div class="flex space-x-4 w-full p-3 relative">
                             @if($isOutOfStock)
                                 <div class="absolute top-2 right-2 z-10">
@@ -204,7 +204,7 @@
                                     @if ($canCreateOrder)
                                         @if ($restaurant->allow_customer_orders)
                                             @if (isset($cartItemQty[$item->id]) && $cartItemQty[$item->id] > 0)
-                                            <div class="relative flex items-center max-w-24 justify-start me-2" wire:key='orderItemQty-{{ $item->id }}-counter'>
+                                            <div class="relative flex items-center max-w-24 justify-start me-2" wire:key='orderItemQty-{{ $item->id }}'>
                                                 <button type="button"
                                                     @if ($item->variations_count > 0)
                                                         wire:click="subCartItems({{ $item->id }})"
@@ -243,7 +243,7 @@
                                             </div>
                                             @else
                                             <x-cart-button wire:click='addCartItems({{ $item->id }}, {{ $item->variations_count }} , {{ $item->modifier_groups_count }})'
-                                                wire:key='item-input-{{ $item->id . microtime() }}'>@lang('app.add')</x-cart-button>
+                                                wire:key='item-input-{{ $item->id }}'>@lang('app.add')</x-cart-button>
                                             @endif                                    
                                         @elseif ($item->variations_count > 0)
                                         <x-secondary-button-table wire:click='showItemVariations({{ $item->id }})'>
@@ -357,7 +357,7 @@
         @endif
         <div class="space-y-4 px-4 mt-4">
             @foreach ($orderItemList as $key => $item)
-                <div class="grid grid-cols-3 items-center gap-4" wire:key='menu-item-{{ $item->id . microtime() }}'>
+                <div class="grid grid-cols-3 items-center gap-4" wire:key='cart-item-{{ $key }}'>
                     <div class="flex flex-col">
                         <div class="text-md text-gray-900 dark:text-white inline-flex items-center">
                             {{ $item->item_name }}
@@ -644,7 +644,7 @@
 
         <x-slot name="content">
             @if ($menuItem)
-                @livewire('pos.itemVariations', ['menuItem' => $menuItem, 'currencyId' => $restaurant->currency_id], key(str()->random(50)))
+                @livewire('pos.itemVariations', ['menuItem' => $menuItem, 'currencyId' => $restaurant->currency_id], key('variation-' . $menuItem->id))
             @endif
         </x-slot>
 
@@ -660,7 +660,7 @@
 
         <x-slot name="content">
             @if ($menuItem)
-                @livewire('shop.cartItemVariations', ['menuItem' => $menuItem, 'orderItemQty' => $orderItemQty], key(str()->random(50)))
+                @livewire('shop.cartItemVariations', ['menuItem' => $menuItem, 'orderItemQty' => $orderItemQty], key('cart-variation-' . $menuItem->id))
             @endif
         </x-slot>
 
@@ -1064,7 +1064,7 @@
 
         <x-slot name="content">
             @if ($selectedModifierItem)
-                @livewire('pos.itemModifiers', ['menuItemId' => $selectedModifierItem], key(str()->random(50)))
+                @livewire('pos.itemModifiers', ['menuItemId' => $selectedModifierItem], key('modifiers-' . $selectedModifierItem))
             @endif
         </x-slot>
     </x-dialog-modal>
@@ -1109,11 +1109,11 @@
                                         </tr>
                                     </thead>
                                     <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:divide-gray-700"
-                                        wire:key='menu-item-list-{{ microtime() }}'>
+                                        wire:key='menu-item-list'>
             
                                         @foreach ($menuItem->variations as $item)
                                         <tr class="hover:bg-gray-100 dark:hover:bg-gray-700"
-                                            wire:key='menu-item-{{ $item->id . microtime() }}'>
+                                            wire:key='menu-item-variation-{{ $item->id }}'>
                                             <td class="flex items-center p-4 mr-12 space-x-6 whitespace-nowrap">
                                                 <div class="text-sm font-normal text-gray-500 dark:text-gray-400">
                                                     <div class="text-base text-gray-900 dark:text-white inline-flex items-center">

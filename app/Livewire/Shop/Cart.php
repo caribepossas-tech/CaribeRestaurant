@@ -103,8 +103,13 @@ class Cart extends Component
     public $orderNote;
     public $selectedPOSMethod;
 
-    public function mount()
+    public function mount($tableID = null, $restaurant = null, $shopBranch = null, $getTable = false, $canCreateOrder = false)
     {
+        $this->tableID = $this->tableID ?? $tableID;
+        $this->restaurant = $this->restaurant ?? $restaurant;
+        $this->shopBranch = $this->shopBranch ?? $shopBranch;
+        $this->getTable = $this->getTable ?? $getTable;
+        $this->canCreateOrder = $this->canCreateOrder ?? $canCreateOrder;
         if ($this->tableID) {
             $this->table = Table::where('hash', $this->tableID)->firstOrFail();
             $restaurant = $this->table->branch->restaurant;
@@ -931,13 +936,34 @@ class Cart extends Component
 
         $menuList = Menu::withoutGlobalScopes()->where('branch_id', $this->shopBranch->id)->withCount('items')->get();
 
-        // Check which items are out of stock based on inventory recipes
+        // Optimized stock check for all items in the current view
         $outOfStockItems = [];
-        foreach ($query as $categoryItems) {
-            foreach ($categoryItems as $item) {
-                $check = $item->checkIngredientsStock(1);
-                if (!$check['status']) {
-                    $outOfStockItems[$item->id] = true;
+        $allItems = $query->flatten();
+        $itemIds = $allItems->pluck('id');
+        
+        if ($itemIds->isNotEmpty()) {
+            $recipes = \Modules\Inventory\Entities\Recipe::whereIn('menu_item_id', $itemIds)
+                ->whereNull('menu_item_variation_id')
+                ->get()
+                ->groupBy('menu_item_id');
+                
+            $ingredientIds = $recipes->flatten()->pluck('inventory_item_id')->unique();
+            
+            if ($ingredientIds->isNotEmpty()) {
+                $stocks = \Modules\Inventory\Entities\InventoryStock::where('branch_id', $this->shopBranch->id)
+                    ->whereIn('inventory_item_id', $ingredientIds)
+                    ->get()
+                    ->keyBy('inventory_item_id');
+                    
+                foreach ($itemIds as $id) {
+                    $itemRecipes = $recipes->get($id, collect());
+                    foreach ($itemRecipes as $recipe) {
+                        $stock = $stocks->get($recipe->inventory_item_id);
+                        if (!$stock || $stock->quantity < $recipe->quantity) {
+                            $outOfStockItems[$id] = true;
+                            break;
+                        }
+                    }
                 }
             }
         }
