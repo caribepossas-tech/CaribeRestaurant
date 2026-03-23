@@ -148,9 +148,14 @@
     @livewireScripts
 
     <script>
-        // Suppress non-critical Livewire snapshot errors from wire:navigate
+        // Suppress non-critical Livewire/Alpine morph errors
         window.addEventListener('error', (e) => {
-            if (e.message && (e.message.includes('Snapshot missing') || e.message.includes('Component not found'))) {
+            if (e.message && (
+                e.message.includes('Snapshot missing') ||
+                e.message.includes('Component not found') ||
+                e.message.includes('show is not defined') ||
+                e.message.includes('does not implement interface Window')
+            )) {
                 e.preventDefault();
                 e.stopPropagation();
             }
