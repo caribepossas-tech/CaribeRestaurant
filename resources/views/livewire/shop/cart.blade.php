@@ -486,17 +486,17 @@
                                             $paymentGateway->is_offline_payment_enabled)
 
                                             @if (!$order)
-                                                <x-button class="w-full justify-center" wire:click="placeOrder(true)" wire:loading.attr="disabled">@lang('modules.order.payNow')</x-button>
+                                                <x-button class="w-full justify-center" wire:click="placeOrder(true)" wire:loading.attr="disabled" wire:target="placeOrder">@lang('modules.order.payNow')</x-button>
                                             @endif
 
                                         @if ($paymentGateway->is_cash_payment_enabled)
                                             <x-secondary-button class="w-full justify-center"
-                                                wire:click="placeOrder" wire:loading.attr="disabled" >@lang('modules.order.payLater')</x-secondary-button>
+                                                wire:click="placeOrder" wire:loading.attr="disabled" wire:target="placeOrder">@lang('modules.order.payLater')</x-secondary-button>
                                             {{-- <x-secondary-button class="w-full justify-center" wire:click="placeOrder">@lang('modules.order.payViaQr')</x-secondary-button> --}}
                                         @endif
                                     @else
                                         <x-button class="w-full justify-center"
-                                            wire:click="placeOrder" wire:loading.attr="disabled" >@lang('modules.order.placeOrder')</x-button>
+                                            wire:click="placeOrder" wire:loading.attr="disabled" wire:target="placeOrder">@lang('modules.order.placeOrder')</x-button>
                                     @endif
                                 </div>
                             @endif
