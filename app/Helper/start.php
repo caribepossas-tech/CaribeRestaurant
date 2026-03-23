@@ -531,7 +531,13 @@ if (!function_exists('currency_format_setting')) {
     function currency_format_setting($currencyId = null)
     {
         if (!session()->has('currency_format_setting' . $currencyId) || (is_null($currencyId) && restaurant())) {
-            $setting = $currencyId == null ? restaurant()->load('currency')->currency : Currency::where('id', $currencyId)->first();
+            if ($currencyId == null) {
+                $restaurant = restaurant();
+                $setting = $restaurant ? $restaurant->load('currency')->currency : Currency::first();
+            } else {
+                $setting = Currency::where('id', $currencyId)->first();
+            }
+
             session(['currency_format_setting' . $currencyId => $setting]);
         }
 

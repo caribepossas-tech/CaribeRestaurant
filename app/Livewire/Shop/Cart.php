@@ -118,6 +118,7 @@ class Cart extends Component
 
             $this->restaurant = $restaurant;
             $this->restaurantHash = $restaurant->hash;
+            session(['restaurant' => $restaurant]);
         }
 
         if (!$this->restaurant) {
