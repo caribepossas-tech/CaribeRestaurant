@@ -76,8 +76,7 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
     nginx \
     supervisor \
-    curl \
-    mysql-client
+    curl
 
 # Copy application files
 COPY --from=vendor /var/www/html/vendor ./vendor

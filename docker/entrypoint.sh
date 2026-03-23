@@ -13,6 +13,9 @@ mkdir -p /var/www/html/storage/framework/cache/data \
          /var/www/html/bootstrap/cache \
          /var/www/html/resources/views/modules/inventory
 
+# Create storage symlink
+php artisan storage:link --force 2>/dev/null || true
+
 # Cache configuration, routes and views (skip only for local dev)
 if [ "$APP_ENV" != "local" ]; then
     echo "Caching configuration..."

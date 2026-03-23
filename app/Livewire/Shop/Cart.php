@@ -193,7 +193,6 @@ class Cart extends Component
     public function filterMenuItems($id)
     {
         $this->menuId = $id;
-        $this->menuItems = true;
     }
 
     public function showItemVariations($id)
