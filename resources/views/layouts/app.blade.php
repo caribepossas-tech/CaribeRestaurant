@@ -180,6 +180,15 @@
 
     @livewireScripts
 
+    <script>
+        window.addEventListener('error', (e) => {
+            if (e.message && (e.message.includes('Snapshot missing') || e.message.includes('Component not found'))) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    </script>
+
     @include('layouts.update-uri')
 
     <script src="{{ asset('vendor/livewire-alert/livewire-alert.js') }}" defer data-navigate-track></script>

@@ -147,6 +147,21 @@
 
     @livewireScripts
 
+    <script>
+        document.addEventListener('livewire:init', () => {
+            Livewire.hook('commit', ({ component, respond }) => {
+                respond(() => {});
+            });
+        });
+
+        // Suppress non-critical Livewire snapshot errors from wire:navigate
+        window.addEventListener('error', (e) => {
+            if (e.message && (e.message.includes('Snapshot missing') || e.message.includes('Component not found'))) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+    </script>
 
     @include('layouts.update-uri')
     <script src="{{ asset('vendor/livewire-alert/livewire-alert.js') }}" defer data-navigate-track></script>
